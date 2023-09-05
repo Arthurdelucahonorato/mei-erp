@@ -10,16 +10,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantClasses = {
-    default: "bg-altGray text-code text-white hover:bg-[#263B50]",
+    default: "bg-gray-800 hover:bg-gray-900",
     ghost:
-      "bg-transparent border-white text-white border hover:border-opacity-50",
-    primary: "bg-accent text-primary hover:bg-[#FFAC6B]",
+      "bg-transparent border-gray-600 text-gray-900 border hover:border-opacity-50",
+    primary: "bg-accent-second-purple text-gray-900 hover:bg-accent",
   };
 
   return (
     <button
       {...props}
-      className={`w-full bg-gray-800 duration-200 hover:bg-gray-900 text-white text-sm py-2.5 px-4 font-semibold rounded focus:outline-none focus:shadow-outline ${variantClasses[variant]}`}
+      className={`w-full duration-200  text-white text-sm py-2.5 px-4 font-semibold rounded focus:outline-none focus:shadow-outline ${variantClasses[variant]}`}
       type="button"
     >
       {children}
