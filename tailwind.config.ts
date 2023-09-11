@@ -30,14 +30,17 @@ const config: Config = {
         body: "#010C15",
         white: "#FFFFFF",
         primary: {
-          DEFAULT: "#01080E",
-          "second-tone": "#011627",
-          "third-tone": "#011221",
+          DEFAULT: "#F472B6",
+          "second-tone": "#FF90CA",
+          "third-tone": "#FFBFE0",
+          "fourth-tone": "#FFE0F0",
+          "fifth-tone": "#FFEFF7",
         },
         secondary: {
-          DEFAULT: "#607B96",
-          "second-tone": "#3C9D93",
-          "third-tone": "#4D5BCE",
+          DEFAULT: "#18ACAC",
+          "second-tone": "#35B3B5",
+          "third-tone": "#52B9BD",
+          "fourth-tone": "#8CC6CE"
         },
         accent: {
           DEFAULT: "#95A4FC",

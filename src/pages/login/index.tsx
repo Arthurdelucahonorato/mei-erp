@@ -36,7 +36,7 @@ export default function Login() {
               </a>
             </div>
             <div className="flex w-full mt-4">
-              <Button>Entrar</Button>
+              <Button onClick={() => window.location.href = "/dashboard"}>Entrar</Button>
             </div>
           </form>
         </div>

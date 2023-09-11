@@ -1,5 +1,11 @@
-import Image from "next/image";
-
+import { Header } from '@/components/Header'
 export default function Home() {
-  return <></>;
+  return (
+    <>
+      <Header />
+      <div className='flex bg-gray-200'>
+        Restante da página ...
+      </div>
+    </>
+  );
 }
