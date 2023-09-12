@@ -16,52 +16,54 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { destroyCookie } from "nookies";
 
+export const Menus = [
+  { title: "Dashboard", icon: <BsBookmarkPlus />, href: "/dashboard" },
+  { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
+  { title: "Clientes", icon: <BsPeople />, href: "/clientes" },
+
+  {
+    title: "Menu Ex. 1",
+    spacing: true,
+    icon: <BsExclamationCircle />,
+    href: "/menu1",
+  },
+  {
+    title: "Menu Ex. 2",
+    spacing: true,
+    icon: <BsExclamationCircle />,
+    href: "/menu2",
+  },
+  {
+    title: "Menu Ex. 3",
+    icon: <BsExclamationCircle />,
+    href: "/menu3",
+    submenu: true,
+    submenuItens: [
+      { title: "Submenu Ex. 1", href: "/submenu1" },
+      { title: "Submenu Ex. 2", href: "/submenu2" },
+    ],
+  },
+  {
+    title: "Relatorios",
+    spacing: true,
+    icon: <BsFiletypePdf />,
+    href: "/relatorios",
+  },
+  {
+    title: "Configurações",
+    icon: <BsGear />,
+    spacing: true,
+    href: "/configuracoes",
+  },
+  { title: "Sair", icon: <BsXCircle />, href: "/login" },
+];
+
 export function PrivateHeader() {
   const [open, setOpen] = useState(true);
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [subMenuClientActive, setsubMenuClientActive] = useState(false);
   const { push } = useRouter();
-  const Menus = [
-    { title: "Produtos", icon: <BsBookmarkPlus />, href: "/produtos" },
-    { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
-    { title: "Clientes", icon: <BsPeople />, href: "/clientes" },
 
-    {
-      title: "Menu Ex. 1",
-      spacing: true,
-      icon: <BsExclamationCircle />,
-      href: "/menu1",
-    },
-    {
-      title: "Menu Ex. 2",
-      spacing: true,
-      icon: <BsExclamationCircle />,
-      href: "/menu2",
-    },
-    {
-      title: "Menu Ex. 3",
-      icon: <BsExclamationCircle />,
-      href: "/menu3",
-      submenu: true,
-      submenuItens: [
-        { title: "Submenu Ex. 1", href: "/submenu1" },
-        { title: "Submenu Ex. 2", href: "/submenu2" },
-      ],
-    },
-    {
-      title: "Relatorios",
-      spacing: true,
-      icon: <BsFiletypePdf />,
-      href: "/relatorios",
-    },
-    {
-      title: "Configurações",
-      icon: <BsGear />,
-      spacing: true,
-      href: "/configuracoes",
-    },
-    { title: "Sair", icon: <BsXCircle />, href: "/login" },
-  ];
   return (
     <div
       className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-gray-900 ${

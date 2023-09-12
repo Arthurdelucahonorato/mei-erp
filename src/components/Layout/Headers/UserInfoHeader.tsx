@@ -2,12 +2,18 @@ import React from "react";
 import Avatar from "@/assets/avatar.png";
 import Image from "next/image";
 import { ToggleDarkMode } from "@/components/Button/ToggleDarkMode";
+import { useRouter } from "next/router";
+import { Menus } from "./PrivateHeader";
 
 export function UserInfoHeader() {
+  const { pathname } = useRouter();
+
+  const pathTitle = Menus.find((route) => route.href === pathname)?.title;
+
   return (
     <div className="flex flex-row justify-between items-center max-h-24 w-full bg-white dark:bg-gray-900">
       <div className="flex mr-auto">
-        <text className="text-xl font-semibold p-5">Dashboard</text>
+        <text className="text-xl font-semibold p-5">{pathTitle}</text>
       </div>
       <div>
         <ToggleDarkMode />

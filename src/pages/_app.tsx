@@ -1,21 +1,27 @@
 import { PrivateHeader } from "@/components/Layout/Headers/PrivateHeader";
 import { UserInfoHeader } from "@/components/Layout/Headers/UserInfoHeader";
 import "@/styles/globals.css";
-import type { AppProps } from "next/app";
+import { GetServerSidePropsContext } from "next";
+import type { AppContext, AppInitialProps, AppProps } from "next/app";
 import { Inter } from "next/font/google";
-import { parseCookies } from "nookies";
+import nookies from "nookies";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function App({ Component, pageProps }: AppProps) {
-  const { "mei.authToken": authToken } = parseCookies();
+interface MyAppProps extends AppProps {
+  isAuthenticated: boolean;
+}
 
+export default function App({
+  Component,
+  pageProps,
+  isAuthenticated,
+}: MyAppProps) {
   return (
     <main className={`${inter.className} flex h-screen max-w-screen`}>
-      {authToken && <PrivateHeader />}
-
+      {isAuthenticated && <PrivateHeader />}
       <div className="w-full max-h-full flex-1">
-        {authToken && <UserInfoHeader />}
+        {isAuthenticated && <UserInfoHeader />}
         <div className="bg-slate-50 dark:bg-gray-900 flex h-full overflow-y-auto overflow-x-hidden w-full p-6">
           <Component {...pageProps} />
         </div>
@@ -23,3 +29,12 @@ export default function App({ Component, pageProps }: AppProps) {
     </main>
   );
 }
+App.getInitialProps = async (ctx: AppContext) => {
+  // Verifique se o token de autenticação está nos cookies no lado do servidor
+  const cookies = nookies.get(ctx.ctx);
+  const isAuthenticated = !!cookies["mei.authToken"]; // Substitua 'authToken' pelo nome do seu cookie de autenticação
+
+  return {
+    isAuthenticated,
+  };
+};
