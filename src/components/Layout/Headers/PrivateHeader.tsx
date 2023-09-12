@@ -13,12 +13,14 @@ import {
 import Link from "next/link";
 import Logo from "@/assets/logo.png";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { destroyCookie } from "nookies";
 
 export function PrivateHeader() {
   const [open, setOpen] = useState(true);
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [subMenuClientActive, setsubMenuClientActive] = useState(false);
-
+  const { push } = useRouter();
   const Menus = [
     { title: "Produtos", icon: <BsBookmarkPlus />, href: "/produtos" },
     { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
@@ -62,7 +64,7 @@ export function PrivateHeader() {
   ];
   return (
     <div
-      className={`flex flex-col align-middle justify-content-center h-auto bg-white  ${
+      className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-gray-900 ${
         open ? "w-72" : "w-20"
       } duration-300 relative`}
     >
@@ -92,8 +94,13 @@ export function PrivateHeader() {
                 menu.spacing ? "mt-9" : "mt-2"
               }`}
             >
-              <Link
-                href={!menu.submenu ? menu.href : ""}
+              <button
+                onClick={() => {
+                  if (menu.href === "/login") {
+                    destroyCookie(undefined, "mei.authToken");
+                  }
+                  push(!menu.submenu ? menu.href : "");
+                }}
                 className={`group flex flex-row ${
                   !open ? "justify-center" : "justify-start"
                 } gap-x-3 items-center px-2.5 py-1  ${
@@ -121,7 +128,7 @@ export function PrivateHeader() {
                 {menu.submenu && open && (
                   <BsChevronDown className={`${submenuOpen && "rotate-180"}`} />
                 )}
-              </Link>
+              </button>
             </li>
             {menu.submenu && submenuOpen && open && (
               <ul>
