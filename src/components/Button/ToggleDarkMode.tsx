@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CiSun, CiCloudMoon } from "react-icons/ci";
+import { CiSun, CiCloudMoon, CiCloudSun } from "react-icons/ci";
 
 export function ToggleDarkMode() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -23,7 +23,7 @@ export function ToggleDarkMode() {
     <>
       <button onClick={toggleDarkMode}>
         {isDarkMode ? (
-          <CiSun className="w-10 h-10 text-black" />
+          <CiCloudSun className="w-10 h-10 text-black dark:text-white" />
         ) : (
           <CiCloudMoon className="w-10 h-10" />
         )}

@@ -1,4 +1,5 @@
 import { PrivateHeader } from "@/components/Layout/Headers/PrivateHeader";
+import { PublicHeader } from "@/components/Layout/Headers/PublicHeader";
 import { UserInfoHeader } from "@/components/Layout/Headers/UserInfoHeader";
 import "@/styles/globals.css";
 import { GetServerSidePropsContext } from "next";
@@ -18,11 +19,11 @@ export default function App({
   isAuthenticated,
 }: MyAppProps) {
   return (
-    <main className={`${inter.className} flex h-screen max-w-screen`}>
-      {isAuthenticated && <PrivateHeader />}
+    <main className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"} flex h-screen max-w-screen`}>
+      {isAuthenticated ? <PrivateHeader /> : <PublicHeader />}
       <div className="w-full max-h-full flex-1">
         {isAuthenticated && <UserInfoHeader />}
-        <div className="bg-slate-50 dark:bg-gray-900 flex h-full overflow-y-auto overflow-x-hidden w-full p-6">
+        <div className={`flex-1 bg-slate-50 dark:bg-gray-950 h-full w-full overflow-y-auto overflow-x-hidden ${isAuthenticated && "p-3"}`}>
           <Component {...pageProps} />
         </div>
       </div>

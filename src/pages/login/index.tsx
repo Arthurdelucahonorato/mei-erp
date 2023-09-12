@@ -51,7 +51,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex w-full justify-center items-center bg-gradient-to-r ">
+    <div className="flex w-full h-full justify-center items-center bg-gradient-to-r ">
       <div className="container max-w-md mx-auto xl:max-w-3xl flex bg-white rounded-lg shadow overflow-hidden">
         <div className="relative hidden xl:block xl:w-1/2 h-full">
           <img

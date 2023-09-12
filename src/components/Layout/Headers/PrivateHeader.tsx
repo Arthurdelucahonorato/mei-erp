@@ -71,7 +71,7 @@ export function PrivateHeader() {
       } duration-300 relative`}
     >
       <BsArrowLeftShort
-        className={`text-black text-4xl bg-white rounded-full absolute -right-4 top-2 cursor-pointer ${
+        className={`text-black text-4xl dark:text-white  rounded-full absolute -right-4 top-2 cursor-pointer ${
           !open && "rotate-180"
         } p-1.5`}
         onClick={() => setOpen(!open)}
@@ -92,7 +92,7 @@ export function PrivateHeader() {
               }
               className={`flex flex-row ${
                 !open ? "justify-center" : "justify-start"
-              }   items-center gap-x-3 cursor-pointer hover:bg-primary hover:text-white rounded-md text-gray-500  ${
+              }   items-center gap-x-3 cursor-pointer hover:bg-primary hover:text-white rounded-md text-gray-500 dark:text-gray-200 dark:hover:text-black ${
                 menu.spacing ? "mt-9" : "mt-2"
               }`}
             >
@@ -111,16 +111,16 @@ export function PrivateHeader() {
                     : ""
                 } `}
               >
-                <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium ">
+                <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium dark:text-gray-200">
                   {!open && (
-                    <span className="-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-200 p-2 text-xs text-gray-700 group-hover:scale-100">
+                    <span className="-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-200 p-2 text-xs text-gray-700 group-hover:scale-100 ">
                       {menu.title}
                     </span>
                   )}
                   {menu.icon ? menu.icon : <BsExclamationCircle />}
                 </span>
                 <span
-                  className={`z-auto text-base text-md font-medium whitespace-nowrap ${
+                  className={`z-auto text-base text-md font-medium whitespace-nowrap dark:text-gray-200 ${
                     !open ? "scale-0 hidden" : "scale-100"
                   } duration-300`}
                 >
@@ -142,7 +142,7 @@ export function PrivateHeader() {
                   >
                     <Link
                       href={submenuItem.href}
-                      className={`group flex flex-row hover:font-semibold text-gray-500`}
+                      className={`group flex flex-row hover:font-semibold text-gray-500 dark:text-gray-200`}
                     >
                       {submenuItem.title}
                     </Link>
