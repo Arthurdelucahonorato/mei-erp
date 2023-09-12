@@ -40,7 +40,7 @@ const config: Config = {
           DEFAULT: "#18ACAC",
           "second-tone": "#35B3B5",
           "third-tone": "#52B9BD",
-          "fourth-tone": "#8CC6CE"
+          "fourth-tone": "#8CC6CE",
         },
         accent: {
           DEFAULT: "#95A4FC",
@@ -57,5 +57,6 @@ const config: Config = {
     },
   },
   plugins: [],
+  darkMode: "class",
 };
 export default config;
