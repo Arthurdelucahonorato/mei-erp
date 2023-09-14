@@ -10,6 +10,7 @@ import {
   BsGear,
   BsChevronDown,
 } from "react-icons/bs";
+
 import Link from "next/link";
 import Logo from "@/assets/logo.png";
 import Image from "next/image";
@@ -66,18 +67,16 @@ export function PrivateHeader() {
 
   return (
     <div
-      className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-gray-900 ${
-        open ? "w-72" : "w-20"
-      } duration-300 relative`}
+      className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-gray-900 ${open ? "w-72" : "w-20"
+        } duration-300 relative`}
     >
       <BsArrowLeftShort
-        className={`text-black text-4xl dark:text-white  rounded-full absolute -right-4 top-2 cursor-pointer ${
-          !open && "rotate-180"
-        } p-1.5`}
+        className={`text-black text-4xl dark:text-white  rounded-full absolute -right-4 top-2 cursor-pointer ${!open && "rotate-180"
+          } p-1.5`}
         onClick={() => setOpen(!open)}
       />
       <div className={`flex items-center px-3 mt-8 mb-4 justify-center`}>
-        <Image src={Logo} className="duration-200" alt="A" height={125} />
+        <Image src={Logo} className="" alt="A" height={125} />
       </div>
       <ul className="flex flex-col px-5">
         {Menus.map((menu, index) => (
@@ -90,11 +89,9 @@ export function PrivateHeader() {
                     setsubMenuClientActive(true))
                   : setsubMenuClientActive(false)
               }
-              className={`flex flex-row ${
-                !open ? "justify-center" : "justify-start"
-              }   items-center gap-x-3 cursor-pointer hover:bg-primary hover:text-white rounded-md text-gray-500 dark:text-gray-200 dark:hover:text-black ${
-                menu.spacing ? "mt-9" : "mt-2"
-              }`}
+              className={`flex flex-row ${!open ? "justify-center" : "justify-start"
+                }   items-center gap-x-3 cursor-pointer hover:bg-primary hover:dark:bg-secondary hover:dark:text-black hover:text-white rounded-md text-gray-500 dark:text-gray-200 ${menu.spacing ? "mt-9" : "mt-2"
+                }`}
             >
               <button
                 onClick={() => {
@@ -103,13 +100,11 @@ export function PrivateHeader() {
                   }
                   push(!menu.submenu ? menu.href : "");
                 }}
-                className={`group flex flex-row ${
-                  !open ? "justify-center" : "justify-start"
-                } gap-x-3 items-center px-2.5 py-1  ${
-                  menu.submenu && !subMenuClientActive
+                className={`group flex flex-row ${!open ? "justify-center" : "justify-start"
+                  } gap-x-3 items-center px-2.5 py-1  ${menu.submenu && !subMenuClientActive
                     ? "text-gray-500 hover:text-white"
                     : ""
-                } `}
+                  } `}
               >
                 <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium dark:text-gray-200">
                   {!open && (
@@ -120,9 +115,8 @@ export function PrivateHeader() {
                   {menu.icon ? menu.icon : <BsExclamationCircle />}
                 </span>
                 <span
-                  className={`z-auto text-base text-md font-medium whitespace-nowrap dark:text-gray-200 ${
-                    !open ? "scale-0 hidden" : "scale-100"
-                  } duration-300`}
+                  className={`z-auto text-base text-md font-medium whitespace-nowrap dark:text-gray-200 ${!open ? "scale-0 hidden" : "scale-100"
+                    } duration-300`}
                 >
                   {menu.title}
                 </span>

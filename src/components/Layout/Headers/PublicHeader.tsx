@@ -51,7 +51,7 @@ export function PublicHeader() {
                                     </Link>
                                 </li>
                                 <li className="block py-2 pl-3 pr-4 rounde md:hover:bg-transparent md:border-0 md:p-0 hover:bg-gray-100 hover:text-primary">
-                                    <Link href="/cantato">
+                                    <Link href="/contato">
                                         Contato
                                     </Link>
                                 </li>
@@ -67,6 +67,6 @@ export function PublicHeader() {
 
             </nav>
         </div>
-)
+    )
 
 }
