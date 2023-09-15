@@ -16,9 +16,11 @@
     "autoprefixer": "10.4.15",
     "axios": "^1.5.0",
     "chart.js": "^4.4.0",
+    "classnames": "^2.3.2",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.15",
     "faker": "^6.6.6",
+    "lodash": "^4.17.21",
     "next": "13.4.15",
     "nookies": "^2.5.2",
     "postcss": "8.4.27",
@@ -33,6 +35,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.2"
+    "@faker-js/faker": "^8.0.2",
+    "@types/lodash": "^4.14.198"
   }
 }
