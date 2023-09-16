@@ -19,9 +19,9 @@ export default function App({
   isAuthenticated,
 }: MyAppProps) {
   return (
-    <main className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"} flex h-screen max-w-screen`}>
+    <main className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"} flex h-screen max-w-screen `}>
       {isAuthenticated ? <PrivateHeader /> : <PublicHeader />}
-      <div className="w-full max-h-full flex-1">
+      <div className="w-full flex-1">
         {isAuthenticated && <UserInfoHeader />}
         <div className={`flex-1 bg-slate-50 dark:bg-gray-950 h-full w-full overflow-y-auto overflow-x-hidden ${isAuthenticated && "p-3"}`}>
           <Component {...pageProps} />
