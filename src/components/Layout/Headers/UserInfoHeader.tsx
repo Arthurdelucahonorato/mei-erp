@@ -11,9 +11,11 @@ export function UserInfoHeader() {
   const pathTitle = Menus.find((route) => route.href === pathname)?.title;
 
   return (
-    <div className="flex flex-row justify-between items-center max-h-24 w-full bg-white dark:bg-gray-900 duration-300">
+    <div className="fixed w-full flex flex-row justify-between items-center max-h-24 bg-white dark:bg-gray-900 duration-300">
       <div className="flex mr-auto">
-        <text className="text-xl font-semibold p-5 dark:text-white">{pathTitle}</text>
+        <text className="text-xl font-semibold p-5 dark:text-white">
+          {pathTitle}
+        </text>
       </div>
       <div className="pr-5">
         <ToggleDarkMode />
@@ -27,7 +29,9 @@ export function UserInfoHeader() {
           width={50}
         />
         <div
-          className={`flex flex-1 flex-col p-2 ${true && "mbm:hidden sm:flex"} dark:text-white`}
+          className={`flex flex-1 flex-col p-2 ${
+            true && "mbm:hidden sm:flex"
+          } dark:text-white`}
         >
           <text className="text-sm">Nadianara</text>
           <text className="text-xs">Admin</text>

@@ -1,16 +1,33 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Pagination from "@/components/Pagination";
-import { paginate } from '@/utils/paginate';
+import { paginate } from "@/utils/paginate";
+import { GetServerSidePropsContext } from "next";
+import { api } from "@/services/api/api";
 
 interface PedidosProps {
   items: number;
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+  pedidos: any[];
 }
 
-export default function Pedidos(): JSX.Element {
+export async function getServerSideProps() {
+  const request = await api.get("/users");
+
+  const pedidos = await request.data;
+
+  console.log(pedidos);
+
+  return {
+    props: {
+      pedidos: pedidos,
+    },
+  };
+}
+
+export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
   const [posts, setPosts] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -29,7 +46,7 @@ export default function Pedidos(): JSX.Element {
     setCurrentPage(page);
   };
 
-  const paginatePosts = paginate(posts, currentPage, pageSize);
+  const paginatePosts = paginate(pedidos, currentPage, pageSize);
 
   return (
     <div className="container">
@@ -45,7 +62,7 @@ export default function Pedidos(): JSX.Element {
           {paginatePosts.map((post: any) => (
             <tr key={post.id}>
               <td>{post.id}</td>
-              <td>{post.title}</td>
+              <td>{post.name}</td>
               <td>
                 <button className="btn btn-danger btn-sm">Delete</button>
               </td>
@@ -54,7 +71,7 @@ export default function Pedidos(): JSX.Element {
         </tbody>
       </table>
       <Pagination
-        items={posts.length}
+        items={pedidos.length}
         currentPage={currentPage}
         pageSize={pageSize}
         onPageChange={handlePageChange}
