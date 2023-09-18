@@ -32,12 +32,14 @@
     "react-hook-form": "^7.46.1",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.11.0",
+    "react-intersection-observer": "^9.5.2",
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6",
     "zod": "^3.22.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
-    "@types/lodash": "^4.14.198"
+    "@types/lodash": "^4.14.198",
+    "@types/react-scroll": "^1.8.7"
   }
 }
