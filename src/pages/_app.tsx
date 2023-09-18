@@ -1,14 +1,15 @@
 import { PrivateHeader } from "@/components/Layout/Headers/PrivateHeader";
 import { PublicHeader } from "@/components/Layout/Headers/PublicHeader";
 import { UserInfoHeader } from "@/components/Layout/Headers/UserInfoHeader";
+import { PageLoader } from "@/components/Loader/PageLoader";
 import { publicRoutes } from "@/services/secure/public-routes";
 
 import "@/styles/globals.css";
-import { GetServerSidePropsContext } from "next";
 import type { AppContext, AppInitialProps, AppProps } from "next/app";
 import { Inter } from "next/font/google";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import nookies from "nookies";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,14 +24,41 @@ export default function App({
 }: MyAppProps) {
   const { pathname } = useRouter();
 
-  const isPrivateRouterAndAuth = isAuthenticated && !publicRoutes.includes(pathname);
-  const isPublicRouter = publicRoutes.includes(pathname) && pathname !== "/login"
-  console.log(isPrivateRouterAndAuth)
-  console.log(publicRoutes)
-  console.log(pathname)
+  const isPrivateRouterAndAuth =
+    isAuthenticated && !publicRoutes.includes(pathname);
+  const isPublicRouter =
+    publicRoutes.includes(pathname) && pathname !== "/login";
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const start = () => setLoading(true);
+    const end = () => setLoading(false);
+
+    Router.events.on("routeChangeStart", start);
+    Router.events.on("routeChangeComplete", end);
+
+    Router.events.on("routeChangeError", end);
+
+    return () => {
+      Router.events.off("routeChangeStart", start);
+
+      Router.events.off("routeChangeComplete", end);
+
+      Router.events.off("routeChangeError", end);
+    };
+  });
+
   return (
-    <main className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"} flex min-h-screen max-w-screen overflow-auto`}>
-      {(pathname !== "/_error" && pathname !== "/404" && pathname !== "/login") ? (
+    <main
+      className={`${inter.className} ${
+        isAuthenticated ? "flex-row" : "flex-col"
+      } flex min-h-screen max-w-screen overflow-auto`}
+    >
+      {loading && <PageLoader />}
+      {pathname !== "/_error" &&
+      pathname !== "/404" &&
+      pathname !== "/login" ? (
         isPrivateRouterAndAuth ? (
           <div className="flex flex-1 absolute w-full h-full overflow-y-hidden">
             <PrivateHeader />
@@ -45,24 +73,27 @@ export default function App({
           <div>
             <PublicHeader />
             <div className="w-full flex-1 min-h-screen overflow-y-hidden">
-              <div className={`flex-1 bg-slate-50 h-full w-full overflow-y-auto overflow-x-hidden`}>
+              <div
+                className={`flex-1 bg-slate-50 h-full w-full overflow-y-auto overflow-x-hidden`}
+              >
                 <Component {...pageProps} />
               </div>
             </div>
           </div>
-        )) : (
+        )
+      ) : (
         <div className="flex flex-1 bg-slate-50">
           <Component {...pageProps} />
-        </div>)}
-
+        </div>
+      )}
     </main>
   );
 }
 
 App.getInitialProps = async (ctx: AppContext) => {
-  // Verifique se o token de autenticação está nos cookies no lado do servidor
+  // Verifica se o token de autenticação está nos cookies no lado do servidor
   const cookies = nookies.get(ctx.ctx);
-  const isAuthenticated = !!cookies["mei.authToken"]; // Substitua 'authToken' pelo nome do seu cookie de autenticação
+  const isAuthenticated = !!cookies["mei.authToken"];
 
   return {
     isAuthenticated,

@@ -6,10 +6,10 @@ import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
-import moment from 'moment';
+import moment from "moment";
 import "moment/locale/pt-br";
-import { BsCartPlus } from "react-icons/bs"
-
+import { BsCartPlus } from "react-icons/bs";
+import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 
 interface PedidosProps {
   items: number;
@@ -54,86 +54,95 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
   const paginatePosts = paginate(pedidos, currentPage, pageSize);
 
   return (
-    <div className="flex flex-1 flex-col h-full justify-between">
-      <Modal isOpen={isOpenDetails} toggle={toggleDetails} title={"Detalhes do Pedidos"}>
-        Conteudo do modal
-      </Modal>
-      <Modal isOpen={isOpenSale} toggle={toggleSale} title={"Cadastro de Pedido"}>
-        Conteudo do modal
-      </Modal>
-      <div className="flex flex-1 flex-col justify-start h-full overflow-x-auto shadow-md sm:rounded-lg">
-
-
-        <div className="flex justify-between m-1 max-h-12">
-          <div className="relative">
-
-
+    <MountTransition>
+      <div className="flex flex-1 flex-col h-full justify-between">
+        <Modal
+          isOpen={isOpenDetails}
+          toggle={toggleDetails}
+          title={"Detalhes do Pedidos"}
+        >
+          Conteudo do modal
+        </Modal>
+        <Modal
+          isOpen={isOpenSale}
+          toggle={toggleSale}
+          title={"Cadastro de Pedido"}
+        >
+          Conteudo do modal
+        </Modal>
+        <div className="flex flex-1 flex-col justify-start h-full overflow-x-auto shadow-md sm:rounded-lg">
+          <div className="flex justify-between m-1 max-h-12">
+            <div className="relative"></div>
+            <div className="flex aspect-square">
+              <Button onClick={() => toggleSale()}>
+                <BsCartPlus className="text-xl" />
+              </Button>
+            </div>
           </div>
-          <div className="flex aspect-square">
-            <Button onClick={() => toggleSale()}>
-              <BsCartPlus className="text-xl" />
-            </Button>
-
-          </div>
-        </div>
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="p-4">
-                ID
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Cliente
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Itens
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Data Retirada
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Valor Total
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="">
-            {paginatePosts.map((post: any) => (
-              <tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td className="w-4 p-4">
-                  {post.id}
-                </td>
-                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {post.cliente}
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" className="p-4">
+                  ID
                 </th>
-                <td className="px-6 py-4">
-                  {post.itensPedido}
-                </td>
-                <td className="px-6 py-4">
-                  {moment(post.dataRetirada).locale("pt-br").format("L")}
-                </td>
-                <td className="px-6 py-4">
-                  R$ {post.valorTotal}
-                </td>
-                <td className="px-6 py-4">
-                  <a onClick={() => toggleDetails()} href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detalhes</a>
-                </td>
+                <th scope="col" className="px-6 py-3">
+                  Cliente
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Itens
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Data Retirada
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Valor Total
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Action
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="">
+              {paginatePosts.map((post: any) => (
+                <tr
+                  key={post.id}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  <td className="w-4 p-4">{post.id}</td>
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {post.cliente}
+                  </th>
+                  <td className="px-6 py-4">{post.itensPedido}</td>
+                  <td className="px-6 py-4">
+                    {moment(post.dataRetirada).locale("pt-br").format("L")}
+                  </td>
+                  <td className="px-6 py-4">R$ {post.valorTotal}</td>
+                  <td className="px-6 py-4">
+                    <a
+                      onClick={() => toggleDetails()}
+                      href="#"
+                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    >
+                      Detalhes
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="sticky bottom-2 mt-4">
+          <Pagination
+            items={pedidos.length}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
-      <div className="sticky bottom-2 mt-4">
-        <Pagination
-          items={pedidos.length}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
-      </div>
-    </div>
-
+    </MountTransition>
   );
 }
