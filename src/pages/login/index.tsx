@@ -8,12 +8,16 @@ import { useRouter } from "next/router";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { userAuth } from "@/services/api/auth/userAuth";
+import Link from "next/link";
 
 export default function Login() {
   const { push } = useRouter();
 
   const validatePasswordSchema = z.object({
-    email: z.string().nonempty("Campo obrigatório"),
+    email: z
+      .string()
+      .nonempty("Campo obrigatório")
+      .email("Insira um email válido"),
     password: z.string().nonempty("Campo obrigatório"),
   });
 
@@ -69,6 +73,7 @@ export default function Login() {
               {...register("email")}
               label="Email"
               htmlFor="email"
+              errorMessage={errors.email?.message}
               type="text"
               placeholder="Seu endereço de e-mail"
             />
@@ -82,15 +87,15 @@ export default function Login() {
                 errorMessage={errors.password?.message}
                 placeholder="Sua senha"
               />
-              <a
-                className="inline-block align-baseline text-sm text-gray-600 hover:text-gray-800"
-                href="#"
-              >
-                Esqueceu a senha?
-              </a>
             </div>
+            <Link
+              className="inline-block align-baseline ml-auto text-sm text-gray-600 hover:text-gray-800"
+              href="#"
+            >
+              Esqueceu a senha?
+            </Link>
             <div className="flex w-full mt-4">
-              <Button>Entrar</Button>
+              <Button disabled={isSubmitting}>Entrar</Button>
             </div>
           </form>
         </div>

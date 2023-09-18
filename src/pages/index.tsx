@@ -42,7 +42,7 @@ export default function Home() {
   }, [controls, inView]);
 
   return (
-    <div className="flex flex-col bg-red-50 ">
+    <div className="flex flex-col bg-red-50">
       <section className="flex flex-col h-screen">
         <div className="relative w-full left-0 overflow-hidden top-0 h-screen bg-[url('../assets/homeBackground.jpg')] bg-no-repeat bg-center bg-cover">
           <motion.div
