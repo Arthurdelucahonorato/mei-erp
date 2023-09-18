@@ -11,10 +11,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantClasses = {
-    default: "bg-primary hover:bg-primary/90 text-white",
+    default: "bg-primary dark:bg-secondary hover:bg-primary/90 text-white",
     ghost:
       "bg-transparent border-white text-white border hover:border-opacity-50 hover:border-primary hover:text-primary",
-    primary: "bg-primary text-white hover:bg-primary-second-tone",
+    primary: "bg-primary dark:bg-secondary text-white hover:bg-primary-second-tone",
   };
 
   return (

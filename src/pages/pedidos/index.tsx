@@ -10,6 +10,10 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { BsCartPlus } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
+import { Input } from "postcss";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface PedidosProps {
   items: number;
@@ -35,7 +39,7 @@ export async function getServerSideProps() {
 
 export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 14;
+  const pageSize = 12;
   const [isOpenDetails, setIsOpenDetails] = useState(false);
   const [isOpenSale, setIsOpenSale] = useState(false);
 
@@ -51,10 +55,33 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
     setIsOpenSale(!isOpenSale);
   };
 
+  const validateRegister = z.object({
+    cliente: z.string().nonempty("Campo obrigatório"),
+  });
+
+  type ValidateData = z.infer<typeof validateRegister>;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ValidateData>({
+    mode: "onSubmit",
+    resolver: zodResolver(validateRegister),
+  });
+
+  const submitForm = async ({ cliente }: ValidateData) => {
+    try {
+      console.log("algo")
+    } catch (error: any) {
+      return;
+    }
+  };
+
   const paginatePosts = paginate(pedidos, currentPage, pageSize);
 
   return (
-    <MountTransition>
+    <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
         <Modal
           isOpen={isOpenDetails}
@@ -66,21 +93,29 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
         <Modal
           isOpen={isOpenSale}
           toggle={toggleSale}
-          title={"Cadastro de Pedido"}
+          title={"Cadastrar Pedido"}
         >
-          Conteudo do modal
-        </Modal>
-        <div className="flex flex-1 flex-col justify-start h-full overflow-x-auto shadow-md sm:rounded-lg">
-          <div className="flex justify-between m-1 max-h-12">
-            <div className="relative"></div>
-            <div className="flex aspect-square">
-              <Button onClick={() => toggleSale()}>
-                <BsCartPlus className="text-xl" />
-              </Button>
-            </div>
+          <div>
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit(submitForm)}>
+
+            </form>
           </div>
+        </Modal>
+        <div className="flex justify-between m-1 max-h-12">
+          <div className="relative"></div>
+          <div className="flex aspect-square">
+            <Button onClick={() => toggleSale()}>
+              <div className="flex gap-3">
+                <BsCartPlus className="text-xl" /> Cadastrar Pedido
+              </div>
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <thead className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" className="p-4">
                   ID
@@ -102,11 +137,9 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
                 </th>
               </tr>
             </thead>
-            <tbody className="">
+            <tbody className="overflow-y-auto bg-red-400 p">
               {paginatePosts.map((post: any) => (
-                <tr
-                  key={post.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                <tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                   <td className="w-4 p-4">{post.id}</td>
                   <th
@@ -144,5 +177,6 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
         </div>
       </div>
     </MountTransition>
+
   );
 }

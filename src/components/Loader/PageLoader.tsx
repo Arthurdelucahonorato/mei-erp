@@ -30,7 +30,7 @@ export function PageLoader() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-200/50 flex items-center justify-center">
+    <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-200/50 dark:bg-black/50 flex items-center justify-center">
       <div
         style={{
           width: "100%",
@@ -46,17 +46,17 @@ export function PageLoader() {
           animate="animate"
         >
           <motion.span
-            className="block w-6 h-6 bg-primary rounded-[50%]"
+            className="block w-6 h-6 bg-primary rounded-[50%] dark:bg-secondary"
             variants={DotVariants}
             transition={DotTransition}
           />
           <motion.span
-            className="block w-6 h-6 bg-primary rounded-[50%]"
+            className="block w-6 h-6 bg-primary rounded-[50%] dark:bg-secondary"
             variants={DotVariants}
             transition={DotTransition}
           />
           <motion.span
-            className="block w-6 h-6 bg-primary rounded-[50%]"
+            className="block w-6 h-6 bg-primary rounded-[50%] dark:bg-secondary"
             variants={DotVariants}
             transition={DotTransition}
           />
