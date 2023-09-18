@@ -21,6 +21,7 @@
     "eslint-config-next": "13.4.15",
     "faker": "^6.6.6",
     "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "next": "13.4.15",
     "nookies": "^2.5.2",
     "postcss": "8.4.27",

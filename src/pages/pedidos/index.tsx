@@ -4,6 +4,12 @@ import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
 import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
+import Modal from "@/components/Modal";
+import { Button } from "@/components/Button";
+import moment from 'moment';
+import "moment/locale/pt-br";
+import { BsCartPlus } from "react-icons/bs"
+
 
 interface PedidosProps {
   items: number;
@@ -14,7 +20,7 @@ interface PedidosProps {
 }
 
 export async function getServerSideProps() {
-  const request = await api.get("/users");
+  const request = await api.get("/pedidos");
 
   const pedidos = await request.data;
 
@@ -30,16 +36,46 @@ export async function getServerSideProps() {
 export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 14;
+  const [isOpenDetails, setIsOpenDetails] = useState(false);
+  const [isOpenSale, setIsOpenSale] = useState(false);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const toggleDetails = () => {
+    setIsOpenDetails(!isOpenDetails);
+  };
+
+  const toggleSale = () => {
+    setIsOpenSale(!isOpenSale);
   };
 
   const paginatePosts = paginate(pedidos, currentPage, pageSize);
 
   return (
     <div className="flex flex-1 flex-col h-full justify-between">
+      <Modal isOpen={isOpenDetails} toggle={toggleDetails} title={"Detalhes do Pedidos"}>
+        Conteudo do modal
+      </Modal>
+      <Modal isOpen={isOpenSale} toggle={toggleSale} title={"Cadastro de Pedido"}>
+        Conteudo do modal
+      </Modal>
       <div className="flex flex-1 flex-col justify-start h-full overflow-x-auto shadow-md sm:rounded-lg">
+
+
+        <div className="flex justify-between m-1 max-h-12">
+          <div className="relative">
+
+
+          </div>
+          <div className="flex aspect-square">
+            <Button onClick={() => toggleSale()}>
+              <BsCartPlus className="text-xl" />
+            </Button>
+
+          </div>
+        </div>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -47,16 +83,16 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
                 ID
               </th>
               <th scope="col" className="px-6 py-3">
-                Nome
+                Cliente
               </th>
               <th scope="col" className="px-6 py-3">
-                Color
+                Itens
               </th>
               <th scope="col" className="px-6 py-3">
-                Category
+                Data Retirada
               </th>
               <th scope="col" className="px-6 py-3">
-                Price
+                Valor Total
               </th>
               <th scope="col" className="px-6 py-3">
                 Action
@@ -70,19 +106,19 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
                   {post.id}
                 </td>
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {post.name}
+                  {post.cliente}
                 </th>
                 <td className="px-6 py-4">
-                  Silver
+                  {post.itensPedido}
                 </td>
                 <td className="px-6 py-4">
-                  Laptop
+                  {moment(post.dataRetirada).locale("pt-br").format("L")}
                 </td>
                 <td className="px-6 py-4">
-                  $2999
+                  R$ {post.valorTotal}
                 </td>
                 <td className="px-6 py-4">
-                  <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                  <a onClick={() => toggleDetails()} href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detalhes</a>
                 </td>
               </tr>
             ))}
