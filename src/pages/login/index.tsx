@@ -55,8 +55,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex w-full h-screen justify-center items-center bg-gradient-to-r ">
-      <div className="container max-w-md mx-auto xl:max-w-3xl flex bg-white rounded-lg shadow overflow-hidden">
+    <div className="flex w-full h-screen justify-center items-center bg-gradient-to-r dark:bg-gray-900 ">
+      <div className="container max-w-md mx-auto xl:max-w-3xl flex bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div className="relative hidden xl:block xl:w-1/2 h-full">
           <img
             className="absolute h-auto w-full object-cover"
@@ -89,7 +89,7 @@ export default function Login() {
               />
             </div>
             <Link
-              className="inline-block align-baseline ml-auto text-sm text-gray-600 hover:text-gray-800"
+              className="inline-block align-baseline ml-auto text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
               href="#"
             >
               Esqueceu a senha?

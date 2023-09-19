@@ -10,7 +10,7 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { BsCartPlus } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
-import { Input } from "postcss";
+import { Input } from "@/components/Input";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,6 +99,14 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
             <form
               className="flex flex-col gap-4"
               onSubmit={handleSubmit(submitForm)}>
+              <Input
+                {...register("cliente")}
+                label="Cliente"
+                htmlFor="cliente"
+                errorMessage={errors.cliente?.message}
+                type="text"
+                placeholder="Código do cliente"
+              />
 
             </form>
           </div>
@@ -139,16 +147,12 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
             </thead>
             <tbody className="overflow-y-auto bg-red-400 p">
               {paginatePosts.map((post: any) => (
-                <tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
+                <tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td className="w-4 p-4">{post.id}</td>
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
+                  <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {post.cliente}
                   </th>
-                  <td className="px-6 py-4">{post.itensPedido}</td>
+                  <td className="px-6 py-4">{post.itensPedido.join(", ")}</td>
                   <td className="px-6 py-4">
                     {moment(post.dataRetirada).locale("pt-br").format("L")}
                   </td>
