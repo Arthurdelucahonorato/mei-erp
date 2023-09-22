@@ -22,40 +22,16 @@ export const Menus = [
   { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
   { title: "Clientes", icon: <BsPeople />, href: "/clientes" },
 
-  {
-    title: "Menu Ex. 1",
-    spacing: true,
-    icon: <BsExclamationCircle />,
-    href: "/menu1",
-  },
-  {
-    title: "Menu Ex. 2",
-    spacing: true,
-    icon: <BsExclamationCircle />,
-    href: "/menu2",
-  },
-  {
-    title: "Menu Ex. 3",
-    icon: <BsExclamationCircle />,
-    href: "/menu3",
-    submenu: true,
+  { title: "Menu Ex. 1", spacing: true, icon: <BsExclamationCircle />, href: "/menu1", },
+  { title: "Menu Ex. 2", spacing: true, icon: <BsExclamationCircle />, href: "/menu2", },
+  { title: "Menu Ex. 3", icon: <BsExclamationCircle />, href: "/menu3", submenu: true,
     submenuItens: [
       { title: "Submenu Ex. 1", href: "/submenu1" },
       { title: "Submenu Ex. 2", href: "/submenu2" },
     ],
   },
-  {
-    title: "Relatorios",
-    spacing: true,
-    icon: <BsFiletypePdf />,
-    href: "/relatorios",
-  },
-  {
-    title: "Configurações",
-    icon: <BsGear />,
-    spacing: true,
-    href: "/configuracoes",
-  },
+  { title: "Relatorios", spacing: true, icon: <BsFiletypePdf />, href: "/relatorios", },
+  { title: "Configurações", icon: <BsGear />, spacing: true, href: "/configuracoes", },
   { title: "Sair", icon: <BsXCircle />, href: "/login" },
 ];
 
@@ -78,7 +54,7 @@ export function PrivateHeader() {
       <div className={`flex items-center px-3 mt-8 mb-4 justify-center`}>
         <Image src={Logo} className="" alt="A" height={125} />
       </div>
-      <ul className="flex flex-col px-5 text-gray-500 dark:text-white">
+      <ul className="flex flex-col px-5 text-gray-500 dark:text-white z-10">
         {Menus.map((menu, index) => (
           <div key={index}>
             <li
@@ -98,7 +74,7 @@ export function PrivateHeader() {
                   }
                   push(!menu.submenu ? menu.href : "");
                 }}
-                className={`group flex flex-row ${!open ? "justify-center" : "justify-start"
+                className={`group flex flex-1 flex-row ${!open ? "justify-center" : "justify-start"
                   } gap-x-3 items-center px-2.5 py-1  ${menu.submenu && !subMenuClientActive
                     ? ""
                     : ""

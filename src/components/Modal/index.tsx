@@ -4,10 +4,11 @@ interface ModalType {
   children?: ReactNode;
   isOpen: boolean;
   title: String;
+  className?: string;
   toggle: () => void;
 }
 
-export default function Modal(props: ModalType) {
+export default function Modal({className, ...props}: ModalType) {
   return (
     <>
       {props.isOpen && (
@@ -17,7 +18,7 @@ export default function Modal(props: ModalType) {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className=" bg-white dark:bg-gray-800 w-[70%] h-[70%] p-4 rounded-md flex-col flex gap-2"
+            className={`bg-white dark:bg-gray-800 w-[70%] h-[70%] p-4 rounded-md flex-col flex gap-2 ${className}`}
           >
             <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">

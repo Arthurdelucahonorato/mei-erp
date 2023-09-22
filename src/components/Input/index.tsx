@@ -4,12 +4,13 @@ type InputProps = {
   label?: string;
   htmlFor?: string;
   errorMessage?: string;
+  className?: string;
 } & ComponentProps<"input">;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ htmlFor, label, errorMessage, ...props }, ref) => {
+  ({ htmlFor, label, errorMessage, className, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-2">
+      <div className={`flex flex-col gap-2 ${className}`}>
         <label
           htmlFor={htmlFor}
           className="block text-gray-700 dark:text-white text-sm font-semibold"
