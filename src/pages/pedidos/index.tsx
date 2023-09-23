@@ -103,7 +103,7 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
           isOpen={isOpenSale}
           toggle={toggleSale}
           title={"Cadastrar Pedido"}
-          className="w-[30rem] h-[33em]"
+          className="w-[29rem] h-[33rem]"
         >
           <div>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit(submitForm)}>
@@ -129,23 +129,23 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
               </div>
               <div className="flex flex-row gap-4">
                 <Input
-                    {...register("codigoProduto")}
-                    label="Código Produto"
-                    htmlFor="codigoProduto"
-                    errorMessage={errors.codigoProduto?.message}
-                    type="number"
-                    placeholder="Codigo do Produto"
-                    className="w-40"
-                  />
+                  {...register("codigoProduto")}
+                  label="Código Produto"
+                  htmlFor="codigoProduto"
+                  errorMessage={errors.codigoProduto?.message}
+                  type="number"
+                  placeholder="Codigo do Produto"
+                  className="w-40"
+                />
                 <Input
-                    {...register("nomeProduto")}
-                    label="Nome Produto"
-                    htmlFor="nomeProduto"
-                    errorMessage={errors.nomeProduto?.message}
-                    type="number"
-                    placeholder="Nome do Produto"
-                    className="w-64"
-                  />
+                  {...register("nomeProduto")}
+                  label="Nome Produto"
+                  htmlFor="nomeProduto"
+                  errorMessage={errors.nomeProduto?.message}
+                  type="number"
+                  placeholder="Nome do Produto"
+                  className="w-64"
+                />
               </div>
 
               <Input
@@ -176,7 +176,7 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
                 className="w-64"
               />
 
-              
+
             </form>
           </div>
         </Modal>
@@ -192,29 +192,29 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
         </div>
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <Table.Header headers={["ID","Cliente","Itens","Data Retirada","Valor Total", "Action"]} className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" />
-              <Table.Body className="overflow-y-auto bg-red-400 p">
-                {paginatePosts.map((post: any) => (
-                  <Table.Tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <Table.Td className="w-4 p-4">{post.id}</Table.Td>
-                    <Table.Td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{post.cliente}</Table.Td>
-                    <Table.Td className="px-6 py-4">{post.itensPedido.join(", ")}</Table.Td>
-                    <Table.Td className="px-6 py-4">{moment(post.dataRetirada).locale("pt-br").format("L")}</Table.Td>
-                    <Table.Td className="px-6 py-4">{post.valorTotal}</Table.Td>
-                    <Table.Td className="px-6 py-4">
+            <Table.Header headers={["ID", "Cliente", "Itens", "Data Retirada", "Valor Total", "Action"]} className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" />
+            <Table.Body className="overflow-y-auto bg-red-400 p">
+              {paginatePosts.map((post: any) => (
+                <Table.Tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                  <Table.Td className="w-4 p-4">{post.id}</Table.Td>
+                  <Table.Td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{post.cliente}</Table.Td>
+                  <Table.Td className="px-6 py-4">{post.itensPedido.join(", ")}</Table.Td>
+                  <Table.Td className="px-6 py-4">{moment(post.dataRetirada).locale("pt-br").format("L")}</Table.Td>
+                  <Table.Td className="px-6 py-4">{post.valorTotal}</Table.Td>
+                  <Table.Td className="px-6 py-4">
                     <a
-                        onClick={() => toggleDetails()}
-                        href="#"
-                        className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                      >
-                        Detalhes
-                      </a>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                      onClick={() => toggleDetails()}
+                      href="#"
+                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    >
+                      Detalhes
+                    </a>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
             </Table.Body>
           </Table.Root>
-         </div>
+        </div>
 
 
 
