@@ -1,6 +1,33 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Projeto MEI ERP
+## Projeto de Extesão Web +
 
-## Getting Started
+### Integrantes:
+ - https://github.com/DouglasKuerten
+ - https://github.com/BrunoDimon
+ - https://github.com/KenielDev
+ - https://github.com/Arthurdelucahonorato
+
+### Modelo Físico:
+<code>[Modelo Físico Banco](https://dbdiagram.io/d/647a7c0c722eb774944f750a)</code>
+
+### Código do sistema:
+##### &nbsp;&nbsp;[Banco](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/tree/main/estacionamento)
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/794ca41d-7d7f-4d08-9587-82848345802f)](https://www.docker.com/)
+
+##### &nbsp;&nbsp;[Back-End](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/tree/main/estacionamento)
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/62ddedea-f767-4de7-a7c3-35ac990582e2)](https://www.java.com/) &nbsp;&nbsp;&nbsp;
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/74aba762-0d0c-465f-8d92-82e586bf6dff)](https://spring.io/) &nbsp;&nbsp;&nbsp;
+
+##### &nbsp;&nbsp;[Front-End](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/tree/main/front-end)
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/20ce5d60-cb92-407c-8351-0ede89d2e62e)](https://html.com) &nbsp;&nbsp;&nbsp;
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/81897741-a7ba-4c41-b644-3580d57c3ec7)](https://css.com) &nbsp;&nbsp;&nbsp;
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/3c4bfd6e-ef5f-42d0-959d-108a2f88e19a)](https://reactjs.org)
+
+[![Foo](https://github.com/DouglasKuerten/sistema-gestao-estacionamento/assets/101675688/4e9a5f9c-6580-41f8-9631-6d74e34b46eb)](https://tailwindcss.com/)
+
+---
+
+## Como criar a aplicação:
 
 First, run the development server:
 
