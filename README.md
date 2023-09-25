@@ -7,6 +7,7 @@
  - https://github.com/KenielDev
  - https://github.com/Arthurdelucahonorato
  - https://github.com/DiegoHahn
+ - https://github.com/TiagoS4
 
 ### Modelo Físico:
 <code>[Modelo Físico Banco](https://dbdiagram.io/d/647a7c0c722eb774944f750a)</code>
