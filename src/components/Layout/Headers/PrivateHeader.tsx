@@ -22,28 +22,28 @@ export const Menus = [
   { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
   { title: "Clientes", icon: <BsPeople />, href: "/clientes" },
 
-  {
-    title: "Menu Ex. 1",
-    spacing: true,
-    icon: <BsExclamationCircle />,
-    href: "/menu1",
-  },
-  {
-    title: "Menu Ex. 2",
-    spacing: true,
-    icon: <BsExclamationCircle />,
-    href: "/menu2",
-  },
-  {
-    title: "Menu Ex. 3",
-    icon: <BsExclamationCircle />,
-    href: "/menu3",
-    submenu: true,
-    submenuItens: [
-      { title: "Submenu Ex. 1", href: "/submenu1" },
-      { title: "Submenu Ex. 2", href: "/submenu2" },
-    ],
-  },
+  // {
+  //   title: "Menu Ex. 1",
+  //   spacing: true,
+  //   icon: <BsExclamationCircle />,
+  //   href: "/menu1",
+  // },
+  // {
+  //   title: "Menu Ex. 2",
+  //   spacing: true,
+  //   icon: <BsExclamationCircle />,
+  //   href: "/menu2",
+  // },
+  // {
+  //   title: "Menu Ex. 3",
+  //   icon: <BsExclamationCircle />,
+  //   href: "/menu3",
+  //   submenu: true,
+  //   submenuItens: [
+  //     { title: "Submenu Ex. 1", href: "/submenu1" },
+  //     { title: "Submenu Ex. 2", href: "/submenu2" },
+  //   ],
+  // },
   {
     title: "Relatorios",
     spacing: true,
@@ -84,12 +84,16 @@ export function PrivateHeader() {
         {Menus.map((menu, index) => (
           <div key={index}>
             <li
-              onClick={() =>
-                menu.submenu
-                  ? (setSubmenuOpen(!submenuOpen),
-                    !open && (setOpen(true), setSubmenuOpen(true)),
-                    setsubMenuClientActive(true))
-                  : setsubMenuClientActive(false)
+              onClick={
+                () => {
+                  !open && setOpen(true);
+                  setSubmenuOpen(true);
+                  setsubMenuClientActive(true);
+                }
+                // menu.submenu
+                //   ? (setSubmenuOpen(!submenuOpen),
+
+                // : setsubMenuClientActive(false)
               }
               className={`flex flex-row ${
                 !open ? "justify-center" : "justify-start"
@@ -105,12 +109,12 @@ export function PrivateHeader() {
                   if (menu.href === "/login") {
                     destroyCookie(undefined, "mei.authToken");
                   }
-                  push(!menu.submenu ? menu.href : "");
+                  push(menu.href);
                 }}
                 className={`group flex flex-1 flex-row ${
                   !open ? "justify-center" : "justify-start"
                 } gap-x-3 items-center px-2.5 py-1  ${
-                  menu.submenu && !subMenuClientActive ? "" : ""
+                  !subMenuClientActive ? "" : ""
                 } `}
               >
                 <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium">
@@ -134,12 +138,12 @@ export function PrivateHeader() {
                   {menu.title}
                 </span>
 
-                {menu.submenu && open && (
+                {/* {!!menu.submenu && open && (
                   <BsChevronDown className={`${submenuOpen && "rotate-180"}`} />
-                )}
+                )} */}
               </button>
             </li>
-            {menu.submenu && submenuOpen && open && (
+            {/* {menu.submenu && submenuOpen && open && (
               <ul>
                 {menu.submenuItens.map((submenuItem, subIndex) => (
                   <li
@@ -156,7 +160,7 @@ export function PrivateHeader() {
                   </li>
                 ))}
               </ul>
-            )}
+            )} */}
           </div>
         ))}
       </ul>
