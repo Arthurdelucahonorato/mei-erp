@@ -109,13 +109,13 @@ export default function Pedidos({ pedidos }: PedidosProps) {
           isOpen={isOpenSale}
           toggle={toggleSale}
           title={"Cadastrar Pedido"}
-          className="max-w-3xl h-auto"
+          className="max-w-3xl h-auto w-[90%]"
         >
           <form
-            className="grid gap-4 grid-cols-3 px-3"
+            className="grid gap-4 lg:grid-cols-3 px-3"
             onSubmit={handleSubmit(submitForm)}
           >
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               {/* <Input
                   {...register("codigoCliente")}
                   label="Código Cliente"
@@ -134,7 +134,7 @@ export default function Pedidos({ pedidos }: PedidosProps) {
                 placeholder="Nome do Cliente"
               />
             </div>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               {/* <Input
                   {...register("codigoProduto")}
                   label="Código Produto"
@@ -153,14 +153,7 @@ export default function Pedidos({ pedidos }: PedidosProps) {
                 placeholder="Nome do Produto"
               />
             </div>
-            <Input
-              {...register("dataPedido")}
-              label="Data do Pedido"
-              htmlFor="dataPedido"
-              errorMessage={errors.dataPedido?.message}
-              type="date"
-              placeholder="Data do Pedido"
-            />
+
             <Input
               {...register("quantidade")}
               label="Quantidade"
@@ -171,11 +164,20 @@ export default function Pedidos({ pedidos }: PedidosProps) {
             />
             <Input
               {...register("valorTotal")}
-              label="Valor Total"
+              label="Valor"
               htmlFor="valorTotal"
               errorMessage={errors.valorTotal?.message}
               type="number"
               placeholder="Valor Total"
+            />
+            <Input
+              className="col-span-2 lg:col-span-1"
+              {...register("dataPedido")}
+              label="Data do Pedido"
+              htmlFor="dataPedido"
+              errorMessage={errors.dataPedido?.message}
+              type="date"
+              placeholder="Data do Pedido"
             />
             <Textarea
               className="col-span-3 !h-fit resize-none"
