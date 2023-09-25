@@ -17,21 +17,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
 import { RootTable } from "@/components/Table/RootTable";
 import { max } from "lodash";
+import { getAllRequests } from "@/services/api/adm/get-all-requests";
 
 interface PedidosProps {
   items: number;
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  pedidos: any[];
+  pedidos: ClientRequest[];
 }
 
 export async function getServerSideProps() {
-  const request = await api.get("/pedidos");
-
-  const pedidos = await request.data;
-
-  console.log(pedidos);
+  const pedidos = await getAllRequests();
 
   return {
     props: {
@@ -40,7 +37,7 @@ export async function getServerSideProps() {
   };
 }
 
-export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
+export default function Pedidos({ pedidos }: PedidosProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
   const [isOpenDetails, setIsOpenDetails] = useState(false);
@@ -79,15 +76,23 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
     resolver: zodResolver(validateRegister),
   });
 
-  const submitForm = async ({ codigoCliente, nomeCliente, codigoProduto, nomeProduto, dataPedido, quantidade, valorTotal }: ValidateData) => {
+  const submitForm = async ({
+    codigoCliente,
+    nomeCliente,
+    codigoProduto,
+    nomeProduto,
+    dataPedido,
+    quantidade,
+    valorTotal,
+  }: ValidateData) => {
     try {
-      console.log("algo")
+      console.log("algo");
     } catch (error: any) {
       return;
     }
   };
 
-  const paginatePosts = paginate(pedidos, currentPage, pageSize);
+  const paginatePedidos = paginate(pedidos, currentPage, pageSize);
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
@@ -106,7 +111,10 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
           className="w-[29rem] h-[33rem]"
         >
           <div>
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit(submitForm)}>
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit(submitForm)}
+            >
               <div className="flex flex-row gap-4">
                 <Input
                   {...register("codigoCliente")}
@@ -175,8 +183,6 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
                 placeholder="Valor Total"
                 className="w-64"
               />
-
-
             </form>
           </div>
         </Modal>
@@ -192,15 +198,37 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
         </div>
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <Table.Header headers={["ID", "Cliente", "Itens", "Data Retirada", "Valor Total", "Action"]} className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" />
+            <Table.Header
+              headers={[
+                "ID",
+                "Cliente",
+                "Itens",
+                "Data Retirada",
+                "Valor Total",
+                "Action",
+              ]}
+              className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+            />
             <Table.Body className="overflow-y-auto bg-red-400 p">
-              {paginatePosts.map((post: any) => (
-                <Table.Tr key={post.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                  <Table.Td className="w-4 p-4">{post.id}</Table.Td>
-                  <Table.Td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{post.cliente}</Table.Td>
-                  <Table.Td className="px-6 py-4">{post.itensPedido.join(", ")}</Table.Td>
-                  <Table.Td className="px-6 py-4">{moment(post.dataRetirada).locale("pt-br").format("L")}</Table.Td>
-                  <Table.Td className="px-6 py-4">{post.valorTotal}</Table.Td>
+              {paginatePedidos.map((pedido) => (
+                <Table.Tr
+                  key={pedido.id}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  <Table.Td className="w-4 p-4">{pedido.id}</Table.Td>
+                  <Table.Td
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {pedido.cliente}
+                  </Table.Td>
+                  <Table.Td className="px-6 py-4">
+                    {pedido.itensPedido.join(", ")}
+                  </Table.Td>
+                  <Table.Td className="px-6 py-4">
+                    {moment(pedido.dataRetirada).locale("pt-br").format("L")}
+                  </Table.Td>
+                  <Table.Td className="px-6 py-4">{pedido.valorTotal}</Table.Td>
                   <Table.Td className="px-6 py-4">
                     <a
                       onClick={() => toggleDetails()}
@@ -216,10 +244,6 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
           </Table.Root>
         </div>
 
-
-
-
-
         <div className="sticky bottom-2 mt-4">
           <Pagination
             items={pedidos.length}
@@ -230,6 +254,5 @@ export default function Pedidos({ pedidos }: PedidosProps): JSX.Element {
         </div>
       </div>
     </MountTransition>
-
   );
 }

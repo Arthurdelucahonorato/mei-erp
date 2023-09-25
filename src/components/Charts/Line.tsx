@@ -56,5 +56,5 @@ export const data = {
 };
 
 export function LineChart() {
-  return <Line className="w-80 max-h-80" options={options} data={data} />;
+  return <Line className="max-h-80" options={options} data={data} />;
 }

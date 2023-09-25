@@ -4,7 +4,6 @@ type InputProps = {
   label?: string;
   htmlFor?: string;
   errorMessage?: string;
-  className?: string;
 } & ComponentProps<"input">;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
