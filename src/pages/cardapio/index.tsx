@@ -1,5 +1,5 @@
-import Card from "@/components/CardProduct/Card";
-import CardGrid from "@/components/CardProduct/CardGrid";
+import { Card } from "@/components/CardProduct/Card";
+import { CardGrid } from "@/components/CardProduct/CardGrid";
 
 export default function Cardapio() {
   return (
