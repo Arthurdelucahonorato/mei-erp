@@ -1,12 +1,12 @@
 import React, { forwardRef, ComponentProps } from "react";
 
-type InputProps = {
+type TextareaProps = {
   label?: string;
   htmlFor?: string;
   errorMessage?: string;
-} & ComponentProps<"input">;
+} & ComponentProps<"textarea">;
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ htmlFor, label, errorMessage, className, ...props }, ref) => {
     return (
       <div className={`flex flex-col gap-2 ${className}`}>
@@ -16,11 +16,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         >
           {label}
         </label>
-        <input
+        <textarea
           {...props}
           ref={ref}
           id={htmlFor}
-          className="text-sm appearance-none rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline h-10"
+          className={`text-sm appearance-none rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline h-10 ${className}`}
         />
         {errorMessage && (
           <p className="text-red-500 text-sm font-semibold">{errorMessage}</p>
