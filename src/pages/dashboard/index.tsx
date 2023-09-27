@@ -10,7 +10,7 @@ interface DashboardPageProps {
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests();
+  const pedidos = await getAllRequests("pedidos");
 
   return {
     props: {

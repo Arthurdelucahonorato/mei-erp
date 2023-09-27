@@ -29,7 +29,7 @@ interface PedidosProps {
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests();
+  const pedidos = await getAllRequests("pedidos");
 
   return {
     props: {
@@ -109,7 +109,6 @@ export default function Pedidos({ pedidos }: PedidosProps) {
           isOpen={isOpenSale}
           toggle={toggleSale}
           title={"Cadastrar Pedido"}
-          className="max-w-3xl h-auto w-[90%]"
         >
           <form
             className="grid gap-4 lg:grid-cols-3 px-3"
