@@ -59,7 +59,7 @@ export default function Dashboard({ pedidos }: DashboardPageProps) {
                 <Table.Tr>
                   <Table.Td>{pedido.id}</Table.Td>
                   <Table.Td>{pedido.id}</Table.Td>
-                  <Table.Td>{"Bolo"}</Table.Td>
+                  <Table.Td>{"Salgado"}</Table.Td>
                   <Table.Td>
                     {moment(pedido.dataRetirada).locale("pt-br").format()}
                   </Table.Td>
