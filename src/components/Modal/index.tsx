@@ -13,7 +13,7 @@ export default function Modal({ ...props }: ModalType) {
       {props.isOpen && (
         <div
           onClick={props.toggle}
-          className="z-[9999] w-screen h-screen absolute top-0 left-0 bg-black/50 flex justify-center items-center"
+          className="z-[9999] w-screen h-screen absolute top-0 left-0 p-10 bg-black/50 flex justify-center items-center"
         >
           <div
             onClick={(e) => e.stopPropagation()}

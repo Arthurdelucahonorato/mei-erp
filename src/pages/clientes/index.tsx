@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
-import { GetServerSidePropsContext } from "next";
-import { api } from "@/services/api/api";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
 import moment from "moment";
@@ -15,10 +12,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
-import { RootTable } from "@/components/Table/RootTable";
-import { max } from "lodash";
 import { getAllRequests } from "@/services/api/adm/get-all-requests";
-import { Textarea } from "@/components/Textarea";
+import { ButtonTable } from "@/components/Table/ButtonTable";
 
 interface ClienteProps {
   items: number;
@@ -41,29 +36,31 @@ export async function getServerSideProps() {
 export default function Clientes({ clientes }: ClienteProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
-  const [isOpenDetails, setIsOpenDetails] = useState(false);
-  const [isOpenSale, setIsOpenSale] = useState(false);
+  const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
+  const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const toggleDetails = () => {
-    setIsOpenDetails(!isOpenDetails);
+  const toogleClienteRegister = () => {
+    setIsOpenClienteRegister(!isOpenClienteRegister);
   };
-
-  const toggleSale = () => {
-    setIsOpenSale(!isOpenSale);
+  const toogleClienteEdit = () => {
+    setIsOpenClienteEdit(!isOpenClienteEdit);
   };
 
   const validateRegister = z.object({
-    codigoCliente: z.string().nonempty("Campo obrigatório"),
+    codigoCliente: z.string(),
     nomeCliente: z.string().nonempty("Campo obrigatório"),
-    codigoProduto: z.string().nonempty("Campo obrigatório"),
     telefone: z.string().nonempty("Campo obrigatório"),
-    dataPedido: z.string().nonempty("Campo obrigatório"),
-    quantidade: z.string().nonempty("Campo obrigatório"),
-    valorTotal: z.string().nonempty("Campo obrigatório"),
+    email: z.string(),
+    cep: z.string().nonempty("Campo obrigatório"),
+    cidade: z.string(),
+    bairro: z.string().nonempty("Campo obrigatório"),
+    rua: z.string().nonempty("Campo obrigatório"),
+    numero: z.string().nonempty("Campo obrigatório"),
+    complemento: z.string(),
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -74,20 +71,42 @@ export default function Clientes({ clientes }: ClienteProps) {
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
-    resolver: zodResolver(validateRegister),
+    resolver: zodResolver(validateRegister)
   });
 
-  const submitForm = async ({
+  const submitFormRegister = async ({
     codigoCliente,
     nomeCliente,
-    codigoProduto,
+    email,
     telefone,
-    dataPedido,
-    quantidade,
-    valorTotal,
+    cep,
+    cidade,
+    bairro,
+    rua,
+    numero,
+    complemento
   }: ValidateData) => {
     try {
-      console.log("algo");
+      alert("Cadastrou");
+    } catch (error: any) {
+      console.log(error);
+      return;
+    }
+  };
+  const submitFormEdit = async ({
+    codigoCliente,
+    nomeCliente,
+    email,
+    telefone,
+    cep,
+    cidade,
+    bairro,
+    rua,
+    numero,
+    complemento
+  }: ValidateData) => {
+    try {
+      console.log("Editou");
     } catch (error: any) {
       return;
     }
@@ -95,85 +114,145 @@ export default function Clientes({ clientes }: ClienteProps) {
 
   const paginateClientes = paginate(clientes, currentPage, pageSize);
 
+  interface FormClienteType {
+    formClienteIsOpen: boolean;
+    titleModal: String;
+    toogleFormCliente: () => void;
+    submitFormCliente: () => void;
+  }
+
+  const FormCliente = ({ formClienteIsOpen, titleModal, toogleFormCliente, submitFormCliente, ...props }: FormClienteType) => {
+    return (
+      <Modal
+        isOpen={formClienteIsOpen}
+        toggle={toogleFormCliente}
+        title={titleModal}
+      >
+        <form
+          className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
+          onSubmit={submitFormCliente}
+        >
+          <Input className="col-span-3 md:col-span-12"
+            {...register("nomeCliente")}
+            label="Nome"
+            htmlFor="nomeCliente"
+            errorMessage={errors.nomeCliente?.message}
+            type="text"
+            placeholder="Nome do Cliente"
+            required
+          />
+
+          <Input
+            {...register("email")}
+            className="col-span-2 md:col-span-8"
+            label="E-mail"
+            htmlFor="email"
+            type="text"
+            placeholder="E-mail"
+          />
+          <Input className="col-span-1 md:col-span-4"
+            {...register("telefone")}
+            label="Telefone"
+            htmlFor="telefone"
+            errorMessage={errors.telefone?.message}
+            type="text"
+            placeholder="Telefone"
+            required
+          />
+          <Input
+            className="col-span-1 md:col-span-2"
+            {...register("cep")}
+            label="CEP"
+            htmlFor="cep"
+            errorMessage={errors.cep?.message}
+            type="number"
+            placeholder="CEP"
+            required
+          />
+          <Input
+            {...register("cidade")}
+            className="col-span-2 md:col-span-10"
+            label="Cidade"
+            htmlFor="cidade"
+            type="text"
+            placeholder="Cidade"
+            disabled
+          />
+          <Input
+            className="col-span-1 md:col-span-5"
+            {...register("bairro")}
+            label="Bairro"
+            htmlFor="bairro"
+            errorMessage={errors.bairro?.message}
+            type="text"
+            placeholder="Bairro"
+            required
+          />
+          <Input
+            className="col-span-2 md:col-span-5"
+            {...register("rua")}
+            label="Rua"
+            htmlFor="rua"
+            errorMessage={errors.rua?.message}
+            type="text"
+            placeholder="Rua"
+            required
+          />
+          <Input
+            className="col-span-1 md:col-span-2"
+            {...register("numero")}
+            label="Número"
+            htmlFor="numero"
+            errorMessage={errors.numero?.message}
+            type="text"
+            placeholder="Número"
+            required
+          />
+          <Input
+            {...register("complemento")}
+            className="col-span-2 md:col-span-12"
+            label="Complemento"
+            htmlFor="complemento"
+            type="text"
+            placeholder="Complemento"
+          />
+          <div className="ml-auto col-span-3 md:col-span-12">
+            <Button onClick={() => submitFormCliente()}>{titleModal}</Button>
+          </div>
+        </form>
+      </Modal>
+    );
+
+  }
+
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-        <Modal
+        {/*         <Modal
           isOpen={isOpenDetails}
           toggle={toggleDetails}
-          title={"Detalhes do Cliente"}
+          title={"Editar Cliente"}
         >
           Conteudo do modal
-        </Modal>
-        <Modal
-          isOpen={isOpenSale}
-          toggle={toggleSale}
-          title={"Cadastrar Cliente"}
-        >
-          <form
-            className="grid gap-4 lg:grid-cols-3 px-3"
-            onSubmit={handleSubmit(submitForm)}
-          >
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* <Input
-                  {...register("codigoCliente")}
-                  label="Código Cliente"
-                  htmlFor="codigoCliente"
-                  errorMessage={errors.codigoCliente?.message}
-                  type="number"
-                  placeholder="Código do cliente"
-                  className="w-40"
-                /> */}
-              <Input
-                {...register("nomeCliente")}
-                label="Nome"
-                htmlFor="nomeCliente"
-                errorMessage={errors.nomeCliente?.message}
-                type="text"
-                placeholder="Nome do Cliente"
-              />
-            </div>
-            <div className="flex flex-col lg:flex-row gap-4">
-              <Input
-                {...register("telefone")}
-                label="Telefone"
-                htmlFor="telefone"
-                errorMessage={errors.telefone?.message}
-                type="number"
-                placeholder="Telefone"
-              />
-            </div>
-            <Input
-              {...register("valorTotal")}
-              label="Valor"
-              htmlFor="valorTotal"
-              errorMessage={errors.valorTotal?.message}
-              type="number"
-              placeholder="Valor Total"
-            />
-            <Input
-              className="col-span-2 lg:col-span-1"
-              {...register("dataPedido")}
-              label="Data do Pedido"
-              htmlFor="dataPedido"
-              errorMessage={errors.dataPedido?.message}
-              type="date"
-              placeholder="Data do Pedido"
-            />
-            <Textarea
-              className="col-span-3 !h-fit resize-none"
-              label="Observações"
-              placeholder="Detalhes do pedido"
-            />
-            <div className="ml-auto col-span-3">
-              <Button>Finalizar Pedido</Button>
-            </div>
-          </form>
-        </Modal>
+        </Modal> */}
+
+        <FormCliente
+          formClienteIsOpen={isOpenClienteRegister}
+          toogleFormCliente={toogleClienteRegister}
+          titleModal={"Cadastrar Cliente"}
+          submitFormCliente={handleSubmit(submitFormRegister)}
+        />
+        <FormCliente
+          formClienteIsOpen={isOpenClienteEdit}
+          toogleFormCliente={toogleClienteEdit}
+          titleModal={"Editar Cliente"}
+          submitFormCliente={handleSubmit(submitFormEdit)}
+        />
+
         <div className="flex justify-between m-1 max-h-12">
           <div className="relative"></div>
           <div className="flex aspect-square">
-            <Button onClick={() => toggleSale()}>
+            <Button onClick={() => toogleClienteRegister()}>
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Cliente
               </div>
@@ -181,7 +260,7 @@ export default function Clientes({ clientes }: ClienteProps) {
           </div>
         </div>
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
-          <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
               headers={[
                 "ID",
@@ -189,8 +268,7 @@ export default function Clientes({ clientes }: ClienteProps) {
                 "Telefone",
                 "E-mail",
                 "Endereço",
-                "Editar",
-                "Deletar",
+
               ]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
@@ -202,20 +280,15 @@ export default function Clientes({ clientes }: ClienteProps) {
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
                   <Table.Td>{cliente.endereco}</Table.Td>
-                  <Table.Td>
-                    <button
-                      onClick={() => toggleDetails()}
-                      className="font-medium text-gray-500 dark:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-xl aspect-square"
-                    >
-                      <BsPencil className={"text-lg"} />
-                    </button>
-                  </Table.Td>
-                  <Table.Td>
-                    <button
-                      className="font-medium text-white bg-red-600 p-2 rounded-xl aspect-square"
-                    >
-                      <BsTrash className={"text-lg"} />
-                    </button>
+                  <Table.Td isButton={true}>
+                    <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
+                      <ButtonTable onClick={() => toogleClienteEdit()} >
+                        <BsPencil className={"text-lg"} />
+                      </ButtonTable>
+                      <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                        <BsTrash className={"text-lg"} />
+                      </ButtonTable>
+                    </div>
                   </Table.Td>
                 </Table.Tr>
               ))}
