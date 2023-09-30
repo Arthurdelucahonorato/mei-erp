@@ -14,7 +14,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <div className="flex flex-row">
           <label
             htmlFor={htmlFor}
-            className="block text-gray-700 dark:text-white text-sm font-semibold"
+            className="block text-gray-700 dark:text-white text-sm font-semibold truncate"
           >
             {label}
           </label>
