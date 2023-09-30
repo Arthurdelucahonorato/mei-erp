@@ -4,19 +4,18 @@ import { ButtonTable } from "../Table/ButtonTable";
 import { Table } from "@/components/Table/index";
 import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
+import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 
 interface ModalType {
     children?: ReactNode;
-    /*     isOpen: boolean; */
     title: String;
     listValues: any[];
-    /*     toggle: () => void; */
-
+    listLabels: string[];
 }
 
 
 
-export default function Lov({ listValues, ...props }: ModalType) {
+export default function Lov({ listValues, listLabels, ...props }: ModalType) {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
     const [isOpen, setIsOpen] = useState(false);
@@ -38,12 +37,9 @@ export default function Lov({ listValues, ...props }: ModalType) {
             {isOpen && (
                 <div
                     onClick={toggleIsOpen}
-                    className="z-[9999] w-screen h-screen absolute top-0 left-0 p-10 bg-black/50 flex justify-center items-center"
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className={`bg-white dark:bg-gray-800 p-4 rounded-md flex-col flex gap-2`}
-                    >
+                    className="z-[9999] w-screen h-full absolute top-0 left-0 p-10 bg-black/50 flex justify-center items-center">
+                    <div onClick={(e) => e.stopPropagation()}
+                        className={`bg-white dark:bg-gray-800 p-4 rounded-md flex-col flex gap-2`}>
                         <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                                 {props.title}
@@ -75,25 +71,16 @@ export default function Lov({ listValues, ...props }: ModalType) {
                             <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
                                 <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                                     <Table.Header
-                                        headers={[
-                                            "ID",
-                                            "Nome",
-                                            "Telefone",
-                                            "E-mail",
-                                            "Endereço",
-
-                                        ]}
+                                        headers={listLabels}
                                         className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
                                     />
                                     <Table.Body className="overflow-y-auto">
                                         {paginateLov.map((value) => (
-                                            <Table.Tr key={"cliente.id"} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                                <Table.Td className="w-4 p-4">{"cliente.id"}</Table.Td>
-                                                <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{"cliente.nome"}</Table.Td>
-                                                <Table.Td>{"cliente.telefone"}</Table.Td>
-                                                <Table.Td>{"cliente.email"}</Table.Td>
-                                                <Table.Td>{"cliente.endereco"}</Table.Td>
-
+                                            <Table.Tr key={value.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                                <Table.Td>{value[0]}</Table.Td>
+                                                <Table.Td>{value[1]}</Table.Td>
+                                                <Table.Td>{value[2]}</Table.Td>
+                                                <Table.Td>{value[3]}</Table.Td>
                                             </Table.Tr>
                                         ))}
                                     </Table.Body>
@@ -110,6 +97,7 @@ export default function Lov({ listValues, ...props }: ModalType) {
                         </div>
                     </div>
                 </div>
+
 
             )
             }
