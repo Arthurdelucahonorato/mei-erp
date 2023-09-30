@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
 import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
+import Lov from "@/components/Lov";
 
 interface ClienteProps {
   items: number;
@@ -38,6 +39,7 @@ export default function Clientes({ clientes }: ClienteProps) {
   const pageSize = 12;
   const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
+  const [lovIsOpen, setLovIsOpen] = useState(false);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -141,7 +143,6 @@ export default function Clientes({ clientes }: ClienteProps) {
             placeholder="Nome do Cliente"
             required
           />
-
           <Input
             {...register("email")}
             className="col-span-2 md:col-span-8"
