@@ -5,6 +5,10 @@ import { Table } from "@/components/Table/index";
 import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
+import { Input } from "@/components/Input"
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface ModalType {
     children?: ReactNode;
@@ -12,8 +16,6 @@ interface ModalType {
     listValues: any[];
     listLabels: string[];
 }
-
-
 
 export default function Lov({ listValues, listLabels, ...props }: ModalType) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,15 +25,32 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
         setIsOpen(!isOpen);
     };
 
+    const queryRegister = z.object({
+        nome: z.string(),
+    });
+
+    type ValidateData = z.infer<typeof queryRegister>;
+
+    const {
+        register,
+        getValues,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<ValidateData>({
+        mode: "onChange",
+        resolver: zodResolver(queryRegister),
+    });
+    console.log(watch('nome'))
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
     const paginateLov = paginate(listValues, currentPage, pageSize);
-
+    console.log("paginateLov")
+    console.log(paginateLov)
     return (
         <div>
-            <ButtonTable onClick={() => setIsOpen(!isOpen)} className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg">
+            <ButtonTable type="button" onClick={() => setIsOpen(!isOpen)} className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg">
                 <BsSearch />
             </ButtonTable>
             {isOpen && (
@@ -67,7 +86,13 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                                 </svg>
                             </button>
                         </div>
-                        <div className="flex">
+                        <div className="flex flex-col">
+                            <Input className="col-span-2 md:col-span-9 mb-1"
+                                {...register("nome")}
+                                htmlFor="nome"
+                                type="text"
+                                placeholder="Pesquisar"
+                            />
                             <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
                                 <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                                     <Table.Header
@@ -75,12 +100,11 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                                         className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
                                     />
                                     <Table.Body className="overflow-y-auto">
-                                        {paginateLov.map((value) => (
+                                        {paginateLov.filter(val => (val.includes(watch("nome")))).map((value) => (
                                             <Table.Tr key={value.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                                <Table.Td>{value[0]}</Table.Td>
-                                                <Table.Td>{value[1]}</Table.Td>
-                                                <Table.Td>{value[2]}</Table.Td>
-                                                <Table.Td>{value[3]}</Table.Td>
+                                                {value.map((coluna) => (<Table.Td>{coluna}</Table.Td>))
+
+                                                }
                                             </Table.Tr>
                                         ))}
                                     </Table.Body>

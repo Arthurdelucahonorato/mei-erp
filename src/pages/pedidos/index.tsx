@@ -20,6 +20,7 @@ import { max } from "lodash";
 import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { Textarea } from "@/components/Textarea";
 import { ButtonTable } from "@/components/Table/ButtonTable";
+import Lov from "@/components/Lov";
 
 interface PedidosProps {
   items: number;
@@ -27,25 +28,39 @@ interface PedidosProps {
   currentPage: number;
   onPageChange: (page: number) => void;
   pedidos: ClientRequest[];
+  clientes: any[];
 }
 
 export async function getServerSideProps() {
   const pedidos = await getAllRequests("pedidos");
+  const clientes = await getAllRequests("clientes");
 
   return {
     props: {
       pedidos: pedidos,
+      clientes: clientes,
     },
   };
 }
 
-export default function Pedidos({ pedidos }: PedidosProps) {
+export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
   const [isOpenPedidoEdit, setIsOpenPedidoEdit] = useState(false);
   const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
   const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
 
+  const arrayId = clientes.map(cliente => {
+    return [
+      cliente.id,
+      cliente.nome,
+      cliente.cidade,
+      cliente.telefone
+
+    ]
+  })
+  console.log("arrayId")
+  console.log(arrayId)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -146,6 +161,7 @@ export default function Pedidos({ pedidos }: PedidosProps) {
             placeholder="Codigo do Cliente"
             required
           />
+          <Lov title={"Seleção de Cliente"} listLabels={["ID", "Nome", "Cidade", "Telefone"]} listValues={arrayId}></Lov>
           <Input className="col-span-2 md:col-span-9"
             {...register("nomeCliente")}
             label="Nome"
