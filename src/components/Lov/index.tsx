@@ -44,8 +44,9 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
-
-    const paginateLov = paginate(listValues, currentPage, pageSize);
+    const listValuesFilter = listValues.filter(val => (val.some((v: string) => v.toLowerCase().includes((watch("nome") != undefined ? watch("nome") : "").toLowerCase()))));
+    const paginateLov: any[][] = paginate(listValuesFilter, currentPage, pageSize);
+    currentPage >= (listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
     console.log("paginateLov")
     console.log(paginateLov)
     return (
@@ -100,11 +101,9 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                                         className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
                                     />
                                     <Table.Body className="overflow-y-auto">
-                                        {paginateLov.filter(val => (val.includes(watch("nome")))).map((value) => (
-                                            <Table.Tr key={value.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                                {value.map((coluna) => (<Table.Td>{coluna}</Table.Td>))
-
-                                                }
+                                        {paginateLov.map((value, index) => (
+                                            <Table.Tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                                {value.map((coluna: any) => (<Table.Td>{coluna}</Table.Td>))}
                                             </Table.Tr>
                                         ))}
                                     </Table.Body>
@@ -113,7 +112,7 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                         </div>
                         <div className="sticky bottom-2 mt-4">
                             <Pagination
-                                items={listValues.length}
+                                items={listValuesFilter.length}
                                 currentPage={currentPage}
                                 pageSize={pageSize}
                                 onPageChange={handlePageChange}
