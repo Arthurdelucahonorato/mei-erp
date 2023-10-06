@@ -8,7 +8,7 @@ import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
 import moment from "moment";
 import "moment/locale/pt-br";
-import { BsCartPlus } from "react-icons/bs";
+import { BsCartPlus, BsPencil, BsTrash } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
 import { z } from "zod";
@@ -19,6 +19,8 @@ import { RootTable } from "@/components/Table/RootTable";
 import { max } from "lodash";
 import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { Textarea } from "@/components/Textarea";
+import { ButtonTable } from "@/components/Table/ButtonTable";
+import Lov from "@/components/Lov";
 
 interface PedidosProps {
   items: number;
@@ -26,44 +28,64 @@ interface PedidosProps {
   currentPage: number;
   onPageChange: (page: number) => void;
   pedidos: ClientRequest[];
+  clientes: any[];
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests();
+  const pedidos = await getAllRequests("pedidos");
+  const clientes = await getAllRequests("clientes");
 
   return {
     props: {
       pedidos: pedidos,
+      clientes: clientes,
     },
   };
 }
 
-export default function Pedidos({ pedidos }: PedidosProps) {
+export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
-  const [isOpenDetails, setIsOpenDetails] = useState(false);
-  const [isOpenSale, setIsOpenSale] = useState(false);
+  const [isOpenPedidoEdit, setIsOpenPedidoEdit] = useState(false);
+  const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
+  const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
 
+  const arrayId = clientes.map(cliente => {
+    return [
+      cliente.id,
+      cliente.nome,
+      cliente.cidade,
+      cliente.telefone
+
+    ]
+  })
+  console.log("arrayId")
+  console.log(arrayId)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const toggleDetails = () => {
-    setIsOpenDetails(!isOpenDetails);
+    setIsOpenPedidoDetails(!isOpenPedidoDetails);
   };
 
-  const toggleSale = () => {
-    setIsOpenSale(!isOpenSale);
+  const togglePedidoRegister = () => {
+    setIsOpenPedidoRegister(!isOpenPedidoRegister);
+  };
+
+  const togglePedidoEdit = () => {
+    setIsOpenPedidoEdit(!isOpenPedidoEdit);
   };
 
   const validateRegister = z.object({
     codigoCliente: z.string().nonempty("Campo obrigatório"),
     nomeCliente: z.string().nonempty("Campo obrigatório"),
-    codigoProduto: z.string().nonempty("Campo obrigatório"),
-    nomeProduto: z.string().nonempty("Campo obrigatório"),
     dataPedido: z.string().nonempty("Campo obrigatório"),
-    quantidade: z.string().nonempty("Campo obrigatório"),
-    valorTotal: z.string().nonempty("Campo obrigatório"),
+    dataEntrega: z.string().nonempty("Campo obrigatório"),
+    status: z.string().nonempty("Campo obrigatório"),
+    formaPagamento: z.string().nonempty("Campo obrigatório"),
+    modalidadeEntrega: z.string().nonempty("Campo obrigatório"),
+    observacao: z.string().nonempty("Campo obrigatório"),
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -77,14 +99,31 @@ export default function Pedidos({ pedidos }: PedidosProps) {
     resolver: zodResolver(validateRegister),
   });
 
-  const submitForm = async ({
+  const submitFormRegister = async ({
     codigoCliente,
     nomeCliente,
-    codigoProduto,
-    nomeProduto,
     dataPedido,
-    quantidade,
-    valorTotal,
+    dataEntrega,
+    status,
+    formaPagamento,
+    modalidadeEntrega,
+    observacao,
+  }: ValidateData) => {
+    try {
+      console.log("algo");
+    } catch (error: any) {
+      return;
+    }
+  };
+  const submitFormEdit = async ({
+    codigoCliente,
+    nomeCliente,
+    dataPedido,
+    dataEntrega,
+    status,
+    formaPagamento,
+    modalidadeEntrega,
+    observacao,
   }: ValidateData) => {
     try {
       console.log("algo");
@@ -95,104 +134,136 @@ export default function Pedidos({ pedidos }: PedidosProps) {
 
   const paginatePedidos = paginate(pedidos, currentPage, pageSize);
 
+  interface FormPedidoType {
+    formPedidoIsOpen: boolean;
+    titleModal: String;
+    toogleFormPedido: () => void;
+    submitFormPedido: () => void;
+  }
+
+  const FormPedido = ({ formPedidoIsOpen, titleModal, toogleFormPedido, submitFormPedido, ...props }: FormPedidoType) => {
+    return (
+      <Modal
+        isOpen={formPedidoIsOpen}
+        toggle={toogleFormPedido}
+        title={titleModal}
+      >
+        <form
+          className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
+          onSubmit={submitFormPedido}
+        >
+          <Input className="col-span-1 md:col-span-3"
+            {...register("codigoCliente")}
+            label="Codigo do Cliente"
+            htmlFor="codigoCliente"
+            errorMessage={errors.codigoCliente?.message}
+            type="text"
+            placeholder="Codigo do Cliente"
+            required
+          />
+          <Lov title={"Seleção de Cliente"} listLabels={["ID", "Nome", "Cidade", "Telefone"]} listValues={arrayId}></Lov>
+          <Input className="col-span-2 md:col-span-9"
+            {...register("nomeCliente")}
+            label="Nome"
+            htmlFor="nomeCliente"
+            errorMessage={errors.nomeCliente?.message}
+            type="text"
+            placeholder="Nome do Cliente"
+            disabled
+          />
+
+          <Input
+            className="col-span-1 md:col-span-4"
+            {...register("dataPedido")}
+            label="Data do Pedido"
+            htmlFor="dataPedido"
+            errorMessage={errors.dataPedido?.message}
+            type="date"
+            placeholder="Data do Pedido"
+            required
+          />
+
+          <Input className="col-span-1 md:col-span-4"
+            {...register("formaPagamento")}
+            label="Forma de Pagamento"
+            htmlFor="formaPagamento"
+            errorMessage={errors.formaPagamento?.message}
+            type=""
+            placeholder="Forma de Pagamento"
+            required
+          />
+
+          <Input
+            {...register("status")}
+            className="col-span-1 md:col-span-4"
+            label="Status"
+            htmlFor="status"
+            errorMessage={errors.status?.message}
+            type="text"
+            placeholder="Status"
+            required
+          />
+
+
+          <Input
+            className="col-span-1 md:col-span-4"
+            {...register("dataEntrega")}
+            label="Data da Entrega"
+            htmlFor="dataEntrega"
+            errorMessage={errors.dataEntrega?.message}
+            type="date"
+            placeholder="Data da Entrega"
+            required
+          />
+
+          <Input
+            className="col-span-1 md:col-span-4"
+            {...register("modalidadeEntrega")}
+            label="Modalidade da Entrega"
+            htmlFor="modalidadeEntrega"
+            errorMessage={errors.modalidadeEntrega?.message}
+            type="number"
+            placeholder="Modalidade da Entrega"
+            required
+          />
+
+          <Input
+            {...register("observacao")}
+            className="col-span-3 md:col-span-12"
+            label="Observação"
+            htmlFor="observacao"
+            type="text"
+            placeholder="Observação"
+          />
+          <div className="flex justify-center col-span-3 md:col-span-12">
+            <div>
+              <Button onClick={() => submitFormPedido()}>{titleModal}</Button>
+            </div>
+          </div>
+        </form>
+      </Modal>
+    );
+
+  }
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-        <Modal
-          isOpen={isOpenDetails}
-          toggle={toggleDetails}
-          title={"Detalhes do Pedidos"}
-        >
-          Conteudo do modal
-        </Modal>
-        <Modal
-          isOpen={isOpenSale}
-          toggle={toggleSale}
-          title={"Cadastrar Pedido"}
-          className="max-w-3xl h-auto w-[90%]"
-        >
-          <form
-            className="grid gap-4 lg:grid-cols-3 px-3"
-            onSubmit={handleSubmit(submitForm)}
-          >
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* <Input
-                  {...register("codigoCliente")}
-                  label="Código Cliente"
-                  htmlFor="codigoCliente"
-                  errorMessage={errors.codigoCliente?.message}
-                  type="number"
-                  placeholder="Código do cliente"
-                  className="w-40"
-                /> */}
-              <Input
-                {...register("nomeCliente")}
-                label="Cliente"
-                htmlFor="nomeCliente"
-                errorMessage={errors.nomeCliente?.message}
-                type="text"
-                placeholder="Nome do Cliente"
-              />
-            </div>
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* <Input
-                  {...register("codigoProduto")}
-                  label="Código Produto"
-                  htmlFor="codigoProduto"
-                  errorMessage={errors.codigoProduto?.message}
-                  type="number"
-                  placeholder="Codigo do Produto"
-                  className="w-40"
-                /> */}
-              <Input
-                {...register("nomeProduto")}
-                label="Produto"
-                htmlFor="nomeProduto"
-                errorMessage={errors.nomeProduto?.message}
-                type="number"
-                placeholder="Nome do Produto"
-              />
-            </div>
-
-            <Input
-              {...register("quantidade")}
-              label="Quantidade"
-              htmlFor="quantidade"
-              errorMessage={errors.quantidade?.message}
-              type="number"
-              placeholder="Quantidade"
-            />
-            <Input
-              {...register("valorTotal")}
-              label="Valor"
-              htmlFor="valorTotal"
-              errorMessage={errors.valorTotal?.message}
-              type="number"
-              placeholder="Valor Total"
-            />
-            <Input
-              className="col-span-2 lg:col-span-1"
-              {...register("dataPedido")}
-              label="Data do Pedido"
-              htmlFor="dataPedido"
-              errorMessage={errors.dataPedido?.message}
-              type="date"
-              placeholder="Data do Pedido"
-            />
-            <Textarea
-              className="col-span-3 !h-fit resize-none"
-              label="Observações"
-              placeholder="Detalhes do pedido"
-            />
-            <div className="ml-auto col-span-3">
-              <Button>Finalizar Pedido</Button>
-            </div>
-          </form>
-        </Modal>
+        <FormPedido
+          formPedidoIsOpen={isOpenPedidoRegister}
+          toogleFormPedido={togglePedidoRegister}
+          titleModal={"Cadastrar Pedido"}
+          submitFormPedido={handleSubmit(submitFormRegister)}
+        />
+        <FormPedido
+          formPedidoIsOpen={isOpenPedidoEdit}
+          toogleFormPedido={togglePedidoEdit}
+          titleModal={"Editar Pedido"}
+          submitFormPedido={handleSubmit(submitFormEdit)}
+        />
         <div className="flex justify-between m-1 max-h-12">
           <div className="relative"></div>
           <div className="flex aspect-square">
-            <Button onClick={() => toggleSale()}>
+            <Button onClick={() => togglePedidoRegister()}>
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Pedido
               </div>
@@ -200,7 +271,7 @@ export default function Pedidos({ pedidos }: PedidosProps) {
           </div>
         </div>
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
-          <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
               headers={[
                 "ID",
@@ -208,35 +279,26 @@ export default function Pedidos({ pedidos }: PedidosProps) {
                 "Itens",
                 "Data Retirada",
                 "Valor Total",
-                "Action",
               ]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
-            <Table.Body className="overflow-y-auto bg-red-400 p">
+            <Table.Body className="overflow-y-auto">
               {paginatePedidos.map((pedido) => (
-                <Table.Tr
-                  key={pedido.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
+                <Table.Tr key={pedido.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <Table.Td className="w-4 p-4">{pedido.id}</Table.Td>
-                  <Table.Td
-                    scope="row"
-                    className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    {pedido.cliente}
-                  </Table.Td>
+                  <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{pedido.cliente}</Table.Td>
                   <Table.Td>{pedido.itensPedido.join(", ")}</Table.Td>
-                  <Table.Td>
-                    {moment(pedido.dataRetirada).locale("pt-br").format("L")}
-                  </Table.Td>
+                  <Table.Td>{moment(pedido.dataRetirada).locale("pt-br").format("L")}</Table.Td>
                   <Table.Td>{pedido.valorTotal}</Table.Td>
-                  <Table.Td>
-                    <button
-                      onClick={() => toggleDetails()}
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
-                      Detalhes
-                    </button>
+                  <Table.Td isButton={true}>
+                    <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
+                      <ButtonTable onClick={() => togglePedidoEdit()} >
+                        <BsPencil className={"text-lg"} />
+                      </ButtonTable>
+                      <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                        <BsTrash className={"text-lg"} />
+                      </ButtonTable>
+                    </div>
                   </Table.Td>
                 </Table.Tr>
               ))}
