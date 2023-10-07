@@ -10,14 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-interface ModalType {
-    children?: ReactNode;
-    title: String;
-    listValues: any[];
-    listLabels: string[];
-}
-
-export default function Lov({ listValues, listLabels, ...props }: ModalType) {
+export default function Lov({ listValues, listLabels, title, onClick, ...props }: LovType) {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
     const [isOpen, setIsOpen] = useState(false);
@@ -40,18 +33,21 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
         mode: "onChange",
         resolver: zodResolver(queryRegister),
     });
-    console.log(watch('nome'))
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
+
+    const onClickLov = (value: any[]) => {
+        onClick(value);
+        toggleIsOpen()
+    }
+
     const listValuesFilter = listValues.filter(val => (val.some((v: string) => v.toLowerCase().includes((watch("nome") != undefined ? watch("nome") : "").toLowerCase()))));
     const paginateLov: any[][] = paginate(listValuesFilter, currentPage, pageSize);
-    currentPage >= (listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
-    console.log("paginateLov")
-    console.log(paginateLov)
+    currentPage > Math.ceil(listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
     return (
         <div>
-            <ButtonTable type="button" onClick={() => setIsOpen(!isOpen)} className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg">
+            <ButtonTable type="button" onClick={() => setIsOpen(!isOpen)} className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg py-2 h-10">
                 <BsSearch />
             </ButtonTable>
             {isOpen && (
@@ -62,7 +58,7 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                         className={`bg-white dark:bg-gray-800 p-4 rounded-md flex-col flex gap-2`}>
                         <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                {props.title}
+                                {title}
                             </h3>
                             <button
                                 onClick={toggleIsOpen}
@@ -102,7 +98,7 @@ export default function Lov({ listValues, listLabels, ...props }: ModalType) {
                                     />
                                     <Table.Body className="overflow-y-auto">
                                         {paginateLov.map((value, index) => (
-                                            <Table.Tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            <Table.Tr key={index} onClick={() => onClickLov(value)} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                                 {value.map((coluna: any) => (<Table.Td>{coluna}</Table.Td>))}
                                             </Table.Tr>
                                         ))}

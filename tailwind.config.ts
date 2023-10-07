@@ -41,6 +41,8 @@ const config: Config = {
           "second-tone": "#35B3B5",
           "third-tone": "#52B9BD",
           "fourth-tone": "#8CC6CE",
+          "fifth-tone": "#bae3e3",
+
         },
         accent: {
           DEFAULT: "#95A4FC",

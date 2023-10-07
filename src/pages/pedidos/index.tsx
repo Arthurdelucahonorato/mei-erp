@@ -21,6 +21,7 @@ import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { Textarea } from "@/components/Textarea";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
+import ComboBox from '@/components/ComboBox'
 
 interface PedidosProps {
   items: number;
@@ -43,6 +44,15 @@ export async function getServerSideProps() {
   };
 }
 
+const valoresCombo = [
+  { value: "PIX", name: 'Pix' },
+  { value: "A_VISTA", name: 'A vista' },
+  { value: "CARTAO_CREDITO", name: 'Cartão Crédito' },
+  { value: "CARTAO_DEBITO", name: 'Cartão Débito' },
+  { value: "DINHEIRO", name: 'Dinheiro' },
+]
+
+
 export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -59,8 +69,7 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
 
     ]
   })
-  console.log("arrayId")
-  console.log(arrayId)
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -76,6 +85,11 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const togglePedidoEdit = () => {
     setIsOpenPedidoEdit(!isOpenPedidoEdit);
   };
+
+  const onClickLov = (selectedValue: any[]) => {
+    setValue('codigoCliente', selectedValue[0])
+    setValue("nomeCliente", selectedValue[1])
+  }
 
   const validateRegister = z.object({
     codigoCliente: z.string().nonempty("Campo obrigatório"),
@@ -93,11 +107,14 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
   });
+
+
 
   const submitFormRegister = async ({
     codigoCliente,
@@ -132,6 +149,13 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
     }
   };
 
+  const lovValues = {
+    title: "Seleção de Cliente",
+    listLabels: ["ID", "Nome", "Cidade", "Telefone"],
+    listValues: arrayId,
+    onClick: onClickLov
+  }
+
   const paginatePedidos = paginate(pedidos, currentPage, pageSize);
 
   interface FormPedidoType {
@@ -142,6 +166,7 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   }
 
   const FormPedido = ({ formPedidoIsOpen, titleModal, toogleFormPedido, submitFormPedido, ...props }: FormPedidoType) => {
+    console.log(register('formaPagamento'))
     return (
       <Modal
         isOpen={formPedidoIsOpen}
@@ -160,8 +185,9 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
             type="text"
             placeholder="Codigo do Cliente"
             required
+            lovButton={lovValues}
+
           />
-          <Lov title={"Seleção de Cliente"} listLabels={["ID", "Nome", "Cidade", "Telefone"]} listValues={arrayId}></Lov>
           <Input className="col-span-2 md:col-span-9"
             {...register("nomeCliente")}
             label="Nome"
@@ -183,15 +209,22 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
             required
           />
 
-          <Input className="col-span-1 md:col-span-4"
-            {...register("formaPagamento")}
+          {/*           <Input 
             label="Forma de Pagamento"
             htmlFor="formaPagamento"
             errorMessage={errors.formaPagamento?.message}
             type=""
             placeholder="Forma de Pagamento"
             required
-          />
+          /> */}
+
+          <ComboBox className="col-span-1 md:col-span-4"
+            {...register("formaPagamento")}
+            currentValue={"teste"}
+            values={valoresCombo}
+            label="Forma de Pagamento"
+            required
+            errorMessage={errors.formaPagamento?.message} />
 
           <Input
             {...register("status")}
