@@ -16,20 +16,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
 import { RootTable } from "@/components/Table/RootTable";
-import { max } from "lodash";
+import { get, max } from "lodash";
 import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { Textarea } from "@/components/Textarea";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from '@/components/ComboBox'
+import { watch } from "fs";
 
 interface PedidosProps {
   items: number;
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  pedidos: ClientRequest[];
-  clientes: any[];
+  pedidos: OrderRequest[];
+  clientes: ClientRequest[];
 }
 
 export async function getServerSideProps() {
@@ -44,7 +45,7 @@ export async function getServerSideProps() {
   };
 }
 
-const valoresCombo = [
+const ValoresFormaPagamento = [
   { value: "PIX", name: 'Pix' },
   { value: "A_VISTA", name: 'A vista' },
   { value: "CARTAO_CREDITO", name: 'Cartão Crédito' },
@@ -80,15 +81,33 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
 
   const togglePedidoRegister = () => {
     setIsOpenPedidoRegister(!isOpenPedidoRegister);
+    reset();
   };
 
-  const togglePedidoEdit = () => {
+  const togglePedidoEdit = (pedido?: any) => {
+    reset();
     setIsOpenPedidoEdit(!isOpenPedidoEdit);
+    if (!isOpenPedidoEdit) {
+      console.log(pedido)
+      setValue("codigoCliente", pedido.idCliente);
+      setValue("nomeCliente", pedido.nomeCliente);
+      /*       setValue("dataPedido", pedido.dataPedido);
+            setValue("dataEntrega", pedido.dataEntrega);
+            setValue("formaPagamento", pedido.formaPagamento);
+            setValue("status", pedido.statusPedido);
+            setValue("modalidadeEntrega", pedido.modalidadeEntrega);
+            setValue("observacao", pedido.observacao); */
+    }
   };
 
   const onClickLov = (selectedValue: any[]) => {
     setValue('codigoCliente', selectedValue[0])
     setValue("nomeCliente", selectedValue[1])
+  }
+  const onChangeComboBox = (selectedValue: { value: string, name: string }) => {
+    setValue('formaPagamento', selectedValue)
+    console.log(getValues('formaPagamento'))
+
   }
 
   const validateRegister = z.object({
@@ -97,7 +116,7 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
     status: z.string().nonempty("Campo obrigatório"),
-    formaPagamento: z.string().nonempty("Campo obrigatório"),
+    formaPagamento: z.object({ value: z.string(), name: z.string() }),
     modalidadeEntrega: z.string().nonempty("Campo obrigatório"),
     observacao: z.string().nonempty("Campo obrigatório"),
   });
@@ -108,6 +127,8 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
     register,
     handleSubmit,
     setValue,
+    getValues,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
@@ -220,12 +241,13 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
 
           <ComboBox className="col-span-1 md:col-span-4"
             {...register("formaPagamento")}
-            currentValue={"teste"}
-            values={valoresCombo}
+            values={ValoresFormaPagamento}
             label="Forma de Pagamento"
+            errorMessage={errors.formaPagamento?.message}
             required
-            errorMessage={errors.formaPagamento?.message} />
-
+            currentValue={getValues('formaPagamento')}
+            onChangeValue={(v: { value: string, name: string }) => onChangeComboBox(v)}
+          />
           <Input
             {...register("status")}
             className="col-span-1 md:col-span-4"
@@ -268,7 +290,7 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
             type="text"
             placeholder="Observação"
           />
-          <div className="flex justify-center col-span-3 md:col-span-12">
+          <div className="flex justify-end col-span-3 md:col-span-12">
             <div>
               <Button onClick={() => submitFormPedido()}>{titleModal}</Button>
             </div>
@@ -319,13 +341,13 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
               {paginatePedidos.map((pedido) => (
                 <Table.Tr key={pedido.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <Table.Td className="w-4 p-4">{pedido.id}</Table.Td>
-                  <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{pedido.cliente}</Table.Td>
+                  <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{pedido.nomeCliente}</Table.Td>
                   <Table.Td>{pedido.itensPedido.join(", ")}</Table.Td>
-                  <Table.Td>{moment(pedido.dataRetirada).locale("pt-br").format("L")}</Table.Td>
+                  <Table.Td>{moment(pedido.dataEntrega).locale("pt-br").format("L")}</Table.Td>
                   <Table.Td>{pedido.valorTotal}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => togglePedidoEdit()} >
+                      <ButtonTable onClick={() => togglePedidoEdit(pedido)} >
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">

@@ -1,21 +1,29 @@
 import { Fragment, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { BsCheck, BsChevronDown } from 'react-icons/bs'
+import { UseFormRegisterReturn } from "react-hook-form";
 
 type ComboBoxProps = {
-    currentValue: string;
+    currentValue: { value: string, name: string },
     values: { value: string, name: string }[];
     label?: string;
     htmlFor?: string;
     errorMessage?: string;
     required?: boolean;
     className?: string;
+    onChangeValue: (v: { value: string, name: string }) => void;
+
 }
 
+{
+    value: "valor"
+}
 
-export default function ComboBox({ currentValue, values, htmlFor, label, errorMessage, required, className, ...props }: ComboBoxProps) {
-    const [selected, setSelected] = useState(values[0])
+export default function ComboBox({ currentValue, values, htmlFor, label, errorMessage, required, className, onChangeValue, ...props }: ComboBoxProps) {
+    //const [selected, setSelected] = useState(values[0])
     //Precisa ajustar para nao utilizar o useState aqui,e sim passando do pedido pra ca
+    console.log('currentValue')
+    console.log(currentValue)
     return (
         <div className={`flex flex-1 flex-col gap-1 ${className}`}>
             <div className="flex flex-row">
@@ -29,10 +37,14 @@ export default function ComboBox({ currentValue, values, htmlFor, label, errorMe
                 )}
             </div>
             <div className="">
-                <Listbox value={selected} onChange={setSelected}>
+                <Listbox value={currentValue} onChange={(v: { value: string, name: string }) => onChangeValue(v)}>
                     <div className="relative mt-1">
-                        <Listbox.Button className="relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-gray-700 focus:outline-none font-medium rounded text-sm px-5 py-2.5 items-center">
-                            <span className="block truncate">{selected.name}</span>
+                        <Listbox.Button className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-gray-700 focus:outline-none font-medium rounded text-sm px-5 py-2.5 items-center ${errorMessage && " border-[1px] border-red-500"}`}>
+                            {currentValue ?
+                                <span className="block truncate">{currentValue.name}</span>
+                                :
+                                <span className="block truncate text-gray-400 ">{'Seleciona um valor'}</span>
+                            }
                             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                 <BsChevronDown
                                     className="h-4 w-4 text-gray-400"
@@ -50,12 +62,8 @@ export default function ComboBox({ currentValue, values, htmlFor, label, errorMe
                                 {values.map((person, personIdx) => (
                                     <Listbox.Option
                                         key={personIdx}
-                                        className={({ active }) =>
-                                            `relative cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${active ? 'bg-primary-fifth-tone dark:bg-secondary-third-tone ' : 'text-gray-900'
-                                            }`
-                                        }
-                                        value={person}
-                                    >
+                                        className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${active ? 'bg-primary-fifth-tone dark:bg-secondary-third-tone ' : 'text-gray-900'}`}
+                                        value={person}>
                                         {({ selected }) => (
                                             <>
                                                 <span
