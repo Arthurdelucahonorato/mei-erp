@@ -17,11 +17,8 @@ import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";
 const valoresCombo = [
-    { value: "BOLO", name: 'Bolo' },
-    { value: "SALGADO", name: 'Salgado' },
-    { value: "CUPCAKE", name: 'Cupcake' },
-    { value: "DOCINHO", name: 'Doce' },
-    { value: "CASQUINHA", name: 'Casquinha recheada' },
+    { value: "QUILOGRAMAS", name: 'kg' },
+    { value: "UNIDADE", name: 'un' },
 ]
 
 interface ProdutoProps {
@@ -157,7 +154,7 @@ export default function produtos({ produto }: ProdutoProps) {
             required
           />
     
-          <Input
+          {/* <Input
             className="col-span-1 md:col-span-2"
             {...register("unidade")}
             label="Unidade"
@@ -166,7 +163,14 @@ export default function produtos({ produto }: ProdutoProps) {
             type="number"
             placeholder="Unidade"
             required
-          />
+          /> */}
+
+<div>
+        <ComboBox currentValue={valoresCombo[0]} values={valoresCombo} label="Categoria do produto" 
+              onChangeValue={function (v: { value: string; name: string; }): void {
+              throw new Error("Function not implemented.");
+            } } />
+        </div>
           
        
           <div className="ml-auto col-span-3 md:col-span-12">
