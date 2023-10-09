@@ -17,7 +17,7 @@ export default function Relatorios() {
 
             <br />
             <br />
-            <ComboBox currentValue={"teste"} values={valoresCombo} label="Forma de Pagamento" required errorMessage="erro" />
+            
         </div>
     )
 }
