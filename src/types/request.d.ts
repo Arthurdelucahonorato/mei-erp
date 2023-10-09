@@ -1,4 +1,4 @@
-type ClientRequest = {
+type OrderRequest = {
   id: number;
   createdAt: Date;
   cliente: number;

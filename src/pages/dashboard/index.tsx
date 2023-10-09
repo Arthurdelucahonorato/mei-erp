@@ -6,7 +6,7 @@ import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import moment from "moment";
 
 interface DashboardPageProps {
-  pedidos: ClientRequest[];
+  pedidos: OrderRequest[];
 }
 
 export async function getServerSideProps() {

@@ -14,9 +14,7 @@ const valoresCombo = [
 export default function Relatorios() {
     return (
         <div>
-            <Lov title={"teste lov"} listLabels={["ID", "ETIQUETA", "ETIQUETA", "ETIQUETA"]} listValues={[["VALOR 1", "VALOR 2", "VALOR 3", "VALOR 4"], ["VALOR 1", "VALOR 2", "VALOR 3", "VALOR 4"], ["VALOR 1", "VALOR 2", "VALOR 3", "VALOR 4"], ["VALOR 1", "VALOR 2", "VALOR 3", "VALOR 4"]]}>
-                LISTA DE VALORES
-            </Lov>
+
             <br />
             <br />
             <ComboBox currentValue={"teste"} values={valoresCombo} label="Forma de Pagamento" required errorMessage="erro" />

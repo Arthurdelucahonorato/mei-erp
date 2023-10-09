@@ -16,12 +16,12 @@ import { getAllRequests } from "@/services/api/adm/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 
-interface ClienteProps {
+type ClienteProps = {
   items: number;
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  clientes: ClientRequest[];
+  clientes: ClientRequest[] | any[];
 }
 
 export async function getServerSideProps() {
@@ -46,10 +46,24 @@ export default function Clientes({ clientes }: ClienteProps) {
   };
 
   const toogleClienteRegister = () => {
+    reset();
     setIsOpenClienteRegister(!isOpenClienteRegister);
   };
-  const toogleClienteEdit = () => {
+  const toogleClienteEdit = (cliente?: any) => {
+    reset();
     setIsOpenClienteEdit(!isOpenClienteEdit);
+    if (!isOpenClienteEdit && cliente) {
+      setValue('codigoCliente', cliente.codigoCliente);
+      setValue('nomeCliente', cliente.nomeCliente);
+      setValue('telefone', cliente.telefone);
+      setValue('email', cliente.email);
+      setValue('cep', cliente.cep);
+      setValue('cidade', cliente.cidade);
+      setValue('bairro', cliente.bairro);
+      setValue('rua', cliente.rua);
+      setValue('numero', cliente.numero);
+      setValue('complemento', cliente.complemento);
+    }
   };
 
   const validateRegister = z.object({
@@ -63,6 +77,7 @@ export default function Clientes({ clientes }: ClienteProps) {
     rua: z.string().nonempty("Campo obrigatório"),
     numero: z.string().nonempty("Campo obrigatório"),
     complemento: z.string(),
+    pesquisar: z.string(),
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -70,6 +85,9 @@ export default function Clientes({ clientes }: ClienteProps) {
   const {
     register,
     handleSubmit,
+    reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
@@ -105,7 +123,7 @@ export default function Clientes({ clientes }: ClienteProps) {
     bairro,
     rua,
     numero,
-    complemento
+    complemento,
   }: ValidateData) => {
     try {
       console.log("Editou");
@@ -114,7 +132,9 @@ export default function Clientes({ clientes }: ClienteProps) {
     }
   };
 
-  const paginateClientes = paginate(clientes, currentPage, pageSize);
+  //const listValuesFilter = clientes.filter((val: ClientRequest[]) => (val.some((v: any) => v.toLowerCase().includes((watch("pesquisar") != undefined ? watch("pesquisar") : "").toLowerCase()))));
+  const paginateClientes: ClientRequest[] = paginate(clientes, currentPage, pageSize);
+  //currentPage > Math.ceil(listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
 
   interface FormClienteType {
     formClienteIsOpen: boolean;
@@ -250,7 +270,13 @@ export default function Clientes({ clientes }: ClienteProps) {
           submitFormCliente={handleSubmit(submitFormEdit)}
         />
 
-        <div className="flex justify-between m-1 max-h-12">
+        <div className="flex justify-between my-1 max-h-12">
+          <Input className="col-span-2 md:col-span-9 mb-1"
+            {...register("pesquisar")}
+            htmlFor="nome"
+            type="text"
+            placeholder="Pesquisar"
+          />
           <div className="relative"></div>
           <div className="flex aspect-square">
             <Button onClick={() => toogleClienteRegister()}>
@@ -280,10 +306,10 @@ export default function Clientes({ clientes }: ClienteProps) {
                   <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{cliente.nome}</Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
-                  <Table.Td>{cliente.endereco}</Table.Td>
+                  <Table.Td>{cliente.rua}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => toogleClienteEdit()} >
+                      <ButtonTable onClick={() => toogleClienteEdit(cliente)} >
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
