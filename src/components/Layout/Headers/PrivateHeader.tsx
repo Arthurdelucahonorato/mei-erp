@@ -9,7 +9,7 @@ import {
   BsFiletypePdf,
   BsGear,
   BsChevronDown,
-  BsFillBagFill,
+  BsBag,
 } from "react-icons/bs";
 
 import Link from "next/link";
@@ -22,7 +22,7 @@ export const Menus = [
   { title: "Dashboard", icon: <BsBookmarkPlus />, href: "/dashboard" },
   { title: "Pedidos", icon: <BsBookmarkPlus />, href: "/pedidos" },
   { title: "Clientes", icon: <BsPeople />, href: "/clientes" },
-  { title: "Produtos", icon: <BsFillBagFill />, href: "/produtos" },
+  { title: "Produtos", icon: <BsBag />, href: "/produtos" },
 
   // {
   //   title: "Menu Ex. 1",
