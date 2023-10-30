@@ -170,48 +170,60 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   };
 
   const paginatePedidos = paginate(pedidos, currentPage, pageSize);
-  const listaItensDoPedido = [
-    {
-      "id": 1,
-      "categoria": "Eletrônicos",
-      "nomeProduto": "Smartphone",
-      "variacao": "Modelo X",
-      "quantidade": 5,
-      "observacao": "Cor: Preto",
-      "valor": 499.99,
-      "unidade": "KG"
-    },
-    {
-      "id": 2,
-      "categoria": "Roupas",
-      "nomeProduto": "Camiseta",
-      "variacao": "Tamanho M",
-      "quantidade": 10,
-      "observacao": "Estampa: Logo da Marca",
-      "valor": 19.99,
-      "unidade": "UN"
-    },
-    {
-      "id": 3,
-      "categoria": "Alimentos",
-      "nomeProduto": "Cereal",
-      "variacao": "Sabor Original",
-      "quantidade": 3,
-      "observacao": "Peso líquido: 500g",
-      "valor": 3.99,
-      "unidade": "KG",
-    },
-    {
-      "id": 4,
-      "categoria": "Alimentos",
-      "nomeProduto": "Cereal",
-      "variacao": "Sabor Original",
-      "quantidade": 3,
-      "observacao": "Peso líquido: 500g",
-      "valor": 3.99,
-      "unidade": "KG",
-    }
-  ]
+
+  const [listaItensDoPedido, setListaItensDoPedido] = useState<Array<{
+    id: number,
+    categoria: string,
+    nomeProduto: string,
+    variacao: string,
+    quantidade: number,
+    observacao: string,
+    valor: number,
+    unidade: string
+  }>>([])
+  /*   setListaItensDoPedido([{
+      id: 1,
+      categoria: "Eletrônicos",
+      nomeProduto: "Smartphone",
+      variacao: "Modelo X",
+      quantidade: 5,
+      observacao: "Cor: Preto",
+      valor: 499.99,
+      unidade: "KG"
+    }])
+  
+    setListaItensDoPedido([...listaItensDoPedido, {
+      id: 2,
+      categoria: "Roupas",
+      nomeProduto: "Camiseta",
+      variacao: "Tamanho M",
+      quantidade: 10,
+      observacao: "Estampa: Logo da Marca",
+      valor: 19.99,
+      unidade: "UN"
+    }])
+  
+    setListaItensDoPedido([...listaItensDoPedido, {
+      id: 3,
+      categoria: "Alimentos",
+      nomeProduto: "Cereal",
+      variacao: "Sabor Original",
+      quantidade: 3,
+      observacao: "Peso líquido: 500g",
+      valor: 3.99,
+      unidade: "KG",
+    }])
+    setListaItensDoPedido([...listaItensDoPedido, {
+      id: 4,
+      categoria: "Alimentos",
+      nomeProduto: "Cereal",
+      variacao: "Sabor Original",
+      quantidade: 3,
+      observacao: "Peso líquido: 500g",
+      valor: 3.99,
+      unidade: "KG",
+    }]) */
+
   interface FormPedidoType {
     formPedidoIsOpen: boolean;
     titleModal: String;
@@ -341,34 +353,34 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
                   <text className="px-3 w-44">Categoria</text>
                   <text className="px-3 w-16 text-end">QTD</text>
                   <text className="px-3 w-32 text-end">Valor</text>
-                  <text className="pl-3 w-16">UN</text>
+                  <text className="pl-3 w-20">UN</text>
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <div className="flex justify-center rounded-xl w-9">
+                    <button type="button" className="flex justify-center w-6 aspect-square" onClick={() => setListaItensDoPedido([...listaItensDoPedido, { id: 5, categoria: "Teste", nomeProduto: "Teste", variacao: "Teste", quantidade: 1.0, observacao: "Teste", valor: 2.0, unidade: "KG" }])}>
                       <BsPlus className={"text-2xl cursor-pointer text-white bg-primary dark:bg-secondary rounded-lg"} />
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
             <div className="max-h-32 max-w-full overflow-x-auto mt-1 rounded-lg">
-              <div className="overflow-y-auto">
+              <ul className="overflow-y-auto">
                 {listaItensDoPedido.map((itemPedido) => (
-                  <div key={itemPedido.id} className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                  <li key={itemPedido.id} className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <InputTable className="w-20" value={itemPedido.id} />
                     <InputTable className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white" value={itemPedido.nomeProduto} />
                     <InputTable className="w-44" value={itemPedido.variacao} />
                     <InputTable className="w-44" value={itemPedido.categoria} />
                     <InputTable textDirection={"text-end"} className="w-16" value={itemPedido.quantidade} />
                     <InputTable textDirection={"text-end"} className="w-32" value={itemPedido.valor} />
-                    <InputTable className="w-16" value={itemPedido.unidade} />
+                    <InputTable className="w-20" value={itemPedido.unidade} />
                     <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
                         <BsX className={"text-xl"} />
                       </ButtonTable>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
           <div className="flex justify-end col-span-3 md:col-span-12">
