@@ -17,12 +17,9 @@ import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";
 const valoresCombo = [
-    { value: "BOLO", name: 'Bolo' },
-    { value: "SALGADO", name: 'Salgado' },
-    { value: "CUPCAKE", name: 'Cupcake' },
-    { value: "DOCINHO", name: 'Doce' },
-    { value: "CASQUINHA", name: 'Casquinha recheada' },
-]
+  { value: "QUILOGRAMAS", name: "kg" },
+  { value: "UNIDADE", name: "un" },
+];
 
 interface ProdutoProps {
   items: number;
@@ -66,7 +63,6 @@ export default function produtos({ produto }: ProdutoProps) {
     categoria: z.string().nonempty("Campo obrigatório"),
     variacao: z.string(),
     unidade: z.string().nonempty("Campo obrigatório"),
-    
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -77,7 +73,7 @@ export default function produtos({ produto }: ProdutoProps) {
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
-    resolver: zodResolver(validateRegister)
+    resolver: zodResolver(validateRegister),
   });
 
   const submitFormRegister = async ({
@@ -86,7 +82,6 @@ export default function produtos({ produto }: ProdutoProps) {
     variacao,
     categoria,
     unidade,
-   
   }: ValidateData) => {
     try {
       alert("Cadastrou");
@@ -101,7 +96,6 @@ export default function produtos({ produto }: ProdutoProps) {
     variacao,
     categoria,
     unidade,
-   
   }: ValidateData) => {
     try {
       console.log("Editou");
@@ -119,7 +113,13 @@ export default function produtos({ produto }: ProdutoProps) {
     submitFormProduto: () => void;
   }
 
-  const FormProduto = ({ formProdutoIsOpen, titleModal, toogleFormProduto, submitFormProduto, ...props }: FormProdutoType) => {
+  const FormProduto = ({
+    formProdutoIsOpen,
+    titleModal,
+    toogleFormProduto,
+    submitFormProduto,
+    ...props
+  }: FormProdutoType) => {
     return (
       <Modal
         isOpen={formProdutoIsOpen}
@@ -130,7 +130,8 @@ export default function produtos({ produto }: ProdutoProps) {
           className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
           onSubmit={submitFormProduto}
         >
-          <Input className="col-span-3 md:col-span-12"
+          <Input
+            className="col-span-3 md:col-span-12"
             {...register("nomeProduto")}
             label="Nome"
             htmlFor="nomeProduto"
@@ -147,7 +148,8 @@ export default function produtos({ produto }: ProdutoProps) {
             type="text"
             placeholder="Variação"
           />
-          <Input className="col-span-1 md:col-span-4"
+          <Input
+            className="col-span-1 md:col-span-4"
             {...register("categoria")}
             label="Categoria"
             htmlFor="categoria"
@@ -156,8 +158,8 @@ export default function produtos({ produto }: ProdutoProps) {
             placeholder="Categoria"
             required
           />
-    
-          <Input
+
+          {/* <Input
             className="col-span-1 md:col-span-2"
             {...register("unidade")}
             label="Unidade"
@@ -166,17 +168,26 @@ export default function produtos({ produto }: ProdutoProps) {
             type="number"
             placeholder="Unidade"
             required
-          />
-          
-       
+          /> */}
+
+          <div>
+            <ComboBox
+              // currentValue={valoresCombo[0]}
+              values={valoresCombo}
+              label="Categoria do produto"
+              onChangeValue={function (v: string): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+          </div>
+
           <div className="ml-auto col-span-3 md:col-span-12">
             <Button onClick={() => submitFormProduto()}>{titleModal}</Button>
           </div>
         </form>
       </Modal>
     );
-
-  }
+  };
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
@@ -215,27 +226,28 @@ export default function produtos({ produto }: ProdutoProps) {
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={[
-                "ID",
-                "Nome",
-                "Categoria",
-                "Unidade",
-            
-
-              ]}
+              headers={["ID", "Nome", "Categoria", "Unidade"]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
               {paginateProduto.map((produto) => (
-                <Table.Tr key={produto.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <Table.Tr
+                  key={produto.id}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
                   <Table.Td className="w-4 p-4">{produto.id}</Table.Td>
-                  <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{produto.nome}</Table.Td>
+                  <Table.Td
+                    scope="row"
+                    className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {produto.nome}
+                  </Table.Td>
                   <Table.Td>{produto.categoria}</Table.Td>
                   <Table.Td>{produto.variacao}</Table.Td>
-        
+
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => toogleProdutoEdit()} >
+                      <ButtonTable onClick={() => toogleProdutoEdit()}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">

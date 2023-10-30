@@ -22,7 +22,7 @@ type ClienteProps = {
   currentPage: number;
   onPageChange: (page: number) => void;
   clientes: ClientRequest[] | any[];
-}
+};
 
 export async function getServerSideProps() {
   const clientes = await getAllRequests("clientes");
@@ -53,16 +53,16 @@ export default function Clientes({ clientes }: ClienteProps) {
     reset();
     setIsOpenClienteEdit(!isOpenClienteEdit);
     if (!isOpenClienteEdit && cliente) {
-      setValue('codigoCliente', cliente.codigoCliente);
-      setValue('nomeCliente', cliente.nomeCliente);
-      setValue('telefone', cliente.telefone);
-      setValue('email', cliente.email);
-      setValue('cep', cliente.cep);
-      setValue('cidade', cliente.cidade);
-      setValue('bairro', cliente.bairro);
-      setValue('rua', cliente.rua);
-      setValue('numero', cliente.numero);
-      setValue('complemento', cliente.complemento);
+      setValue("codigoCliente", cliente.codigoCliente);
+      setValue("nomeCliente", cliente.nomeCliente);
+      setValue("telefone", cliente.telefone);
+      setValue("email", cliente.email);
+      setValue("cep", cliente.cep);
+      setValue("cidade", cliente.cidade);
+      setValue("bairro", cliente.bairro);
+      setValue("rua", cliente.rua);
+      setValue("numero", cliente.numero);
+      setValue("complemento", cliente.complemento);
     }
   };
 
@@ -91,7 +91,7 @@ export default function Clientes({ clientes }: ClienteProps) {
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
-    resolver: zodResolver(validateRegister)
+    resolver: zodResolver(validateRegister),
   });
 
   const submitFormRegister = async ({
@@ -104,7 +104,7 @@ export default function Clientes({ clientes }: ClienteProps) {
     bairro,
     rua,
     numero,
-    complemento
+    complemento,
   }: ValidateData) => {
     try {
       alert("Cadastrou");
@@ -133,7 +133,11 @@ export default function Clientes({ clientes }: ClienteProps) {
   };
 
   //const listValuesFilter = clientes.filter((val: ClientRequest[]) => (val.some((v: any) => v.toLowerCase().includes((watch("pesquisar") != undefined ? watch("pesquisar") : "").toLowerCase()))));
-  const paginateClientes: ClientRequest[] = paginate(clientes, currentPage, pageSize);
+  const paginateClientes: ClientRequest[] = paginate(
+    clientes,
+    currentPage,
+    pageSize
+  );
   //currentPage > Math.ceil(listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
 
   interface FormClienteType {
@@ -143,7 +147,13 @@ export default function Clientes({ clientes }: ClienteProps) {
     submitFormCliente: () => void;
   }
 
-  const FormCliente = ({ formClienteIsOpen, titleModal, toogleFormCliente, submitFormCliente, ...props }: FormClienteType) => {
+  const FormCliente = ({
+    formClienteIsOpen,
+    titleModal,
+    toogleFormCliente,
+    submitFormCliente,
+    ...props
+  }: FormClienteType) => {
     return (
       <Modal
         isOpen={formClienteIsOpen}
@@ -154,7 +164,8 @@ export default function Clientes({ clientes }: ClienteProps) {
           className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
           onSubmit={submitFormCliente}
         >
-          <Input className="col-span-3 md:col-span-12"
+          <Input
+            className="col-span-3 md:col-span-12"
             {...register("nomeCliente")}
             label="Nome"
             htmlFor="nomeCliente"
@@ -171,7 +182,8 @@ export default function Clientes({ clientes }: ClienteProps) {
             type="text"
             placeholder="E-mail"
           />
-          <Input className="col-span-1 md:col-span-4"
+          <Input
+            className="col-span-1 md:col-span-4"
             {...register("telefone")}
             label="Telefone"
             htmlFor="telefone"
@@ -243,8 +255,7 @@ export default function Clientes({ clientes }: ClienteProps) {
         </form>
       </Modal>
     );
-
-  }
+  };
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
@@ -271,7 +282,8 @@ export default function Clientes({ clientes }: ClienteProps) {
         />
 
         <div className="flex justify-between my-1 max-h-12">
-          <Input className="col-span-2 md:col-span-9 mb-1"
+          <Input
+            className="col-span-2 md:col-span-9 mb-1"
             {...register("pesquisar")}
             htmlFor="nome"
             type="text"
@@ -289,27 +301,28 @@ export default function Clientes({ clientes }: ClienteProps) {
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={[
-                "ID",
-                "Nome",
-                "Telefone",
-                "E-mail",
-                "Endereço",
-
-              ]}
+              headers={["ID", "Nome", "Telefone", "E-mail", "Endereço"]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
               {paginateClientes.map((cliente) => (
-                <Table.Tr key={cliente.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <Table.Tr
+                  key={cliente.id}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
                   <Table.Td className="w-4 p-4">{cliente.id}</Table.Td>
-                  <Table.Td scope="row" className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{cliente.nome}</Table.Td>
+                  <Table.Td
+                    scope="row"
+                    className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {cliente.nome}
+                  </Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
                   <Table.Td>{cliente.rua}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => toogleClienteEdit(cliente)} >
+                      <ButtonTable onClick={() => toogleClienteEdit(cliente)}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
