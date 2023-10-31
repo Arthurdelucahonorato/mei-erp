@@ -34,13 +34,13 @@ interface PedidosProps {
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests("pedidos");
-  const clientes = await getAllRequests("clientes");
+  const pedidos = await getAllRequests();
+  // const clientes = await getAllRequests();
 
   return {
     props: {
       pedidos: pedidos,
-      clientes: clientes,
+      // clientes: clientes,
     },
   };
 }
@@ -60,8 +60,13 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
   const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
   const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
 
-  const arrayId = clientes.map((cliente) => {
-    return [cliente.id, cliente.nome, cliente.cidade, cliente.telefone];
+  const arrayId = clientes?.map((cliente) => {
+    return [
+      cliente.id,
+      cliente.nome,
+      cliente.endereco.bairro,
+      cliente.telefone,
+    ];
   });
 
   const handlePageChange = (page: number) => {

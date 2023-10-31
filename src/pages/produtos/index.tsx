@@ -30,11 +30,11 @@ interface ProdutoProps {
 }
 
 export async function getServerSideProps() {
-  const produtos = await getAllRequests("clientes");
+  // const produtos = await getAllRequests();
 
   return {
     props: {
-      produtos: produtos,
+      // produtos: produtos,
     },
   };
 }
@@ -104,7 +104,7 @@ export default function produtos({ produto }: ProdutoProps) {
     }
   };
 
-  const paginateProduto = paginate(produto, currentPage, pageSize);
+  const paginateProduto = paginate([], currentPage, pageSize);
 
   interface FormProdutoType {
     formProdutoIsOpen: boolean;
