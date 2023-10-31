@@ -12,7 +12,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
-import { getAllRequests } from "@/services/api/adm/get-all-requests";
+import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";
@@ -30,11 +30,11 @@ interface ProdutoProps {
 }
 
 export async function getServerSideProps() {
-  const produtos = await getAllRequests("clientes");
+  // const produtos = await getAllRequests();
 
   return {
     props: {
-      produtos: produtos,
+      // produtos: produtos,
     },
   };
 }
@@ -104,7 +104,7 @@ export default function produtos({ produto }: ProdutoProps) {
     }
   };
 
-  const paginateProduto = paginate(produto, currentPage, pageSize);
+  const paginateProduto = paginate([], currentPage, pageSize);
 
   interface FormProdutoType {
     formProdutoIsOpen: boolean;

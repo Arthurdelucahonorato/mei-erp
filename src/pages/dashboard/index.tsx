@@ -2,7 +2,7 @@ import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Box } from "@/components/Box";
 import { LineChart } from "@/components/Charts/Line";
 import { Table } from "@/components/Table";
-import { getAllRequests } from "@/services/api/adm/get-all-requests";
+import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import moment from "moment";
 
 interface DashboardPageProps {
@@ -10,7 +10,7 @@ interface DashboardPageProps {
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests("pedidos");
+  const pedidos = await getAllRequests();
 
   return {
     props: {
@@ -55,8 +55,8 @@ export default function Dashboard({ pedidos }: DashboardPageProps) {
           <Table.Root>
             <Table.Header headers={headersTable} />
             <Table.Body>
-              {pedidos.slice(0, 7).map((pedido) => (
-                <Table.Tr>
+              {pedidos?.slice(0, 7).map((pedido) => (
+                <Table.Tr key={pedido.id}>
                   <Table.Td>{pedido.id}</Table.Td>
                   <Table.Td>{pedido.id}</Table.Td>
                   <Table.Td>{"Salgado"}</Table.Td>
