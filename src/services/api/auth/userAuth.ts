@@ -1,17 +1,19 @@
+import { HttpStatusCode } from "axios";
+import { api } from "../api";
+
 type UserAuth = {
-  login: string;
+  email: string;
   senha: string;
 };
 
 type Response = {
-  statusCode: 200;
+  statusCode: HttpStatusCode;
+  message: string;
+  accessToken: string;
 };
 
-export const userAuth = async ({
-  login,
-  senha,
-}: UserAuth): Promise<Response> => {
-  return {
-    statusCode: 200,
-  };
+export const userAuth = async (data: UserAuth): Promise<Response> => {
+  const request = await api.post("/auth", data);
+
+  return request.data;
 };

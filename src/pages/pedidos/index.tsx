@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
 import { RootTable } from "@/components/Table/RootTable";
 import { get, max } from "lodash";
-import { getAllRequests } from "@/services/api/adm/get-all-requests";
+import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { Textarea } from "@/components/Textarea";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
@@ -171,16 +171,18 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
 
   const paginatePedidos = paginate(pedidos, currentPage, pageSize);
 
-  const [listaItensDoPedido, setListaItensDoPedido] = useState<Array<{
-    id: number,
-    categoria: string,
-    nomeProduto: string,
-    variacao: string,
-    quantidade: number,
-    observacao: string,
-    valor: number,
-    unidade: string
-  }>>([])
+  const [listaItensDoPedido, setListaItensDoPedido] = useState<
+    Array<{
+      id: number;
+      categoria: string;
+      nomeProduto: string;
+      variacao: string;
+      quantidade: number;
+      observacao: string;
+      valor: number;
+      unidade: string;
+    }>
+  >([]);
   /*   setListaItensDoPedido([{
       id: 1,
       categoria: "Eletrônicos",
@@ -355,8 +357,30 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
                   <text className="px-3 w-32 text-end">Valor</text>
                   <text className="pl-3 w-20">UN</text>
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <button type="button" className="flex justify-center w-6 aspect-square" onClick={() => setListaItensDoPedido([...listaItensDoPedido, { id: 5, categoria: "Teste", nomeProduto: "Teste", variacao: "Teste", quantidade: 1.0, observacao: "Teste", valor: 2.0, unidade: "KG" }])}>
-                      <BsPlus className={"text-2xl cursor-pointer text-white bg-primary dark:bg-secondary rounded-lg"} />
+                    <button
+                      type="button"
+                      className="flex justify-center w-6 aspect-square"
+                      onClick={() =>
+                        setListaItensDoPedido([
+                          ...listaItensDoPedido,
+                          {
+                            id: 5,
+                            categoria: "Teste",
+                            nomeProduto: "Teste",
+                            variacao: "Teste",
+                            quantidade: 1.0,
+                            observacao: "Teste",
+                            valor: 2.0,
+                            unidade: "KG",
+                          },
+                        ])
+                      }
+                    >
+                      <BsPlus
+                        className={
+                          "text-2xl cursor-pointer text-white bg-primary dark:bg-secondary rounded-lg"
+                        }
+                      />
                     </button>
                   </div>
                 </div>
@@ -365,13 +389,27 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
             <div className="max-h-32 max-w-full overflow-x-auto mt-1 rounded-lg">
               <ul className="overflow-y-auto">
                 {listaItensDoPedido.map((itemPedido) => (
-                  <li key={itemPedido.id} className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                  <li
+                    key={itemPedido.id}
+                    className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  >
                     <InputTable className="w-20" value={itemPedido.id} />
-                    <InputTable className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white" value={itemPedido.nomeProduto} />
+                    <InputTable
+                      className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      value={itemPedido.nomeProduto}
+                    />
                     <InputTable className="w-44" value={itemPedido.variacao} />
                     <InputTable className="w-44" value={itemPedido.categoria} />
-                    <InputTable textDirection={"text-end"} className="w-16" value={itemPedido.quantidade} />
-                    <InputTable textDirection={"text-end"} className="w-32" value={itemPedido.valor} />
+                    <InputTable
+                      textDirection={"text-end"}
+                      className="w-16"
+                      value={itemPedido.quantidade}
+                    />
+                    <InputTable
+                      textDirection={"text-end"}
+                      className="w-32"
+                      value={itemPedido.valor}
+                    />
                     <InputTable className="w-20" value={itemPedido.unidade} />
                     <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
@@ -389,7 +427,7 @@ export default function Pedidos({ pedidos, clientes }: PedidosProps) {
             </div>
           </div>
         </form>
-      </Modal >
+      </Modal>
     );
   };
   return (

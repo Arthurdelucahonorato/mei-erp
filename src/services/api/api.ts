@@ -1,6 +1,9 @@
 import axios from "axios";
 
+// const API_URL = "http://localhost:3000"; // Desenvolvimento com o back rodando local
+const API_URL = "https://inoven-api.onrender.com"; // Produção
+
 // Instância de api
 export const api = axios.create({
-  baseURL: "https://64ffa111f8b9eeca9e2a51fd.mockapi.io",
+  baseURL: API_URL,
 });

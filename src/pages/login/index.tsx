@@ -9,6 +9,7 @@ import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { userAuth } from "@/services/api/auth/userAuth";
 import Link from "next/link";
+import { api } from "@/services/api/api";
 
 export default function Login() {
   const { push } = useRouter();
@@ -34,24 +35,21 @@ export default function Login() {
 
   const submitForm = async ({ email, password }: ValidatePassword) => {
     try {
-      const response = await toast.promise(
-        userAuth({ login: email, senha: password }),
-        {
-          loading: "Acessando",
-          success: <b>Autenticado com sucesso!</b>,
-          error: <b>Senha inválida</b>,
-        }
-      );
-      console.log(response);
-      if (response.statusCode === HttpStatusCode.Ok) {
-        setCookie(null, "mei.authToken", "auth", {
-          maxAge: 60 * 60 * 4,
-        });
-      }
+      await toast.promise(userAuth({ email: email, senha: password }), {
+        loading: "Acessando",
+        success: (data) => {
+          setCookie(null, "mei.authToken", data.accessToken, {
+            maxAge: 60 * 60 * 2,
+          });
+
+          push("/dashboard");
+          return data.message;
+        },
+        error: (error) => error.response.data.message,
+      });
     } catch (error: any) {
       return;
     }
-    push("/dashboard");
   };
 
   return (

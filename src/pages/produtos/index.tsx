@@ -12,7 +12,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
-import { getAllRequests } from "@/services/api/adm/get-all-requests";
+import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";

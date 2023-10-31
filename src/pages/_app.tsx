@@ -2,6 +2,7 @@ import { PrivateHeader } from "@/components/Layout/Headers/PrivateHeader";
 import { PublicHeader } from "@/components/Layout/Headers/PublicHeader";
 import { UserInfoHeader } from "@/components/Layout/Headers/UserInfoHeader";
 import { PageLoader } from "@/components/Loader/PageLoader";
+import { api } from "@/services/api/api";
 import { publicRoutes } from "@/services/secure/public-routes";
 
 import "@/styles/globals.css";
@@ -10,6 +11,7 @@ import { Inter } from "next/font/google";
 import Router, { useRouter } from "next/router";
 import nookies from "nookies";
 import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -86,6 +88,7 @@ export default function App({
           <Component {...pageProps} />
         </div>
       )}
+      <Toaster position="top-center" />
     </main>
   );
 }
@@ -94,6 +97,12 @@ App.getInitialProps = async (ctx: AppContext) => {
   // Verifica se o token de autenticação está nos cookies no lado do servidor
   const cookies = nookies.get(ctx.ctx);
   const isAuthenticated = !!cookies["mei.authToken"];
+
+  api.interceptors.request.use((config) => {
+    config.headers["Authorization"] = `Bearer ${cookies["mei.authToken"]}`;
+
+    return config;
+  });
 
   return {
     isAuthenticated,

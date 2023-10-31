@@ -12,9 +12,10 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
-import { getAllRequests } from "@/services/api/adm/get-all-requests";
+import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
+import { api } from "@/services/api/api";
 
 type ClienteProps = {
   items: number;
@@ -25,11 +26,11 @@ type ClienteProps = {
 };
 
 export async function getServerSideProps() {
-  const clientes = await getAllRequests("clientes");
+  const clientes = await api.get("/clients");
 
   return {
     props: {
-      clientes: clientes,
+      clientes: clientes.data,
     },
   };
 }
@@ -319,7 +320,7 @@ export default function Clientes({ clientes }: ClienteProps) {
                   </Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
-                  <Table.Td>{cliente.rua}</Table.Td>
+                  <Table.Td>{cliente?.endereco?.rua}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                       <ButtonTable onClick={() => toogleClienteEdit(cliente)}>
