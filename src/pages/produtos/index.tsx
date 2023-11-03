@@ -26,7 +26,7 @@ interface ProdutoProps {
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  produto: ProductRequest[];
+  produto: Product[];
 }
 
 export async function getServerSideProps() {

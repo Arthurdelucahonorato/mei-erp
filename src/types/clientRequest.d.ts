@@ -1,4 +1,4 @@
-type ClientRequest = {
+type Client = {
   id?: number;
   nome: string;
   telefone: string;

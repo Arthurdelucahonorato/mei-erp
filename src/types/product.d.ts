@@ -1,5 +1,16 @@
-type ProductRequest = {
+type Product = {
   id: number;
-  nome: string;
+  categoria: {
+    id: number;
+    descricao: string;
+  };
+  descricao: string;
+  variacao: {
+    id: number;
+    descricao: string;
+  };
+  quantidade: number;
+  observacao: string;
   valor: number;
+  unidade: string;
 };
