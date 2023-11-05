@@ -22,12 +22,15 @@ type ClienteProps = {
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  clientes: ClientRequest[] | any[];
+  clientes: {
+    content: Client[];
+    pagination: Pagination;
+  };
 };
 
-export async function getServerSideProps() {
-  const clientes = await api.get("/clients");
 
+export async function getServerSideProps() {
+  const clientes = await api.get("/clients", { data: { perPage: 2, page: 1 } })
   return {
     props: {
       clientes: clientes.data,
@@ -35,240 +38,32 @@ export async function getServerSideProps() {
   };
 }
 
+
 export default function Clientes({ clientes }: ClienteProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
   const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
   const [lovIsOpen, setLovIsOpen] = useState(false);
+  const [listaClientes, setListaClientes] = useState(clientes);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const toogleClienteRegister = () => {
-    reset();
-    setIsOpenClienteRegister(!isOpenClienteRegister);
-  };
-  const toogleClienteEdit = (cliente?: any) => {
-    reset();
-    setIsOpenClienteEdit(!isOpenClienteEdit);
-    if (!isOpenClienteEdit && cliente) {
-      setValue("codigoCliente", cliente.codigoCliente);
-      setValue("nomeCliente", cliente.nomeCliente);
-      setValue("telefone", cliente.telefone);
-      setValue("email", cliente.email);
-      setValue("cep", cliente.cep);
-      setValue("cidade", cliente.cidade);
-      setValue("bairro", cliente.bairro);
-      setValue("rua", cliente.rua);
-      setValue("numero", cliente.numero);
-      setValue("complemento", cliente.complemento);
-    }
-  };
-
-  const validateRegister = z.object({
-    codigoCliente: z.string(),
-    nomeCliente: z.string().nonempty("Campo obrigatório"),
-    telefone: z.string().nonempty("Campo obrigatório"),
-    email: z.string(),
-    cep: z.string().nonempty("Campo obrigatório"),
-    cidade: z.string(),
-    bairro: z.string().nonempty("Campo obrigatório"),
-    rua: z.string().nonempty("Campo obrigatório"),
-    numero: z.string().nonempty("Campo obrigatório"),
-    complemento: z.string(),
-    pesquisar: z.string(),
-  });
-
-  type ValidateData = z.infer<typeof validateRegister>;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<ValidateData>({
-    mode: "onSubmit",
-    resolver: zodResolver(validateRegister),
-  });
-
-  const submitFormRegister = async ({
-    codigoCliente,
-    nomeCliente,
-    email,
-    telefone,
-    cep,
-    cidade,
-    bairro,
-    rua,
-    numero,
-    complemento,
-  }: ValidateData) => {
-    try {
-      alert("Cadastrou");
-    } catch (error: any) {
-      console.log(error);
-      return;
-    }
-  };
-  const submitFormEdit = async ({
-    codigoCliente,
-    nomeCliente,
-    email,
-    telefone,
-    cep,
-    cidade,
-    bairro,
-    rua,
-    numero,
-    complemento,
-  }: ValidateData) => {
-    try {
-      console.log("Editou");
-    } catch (error: any) {
-      return;
-    }
-  };
-
-  //const listValuesFilter = clientes.filter((val: ClientRequest[]) => (val.some((v: any) => v.toLowerCase().includes((watch("pesquisar") != undefined ? watch("pesquisar") : "").toLowerCase()))));
-  const paginateClientes: ClientRequest[] = paginate(
-    clientes,
-    currentPage,
-    pageSize
-  );
-  //currentPage > Math.ceil(listValuesFilter.length / pageSize) && handlePageChange(currentPage - 1)
-
-  interface FormClienteType {
-    formClienteIsOpen: boolean;
-    titleModal: String;
-    toogleFormCliente: () => void;
-    submitFormCliente: () => void;
+  const buscarListaClientes = async (pagina: number) => {
+    console.log(`Pagina: ${pagina}`)
+    const data = { perPage: 2, page: pagina };
+    const clientes = await api.get("/clients", { data })
+    return clientes.data
   }
 
-  const FormCliente = ({
-    formClienteIsOpen,
-    titleModal,
-    toogleFormCliente,
-    submitFormCliente,
-    ...props
-  }: FormClienteType) => {
-    return (
-      <Modal
-        isOpen={formClienteIsOpen}
-        toggle={toogleFormCliente}
-        title={titleModal}
-      >
-        <form
-          className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-          onSubmit={submitFormCliente}
-        >
-          <Input
-            className="col-span-3 md:col-span-12"
-            {...register("nomeCliente")}
-            label="Nome"
-            htmlFor="nomeCliente"
-            errorMessage={errors.nomeCliente?.message}
-            type="text"
-            placeholder="Nome do Cliente"
-            required
-          />
-          <Input
-            {...register("email")}
-            className="col-span-2 md:col-span-8"
-            label="E-mail"
-            htmlFor="email"
-            type="text"
-            placeholder="E-mail"
-          />
-          <Input
-            className="col-span-1 md:col-span-4"
-            {...register("telefone")}
-            label="Telefone"
-            htmlFor="telefone"
-            errorMessage={errors.telefone?.message}
-            type="text"
-            placeholder="Telefone"
-            required
-          />
-          <Input
-            className="col-span-1 md:col-span-2"
-            {...register("cep")}
-            label="CEP"
-            htmlFor="cep"
-            errorMessage={errors.cep?.message}
-            type="number"
-            placeholder="CEP"
-            required
-          />
-          <Input
-            {...register("cidade")}
-            className="col-span-2 md:col-span-10"
-            label="Cidade"
-            htmlFor="cidade"
-            type="text"
-            placeholder="Cidade"
-            disabled
-          />
-          <Input
-            className="col-span-1 md:col-span-5"
-            {...register("bairro")}
-            label="Bairro"
-            htmlFor="bairro"
-            errorMessage={errors.bairro?.message}
-            type="text"
-            placeholder="Bairro"
-            required
-          />
-          <Input
-            className="col-span-2 md:col-span-5"
-            {...register("rua")}
-            label="Rua"
-            htmlFor="rua"
-            errorMessage={errors.rua?.message}
-            type="text"
-            placeholder="Rua"
-            required
-          />
-          <Input
-            className="col-span-1 md:col-span-2"
-            {...register("numero")}
-            label="Número"
-            htmlFor="numero"
-            errorMessage={errors.numero?.message}
-            type="text"
-            placeholder="Número"
-            required
-          />
-          <Input
-            {...register("complemento")}
-            className="col-span-2 md:col-span-12"
-            label="Complemento"
-            htmlFor="complemento"
-            type="text"
-            placeholder="Complemento"
-          />
-          <div className="ml-auto col-span-3 md:col-span-12">
-            <Button onClick={() => submitFormCliente()}>{titleModal}</Button>
-          </div>
-        </form>
-      </Modal>
-    );
-  };
+  const handlePageChange = async (page: number) => {
+    console.log('clientes')
+    console.log((await buscarListaClientes(page)));
+    setListaClientes((await buscarListaClientes(page)));
+  }
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-        {/*         <Modal
-          isOpen={isOpenDetails}
-          toggle={toggleDetails}
-          title={"Editar Cliente"}
-        >
-          Conteudo do modal
-        </Modal> */}
-
+        {/* 
         <FormCliente
           formClienteIsOpen={isOpenClienteRegister}
           toogleFormCliente={toogleClienteRegister}
@@ -299,6 +94,7 @@ export default function Clientes({ clientes }: ClienteProps) {
             </Button>
           </div>
         </div>
+         */}
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
@@ -306,8 +102,8 @@ export default function Clientes({ clientes }: ClienteProps) {
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {paginateClientes.map((cliente) => (
-                <Table.Tr
+              {listaClientes.content.map((cliente) => (
+                < Table.Tr
                   key={cliente.id}
                   className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
@@ -323,7 +119,7 @@ export default function Clientes({ clientes }: ClienteProps) {
                   <Table.Td>{cliente?.endereco?.rua}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => toogleClienteEdit(cliente)}>
+                      <ButtonTable onClick={() => console.log('cliquetoogleClienteEdit(cliente)')}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
@@ -339,13 +135,16 @@ export default function Clientes({ clientes }: ClienteProps) {
 
         <div className="sticky bottom-2 mt-4">
           <Pagination
-            items={clientes.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
+            totalPages={listaClientes.pagination.totalPages}
+            perPage={2}
+            next={listaClientes.pagination.next}
+            prev={listaClientes.pagination.prev}
+            lastPage={listaClientes.pagination.lastPage}
+            currentPage={listaClientes.pagination.currentPage}
             onPageChange={handlePageChange}
           />
         </div>
       </div>
-    </MountTransition>
+    </MountTransition >
   );
 }
