@@ -21,15 +21,11 @@ interface FormClienteType {
     formClienteIsOpen: boolean;
     titleModal: String;
     toogleFormCliente: () => void;
-    submitFormCliente: () => void;
 }
 
-export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormCliente, submitFormCliente }: FormClienteType) {
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 12;
+export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormCliente }: FormClienteType) {
     const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
     const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
-    const [lovIsOpen, setLovIsOpen] = useState(false);
 
     const toogleClienteRegister = () => {
         reset();
@@ -93,7 +89,10 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         complemento,
     }: ValidateData) => {
         try {
-            alert("Cadastrou");
+            const request = await api.post("/clients", { codigoCliente, nomeCliente, email, telefone, cep, cidade, bairro, rua, numero, complemento })
+            console.log('Executou insert')
+            console.log(request.data)
+            return request.data
         } catch (error: any) {
             console.log(error);
             return;
@@ -118,9 +117,6 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         }
     };
 
-
-
-
     return (
         <Modal
             isOpen={formClienteIsOpen}
@@ -129,7 +125,7 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         >
             <form
                 className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-                onSubmit={submitFormCliente}
+            //onSubmit={() => handleSubmit(submitFormRegister)}
             >
                 <Input
                     className="col-span-3 md:col-span-12"
@@ -217,7 +213,7 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
                     placeholder="Complemento"
                 />
                 <div className="ml-auto col-span-3 md:col-span-12">
-                    <Button onClick={() => submitFormCliente()}>{titleModal}</Button>
+                    <Button type="button" onClick={() => handleSubmit(submitFormRegister)}>{titleModal}</Button>
                 </div>
             </form>
         </Modal>

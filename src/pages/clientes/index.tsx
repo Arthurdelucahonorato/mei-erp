@@ -16,6 +16,7 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import { api } from "@/services/api/api";
+import FormCliente from "./FormCliente";
 
 type ClienteProps = {
   items: number;
@@ -63,38 +64,35 @@ export default function Clientes({ clientes }: ClienteProps) {
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-        {/* 
+
         <FormCliente
           formClienteIsOpen={isOpenClienteRegister}
-          toogleFormCliente={toogleClienteRegister}
           titleModal={"Cadastrar Cliente"}
-          submitFormCliente={handleSubmit(submitFormRegister)}
+          toogleFormCliente={() => setIsOpenClienteRegister(false)}
         />
         <FormCliente
           formClienteIsOpen={isOpenClienteEdit}
-          toogleFormCliente={toogleClienteEdit}
           titleModal={"Editar Cliente"}
-          submitFormCliente={handleSubmit(submitFormEdit)}
+          toogleFormCliente={() => setIsOpenClienteEdit(false)}
         />
 
         <div className="flex justify-between my-1 max-h-12">
           <Input
             className="col-span-2 md:col-span-9 mb-1"
-            {...register("pesquisar")}
             htmlFor="nome"
             type="text"
             placeholder="Pesquisar"
           />
           <div className="relative"></div>
           <div className="flex aspect-square">
-            <Button onClick={() => toogleClienteRegister()}>
+            <Button onClick={() => setIsOpenClienteRegister(!isOpenClienteRegister)}>
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Cliente
               </div>
             </Button>
           </div>
         </div>
-         */}
+
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
