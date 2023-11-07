@@ -16,6 +16,11 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";
+import { getAllProducts } from "@/services/api/products/get-all-products";
+import { getAllCategories } from "@/services/api/categories/get-all-categories";
+import { getAllVariations } from "@/services/api/variations/get-all-variations";
+import { createProduct } from "@/services/api/products/create-product";
+import { Unit } from "@/types/enum/unit.enum";
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -26,20 +31,32 @@ interface ProdutoProps {
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  produto: Product[];
+  produtos: Product[];
+  categorias: Category[];
+  variacoes: Variation[];
 }
 
 export async function getServerSideProps() {
-  // const produtos = await getAllRequests();
+  const produtos = await getAllProducts();
+
+  const categorias = await getAllCategories();
+
+  const variacoes = await getAllVariations();
 
   return {
     props: {
-      // produtos: produtos,
+      produtos: produtos,
+      categorias: categorias,
+      variacoes: variacoes,
     },
   };
 }
 
-export default function produtos({ produto }: ProdutoProps) {
+export default function produtos({
+  produtos,
+  categorias,
+  variacoes,
+}: ProdutoProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
@@ -58,11 +75,11 @@ export default function produtos({ produto }: ProdutoProps) {
   };
 
   const validateRegister = z.object({
-    codigoProduto: z.string(),
-    nomeProduto: z.string().nonempty("Campo obrigatório"),
-    categoria: z.string().nonempty("Campo obrigatório"),
-    variacao: z.string(),
-    unidade: z.string().nonempty("Campo obrigatório"),
+    imagensProduto: z.any().optional(),
+    descricao: z.string().nonempty("Campo obrigatório"),
+    categoriaId: z.string().nonempty("Campo obrigatório"),
+    variacaoId: z.string(),
+    unidade: z.nativeEnum(Unit),
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -70,39 +87,61 @@ export default function produtos({ produto }: ProdutoProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
   });
 
-  const submitFormRegister = async ({
-    codigoProduto,
-    nomeProduto,
-    variacao,
-    categoria,
-    unidade,
-  }: ValidateData) => {
+  const categoriesOptions = categorias.map((categoria) => {
+    return {
+      value: String(categoria.id),
+      name: categoria.descricao,
+    };
+  });
+  const variationOptions = variacoes.map((variacao) => {
+    return {
+      value: String(variacao.id),
+      name: variacao.descricao,
+    };
+  });
+
+  const submitFormRegister = async (data: ValidateData) => {
+    console.log(data);
     try {
-      alert("Cadastrou");
+      const formData = new FormData();
+
+      if (data.imagensProduto) {
+        formData.append("imagensProduto", data.imagensProduto[0]);
+      }
+      formData.append("descricao", data.descricao);
+      formData.append("categoriaId", data.categoriaId.toString());
+      formData.append("variacaoId", data.variacaoId.toString());
+      formData.append("unidade", data.unidade);
+
+      const created = await createProduct(formData);
+
+      console.log(created);
     } catch (error: any) {
       console.log(error);
       return;
     }
   };
-  const submitFormEdit = async ({
-    codigoProduto,
-    nomeProduto,
-    variacao,
-    categoria,
-    unidade,
-  }: ValidateData) => {
-    try {
-      console.log("Editou");
-    } catch (error: any) {
-      return;
-    }
-  };
+  // const submitFormEdit = async ({
+  //   codigoProduto,
+  //   nomeProduto,
+  //   variacao,
+  //   categoria,
+  //   unidade,
+  // }: ValidateData) => {
+  //   try {
+  //     console.log("Editou");
+  //   } catch (error: any) {
+  //     return;
+  //   }
+  // };
 
   const paginateProduto = paginate([], currentPage, pageSize);
 
@@ -128,61 +167,58 @@ export default function produtos({ produto }: ProdutoProps) {
       >
         <form
           className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-          onSubmit={submitFormProduto}
+          onSubmit={handleSubmit(submitFormRegister)}
         >
           <Input
             className="col-span-3 md:col-span-12"
-            {...register("nomeProduto")}
+            {...register("descricao")}
             label="Nome"
             htmlFor="nomeProduto"
-            errorMessage={errors.nomeProduto?.message}
+            errorMessage={errors.descricao?.message}
             type="text"
             placeholder="Nome do Produto"
             required
           />
-          <Input
-            {...register("variacao")}
-            className="col-span-2 md:col-span-8"
-            label="Variação"
-            htmlFor="variacao"
-            type="text"
-            placeholder="Variação"
+
+          <ComboBox
+            className="col-span-1 md:col-span-6"
+            value={watch("categoriaId")?.toString()}
+            values={categoriesOptions}
+            label="Categoria do produto"
+            onChangeValue={(value) => setValue("categoriaId", value)}
+          />
+          <ComboBox
+            className="col-span-1 md:col-span-6"
+            value={watch("variacaoId")?.toString()}
+            values={variationOptions}
+            label="Variação do produto"
+            onChangeValue={(value) => setValue("variacaoId", value)}
+          />
+          <ComboBox
+            className="col-span-1 md:col-span-6"
+            value={watch("unidade")?.toString()}
+            values={[
+              {
+                name: "KG",
+                value: "KG",
+              },
+              {
+                name: "UN",
+                value: "UN",
+              },
+            ]}
+            label="Tipo de unidade"
+            onChangeValue={(value) => setValue("unidade", value as Unit)}
           />
           <Input
-            className="col-span-1 md:col-span-4"
-            {...register("categoria")}
-            label="Categoria"
-            htmlFor="categoria"
-            errorMessage={errors.categoria?.message}
-            type="text"
-            placeholder="Categoria"
-            required
+            {...register("imagensProduto")}
+            type="file"
+            label="Imagem"
+            className="col-span-12"
           />
-
-          {/* <Input
-            className="col-span-1 md:col-span-2"
-            {...register("unidade")}
-            label="Unidade"
-            htmlFor="unidade"
-            errorMessage={errors.unidade?.message}
-            type="number"
-            placeholder="Unidade"
-            required
-          /> */}
-
-          <div>
-            <ComboBox
-              // currentValue={valoresCombo[0]}
-              values={valoresCombo}
-              label="Categoria do produto"
-              onChangeValue={function (v: string): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
-          </div>
 
           <div className="ml-auto col-span-3 md:col-span-12">
-            <Button onClick={() => submitFormProduto()}>{titleModal}</Button>
+            <Button type="submit">{titleModal}</Button>
           </div>
         </form>
       </Modal>
@@ -210,7 +246,7 @@ export default function produtos({ produto }: ProdutoProps) {
           formProdutoIsOpen={isOpenProdutoEdit}
           toogleFormProduto={toogleProdutoEdit}
           titleModal={"EditarProduto"}
-          submitFormProduto={handleSubmit(submitFormEdit)}
+          submitFormProduto={() => console.log("editar")}
         />
 
         <div className="flex justify-between m-1 max-h-12">
@@ -226,11 +262,11 @@ export default function produtos({ produto }: ProdutoProps) {
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={["ID", "Nome", "Categoria", "Unidade"]}
+              headers={["ID", "Nome", "Categoria", "Variação", "Ações"]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {paginateProduto.map((produto) => (
+              {produtos.map((produto) => (
                 <Table.Tr
                   key={produto.id}
                   className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -240,13 +276,13 @@ export default function produtos({ produto }: ProdutoProps) {
                     scope="row"
                     className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {produto.nome}
+                    {produto.descricao}
                   </Table.Td>
-                  <Table.Td>{produto.categoria}</Table.Td>
-                  <Table.Td>{produto.variacao}</Table.Td>
+                  <Table.Td>{produto.categoria.descricao}</Table.Td>
+                  <Table.Td>{produto.variacao.descricao}</Table.Td>
 
                   <Table.Td isButton={true}>
-                    <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
+                    <div className="flex gap-2 mx-2">
                       <ButtonTable onClick={() => toogleProdutoEdit()}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
@@ -261,14 +297,14 @@ export default function produtos({ produto }: ProdutoProps) {
           </Table.Root>
         </div>
 
-        <div className="sticky bottom-2 mt-4">
+        {/* <div className="sticky bottom-2 mt-4">
           <Pagination
-            items={produto?.length}
+            items={produtos?.length}
             currentPage={currentPage}
             pageSize={pageSize}
             onPageChange={handlePageChange}
           />
-        </div>
+        </div> */}
       </div>
     </MountTransition>
   );

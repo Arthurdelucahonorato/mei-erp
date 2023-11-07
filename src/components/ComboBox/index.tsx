@@ -26,6 +26,7 @@ export default function ComboBox({
   onChangeValue,
   ...props
 }: ComboBoxProps) {
+  const textValue = values.find((val) => val.value === value);
   return (
     <div className={`flex flex-1 flex-col gap-1 ${className}`}>
       <div className="flex flex-row">
@@ -44,7 +45,7 @@ export default function ComboBox({
           value={value}
           {...props}
           onChange={(val: any) => {
-            onChangeValue(val.name);
+            onChangeValue(val.value);
           }}
         >
           <div className="relative mt-1">
@@ -54,7 +55,7 @@ export default function ComboBox({
               }`}
             >
               {value ? (
-                <span className="block truncate">{value}</span>
+                <span className="block truncate">{textValue?.name}</span>
               ) : (
                 <span className="block truncate text-gray-400 ">
                   {"Seleciona um valor"}

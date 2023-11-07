@@ -22,12 +22,6 @@ export function Card({ className, imagem, nome, categoria }: CardProps) {
             {nome}
           </p>
           <div className="flex items-center">
-            <p className="text-lg font-semibold text-black cursor-auto my-3">
-              $149
-            </p>
-            <del>
-              <p className="text-sm text-gray-600 cursor-auto ml-2">$199</p>
-            </del>
             <div className="ml-auto">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

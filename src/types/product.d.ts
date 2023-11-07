@@ -13,4 +13,11 @@ type Product = {
   observacao: string;
   valor: number;
   unidade: string;
+  imagensProduto: [
+    {
+      id: number;
+      path: string;
+      produtoId: number;
+    }
+  ];
 };
