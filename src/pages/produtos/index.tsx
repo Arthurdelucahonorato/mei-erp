@@ -109,7 +109,6 @@ export default function produtos({
   });
 
   const submitFormRegister = async (data: ValidateData) => {
-    console.log(data);
     try {
       const formData = new FormData();
 
@@ -122,8 +121,6 @@ export default function produtos({
       formData.append("unidade", data.unidade);
 
       const created = await createProduct(formData);
-
-      console.log(created);
     } catch (error: any) {
       console.log(error);
       return;

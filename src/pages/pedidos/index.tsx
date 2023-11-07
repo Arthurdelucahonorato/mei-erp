@@ -554,12 +554,12 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         </div>
 
         <div className="sticky bottom-2 mt-4">
-          <Pagination
+          {/* <Pagination
             items={pedidos.length}
             currentPage={currentPage}
             pageSize={pageSize}
             onPageChange={handlePageChange}
-          />
+          /> */}
         </div>
       </div>
     </MountTransition>

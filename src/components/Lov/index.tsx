@@ -140,12 +140,12 @@ export default function Lov({
               </div>
             </div>
             <div className="sticky bottom-2 mt-4">
-              <Pagination
+              {/* <Pagination
                 items={listValuesFilter?.length}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 onPageChange={handlePageChange}
-              />
+              /> */}
             </div>
           </div>
         </div>
