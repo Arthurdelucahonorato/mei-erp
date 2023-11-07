@@ -12,7 +12,7 @@ export const ButtonTable = ({
   return (
     <button
       {...props}
-      className={`font-medium text-gray-500 dark:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded-xl aspect-square ${className}`}
+      className={`font-medium text-gray-500 dark:text-white bg-gray-100 dark:bg-theme-dark.100 p-2 rounded-xl aspect-square ${className}`}
     >
       {children}
     </button>

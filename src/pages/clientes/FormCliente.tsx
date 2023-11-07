@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
 import Modal from "@/components/Modal";
@@ -16,50 +16,41 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import { api } from "@/services/api/api";
+import { el } from "@faker-js/faker";
 
 interface FormClienteType {
     formClienteIsOpen: boolean;
     titleModal: String;
     toogleFormCliente: () => void;
+    clienteEdicao?: Client;
 }
 
-export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormCliente }: FormClienteType) {
-    const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
-    const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
-
-    const toogleClienteRegister = () => {
-        reset();
-        setIsOpenClienteRegister(!isOpenClienteRegister);
-    };
-    const toogleClienteEdit = (cliente?: any) => {
-        reset();
-        setIsOpenClienteEdit(!isOpenClienteEdit);
-        if (!isOpenClienteEdit && cliente) {
-            setValue("codigoCliente", cliente.codigoCliente);
-            setValue("nomeCliente", cliente.nomeCliente);
-            setValue("telefone", cliente.telefone);
-            setValue("email", cliente.email);
-            setValue("cep", cliente.cep);
-            setValue("cidade", cliente.cidade);
-            setValue("bairro", cliente.bairro);
-            setValue("rua", cliente.rua);
-            setValue("numero", cliente.numero);
-            setValue("complemento", cliente.complemento);
+export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormCliente, clienteEdicao }: FormClienteType) {
+    useEffect(() => {
+        if (clienteEdicao) {
+            setValue("nome", clienteEdicao.nome);
+            setValue("telefone", clienteEdicao.telefone);
+            setValue("email", clienteEdicao.email);
+            setValue("endereco.cep", clienteEdicao?.endereco?.cep);
+            /*  setValue("endereco.cidade", clienteEdicao.endereco.cidade); */
+            setValue("endereco.bairro", clienteEdicao?.endereco?.bairro);
+            setValue("endereco.rua", clienteEdicao?.endereco?.rua);
+            setValue("endereco.numero", clienteEdicao?.endereco?.numero);
+            setValue("endereco.complemento", clienteEdicao?.endereco?.complemento);
         }
-    };
+    }, [clienteEdicao])
 
     const validateRegister = z.object({
-        codigoCliente: z.string(),
-        nomeCliente: z.string().nonempty("Campo obrigatório"),
+        nome: z.string().nonempty("Campo obrigatório"),
         telefone: z.string().nonempty("Campo obrigatório"),
         email: z.string(),
-        cep: z.string().nonempty("Campo obrigatório"),
-        cidade: z.string(),
-        bairro: z.string().nonempty("Campo obrigatório"),
-        rua: z.string().nonempty("Campo obrigatório"),
-        numero: z.string().nonempty("Campo obrigatório"),
-        complemento: z.string(),
-        pesquisar: z.string(),
+        endereco: z.object({
+            bairro: z.string().nonempty("Campo obrigatório"),
+            cep: z.string().nonempty("Campo obrigatório"),
+            complemento: z.string(),
+            numero: z.string().nonempty("Campo obrigatório"),
+            rua: z.string().nonempty("Campo obrigatório"),
+        })
     });
 
     type ValidateData = z.infer<typeof validateRegister>;
@@ -75,21 +66,13 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         mode: "onSubmit",
         resolver: zodResolver(validateRegister),
     });
+    console.log(errors)
 
-    const submitFormRegister = async ({
-        codigoCliente,
-        nomeCliente,
-        email,
-        telefone,
-        cep,
-        cidade,
-        bairro,
-        rua,
-        numero,
-        complemento,
-    }: ValidateData) => {
+    const submitFormRegister = async (data: ValidateData) => {
+        console.log('data')
+        console.log(data)
         try {
-            const request = await api.post("/clients", { codigoCliente, nomeCliente, email, telefone, cep, cidade, bairro, rua, numero, complemento })
+            const request = await api.post("/clients", data)
             console.log('Executou insert')
             console.log(request.data)
             return request.data
@@ -98,25 +81,25 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
             return;
         }
     };
-    const submitFormEdit = async ({
-        codigoCliente,
-        nomeCliente,
-        email,
-        telefone,
-        cep,
-        cidade,
-        bairro,
-        rua,
-        numero,
-        complemento,
-    }: ValidateData) => {
+    const submitFormEdit = async (id: number, data: ValidateData) => {
         try {
-            console.log("Editou");
+            const request = await api.put("/clients/" + id, data)
+            console.log('Executou update')
+            console.log(request.data)
+            return request.data
         } catch (error: any) {
+            console.log(error);
             return;
         }
     };
 
+    /*     const qualUsar = (cliente: Client) => {
+            if (clienteEdicao) {
+                submitFormEdit(clienteEdicao.id, clienteEdicao);
+            } else {
+                submitFormRegister(cliente);
+            }
+        } */
     return (
         <Modal
             isOpen={formClienteIsOpen}
@@ -125,14 +108,14 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         >
             <form
                 className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-            //onSubmit={() => handleSubmit(submitFormRegister)}
+                onSubmit={handleSubmit(submitFormRegister)}
             >
                 <Input
                     className="col-span-3 md:col-span-12"
-                    {...register("nomeCliente")}
+                    {...register("nome")}
                     label="Nome"
-                    htmlFor="nomeCliente"
-                    errorMessage={errors.nomeCliente?.message}
+                    htmlFor="nome"
+                    errorMessage={errors.nome?.message}
                     type="text"
                     placeholder="Nome do Cliente"
                     required
@@ -157,55 +140,55 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
                 />
                 <Input
                     className="col-span-1 md:col-span-2"
-                    {...register("cep")}
+                    {...register("endereco.cep")}
                     label="CEP"
                     htmlFor="cep"
-                    errorMessage={errors.cep?.message}
+                    errorMessage={errors.endereco?.cep?.message}
                     type="number"
                     placeholder="CEP"
                     required
                 />
                 <Input
-                    {...register("cidade")}
+                    /* {...register("endereco.cidade")} */
                     className="col-span-2 md:col-span-10"
                     label="Cidade"
                     htmlFor="cidade"
                     type="text"
                     placeholder="Cidade"
-                    disabled
+
                 />
                 <Input
                     className="col-span-1 md:col-span-5"
-                    {...register("bairro")}
+                    {...register("endereco.bairro")}
                     label="Bairro"
                     htmlFor="bairro"
-                    errorMessage={errors.bairro?.message}
+                    errorMessage={errors.endereco?.bairro?.message}
                     type="text"
                     placeholder="Bairro"
                     required
                 />
                 <Input
                     className="col-span-2 md:col-span-5"
-                    {...register("rua")}
+                    {...register("endereco.rua")}
                     label="Rua"
                     htmlFor="rua"
-                    errorMessage={errors.rua?.message}
+                    errorMessage={errors.endereco?.rua?.message}
                     type="text"
                     placeholder="Rua"
                     required
                 />
                 <Input
                     className="col-span-1 md:col-span-2"
-                    {...register("numero")}
+                    {...register("endereco.numero")}
                     label="Número"
                     htmlFor="numero"
-                    errorMessage={errors.numero?.message}
+                    errorMessage={errors.endereco?.numero?.message}
                     type="text"
                     placeholder="Número"
                     required
                 />
                 <Input
-                    {...register("complemento")}
+                    {...register("endereco.complemento")}
                     className="col-span-2 md:col-span-12"
                     label="Complemento"
                     htmlFor="complemento"
@@ -213,7 +196,7 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
                     placeholder="Complemento"
                 />
                 <div className="ml-auto col-span-3 md:col-span-12">
-                    <Button type="button" onClick={() => handleSubmit(submitFormRegister)}>{titleModal}</Button>
+                    <Button type="submit">{titleModal}</Button>
                 </div>
             </form>
         </Modal>

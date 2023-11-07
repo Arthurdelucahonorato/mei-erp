@@ -6,3 +6,8 @@ type Pagination = {
     prev: number,
     next: number
 };
+
+type PaginationParams = {
+    limit: string;
+    page: string;
+}

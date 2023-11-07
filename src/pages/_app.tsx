@@ -53,20 +53,19 @@ export default function App({
 
   return (
     <main
-      className={`${inter.className} ${
-        isAuthenticated ? "flex-row" : "flex-col"
-      } flex min-h-screen max-w-screen overflow-auto`}
+      className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"
+        } flex min-h-screen max-w-screen overflow-auto`}
     >
       {loading && <PageLoader />}
       {pathname !== "/_error" &&
-      pathname !== "/404" &&
-      pathname !== "/login" ? (
+        pathname !== "/404" &&
+        pathname !== "/login" ? (
         isPrivateRouterAndAuth ? (
           <div className="flex flex-1 absolute w-full h-full overflow-y-hidden">
             <PrivateHeader />
             <div className="flex flex-1 flex-col w-full min-h-screen overflow-y-hidden">
               <UserInfoHeader />
-              <div className=" flex-1 bg-slate-50 dark:bg-gray-950 h-full w-full overflow-x-auto overflow-y-auto p-3">
+              <div className=" flex-1 bg-slate-50 dark:bg-theme-dark.50 h-full w-full overflow-x-auto overflow-y-auto p-3">
                 <Component {...pageProps} />
               </div>
             </div>

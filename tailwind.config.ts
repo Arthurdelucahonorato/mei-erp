@@ -42,7 +42,6 @@ const config: Config = {
           "third-tone": "#52B9BD",
           "fourth-tone": "#8CC6CE",
           "fifth-tone": "#bae3e3",
-
         },
         accent: {
           DEFAULT: "#95A4FC",
@@ -54,6 +53,32 @@ const config: Config = {
           yellow: "#FFE999",
           red: "#FF4747",
         },
+        theme: {
+          "dark.50": '#18181b',
+          "dark.100": '#27272a',
+          "dark.150": '#1b1b1d',
+          "dark.200": '#3f3f46',
+          "dark.300": '#52525b',
+          "dark.400": '#71717a',
+          "dark.500": '#a1a1aa',
+          "dark.600": '#d4d4d8',
+          "dark.700": '#e4e4e7',
+          "dark.800": '#f4f4f5',
+          "dark.900": '#fafafa',
+
+          "light.50": '#fafaf9',
+          "light.100": '#f5f5f4',
+          "light.200": '#e7e5e4',
+          "light.300": '#d6d3d1',
+          "light.400": '#a8a29e',
+          "light.500": '#78716c',
+          "light.600": '#57534e',
+          "light.700": '#44403c',
+          "light.800": '#292524',
+          "light.900": '#1c1917',
+
+        },
+
         altGray: "#1E2D3D",
       },
     },

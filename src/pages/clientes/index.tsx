@@ -17,6 +17,10 @@ import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import { api } from "@/services/api/api";
 import FormCliente from "./FormCliente";
+import { getAllClients } from "@/services/api/clients/get-all-clients";
+import { deleteClient } from "@/services/api/clients/delete-client";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 type ClienteProps = {
   items: number;
@@ -31,34 +35,46 @@ type ClienteProps = {
 
 
 export async function getServerSideProps() {
-  const clientes = await api.get("/clients", { data: { perPage: 2, page: 1 } })
+  const clientes = await getAllClients({
+    limit: '12',
+    page: '1'
+  });
+
   return {
     props: {
-      clientes: clientes.data,
+      clientes: clientes,
     },
   };
 }
 
 
 export default function Clientes({ clientes }: ClienteProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
   const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
-  const [lovIsOpen, setLovIsOpen] = useState(false);
-  const [listaClientes, setListaClientes] = useState(clientes);
+  //const [listaClientes, setListaClientes] = useState(clientes);
+  const [clientToEdit, setClientToEdit] = useState<Client>();
 
-  const buscarListaClientes = async (pagina: number) => {
-    console.log(`Pagina: ${pagina}`)
-    const data = { perPage: 2, page: pagina };
-    const clientes = await api.get("/clients", { data })
-    return clientes.data
+  const { reload } = useRouter();
+
+  const deletarCliente = async (id: number) => {
+    try {
+      toast.promise(deleteClient(id), {
+        loading: 'Deletando',
+        success: (data) => {
+          reload();
+          return data.message;
+        },
+        error: (error) => error.response.data.message
+      })
+    } catch (error: any) {
+      toast.error(error.response.data.message)
+    }
   }
 
-  const handlePageChange = async (page: number) => {
-    console.log('clientes')
-    console.log((await buscarListaClientes(page)));
-    setListaClientes((await buscarListaClientes(page)));
+  const setarClienteEdicao = (id: number) => {
+    const cliente = clientes.content.find(cliente => cliente.id == id);
+    setClientToEdit(cliente);
+    setIsOpenClienteEdit(!isOpenClienteEdit)
   }
 
   return (
@@ -74,6 +90,7 @@ export default function Clientes({ clientes }: ClienteProps) {
           formClienteIsOpen={isOpenClienteEdit}
           titleModal={"Editar Cliente"}
           toogleFormCliente={() => setIsOpenClienteEdit(false)}
+          clienteEdicao={clientToEdit}
         />
 
         <div className="flex justify-between my-1 max-h-12">
@@ -93,18 +110,17 @@ export default function Clientes({ clientes }: ClienteProps) {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={["ID", "Nome", "Telefone", "E-mail", "Endereço"]}
+              headers={["ID", "Nome", "Telefone", "E-mail", "Endereço", ""]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {listaClientes.content.map((cliente) => (
+              {clientes.content.map((cliente) => (
                 < Table.Tr
                   key={cliente.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
+                  className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <Table.Td className="w-4 p-4">{cliente.id}</Table.Td>
                   <Table.Td
                     scope="row"
@@ -117,10 +133,10 @@ export default function Clientes({ clientes }: ClienteProps) {
                   <Table.Td>{cliente?.endereco?.rua}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => console.log('cliquetoogleClienteEdit(cliente)')}>
+                      <ButtonTable onClick={() => setarClienteEdicao(cliente.id)}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
-                      <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                      <ButtonTable className="bg-red-600 dark:bg-red-500 text-white" onClick={() => deletarCliente(cliente.id)}>
                         <BsTrash className={"text-lg"} />
                       </ButtonTable>
                     </div>
@@ -132,15 +148,15 @@ export default function Clientes({ clientes }: ClienteProps) {
         </div>
 
         <div className="sticky bottom-2 mt-4">
-          <Pagination
-            totalPages={listaClientes.pagination.totalPages}
+          {/*           <Pagination
+            totalPages={clientes.pagination.totalPages}
             perPage={2}
-            next={listaClientes.pagination.next}
-            prev={listaClientes.pagination.prev}
-            lastPage={listaClientes.pagination.lastPage}
-            currentPage={listaClientes.pagination.currentPage}
+            next={clientes.pagination.next}
+            prev={clientes.pagination.prev}
+            lastPage={clientes.pagination.lastPage}
+            currentPage={clientes.pagination.currentPage}
             onPageChange={handlePageChange}
-          />
+          /> */}
         </div>
       </div>
     </MountTransition >

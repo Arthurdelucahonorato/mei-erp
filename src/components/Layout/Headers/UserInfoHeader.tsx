@@ -11,7 +11,7 @@ export function UserInfoHeader() {
   const pathTitle = Menus.find((route) => route.href === pathname)?.title;
 
   return (
-    <div className="sticky top-0 w-full flex flex-row justify-between items-center max-h-24 bg-white dark:bg-gray-900 duration-300">
+    <div className="sticky top-0 w-full flex flex-row justify-between items-center max-h-24 bg-white dark:bg-theme-dark.150 duration-300">
       <div className="flex mr-auto">
         <text className="text-xl font-semibold p-5 dark:text-white">
           {pathTitle}
