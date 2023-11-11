@@ -9,5 +9,6 @@ export const getAllClients = async (
   });
 
   const request = await api.get("/clients?" + String(params));
+  console.log(request.data)
   return await request.data;
 };

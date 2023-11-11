@@ -1,26 +1,17 @@
-import { useState } from "react";
-import Pagination from "@/components/Pagination";
-import { paginate } from "@/utils/paginate";
-import Modal from "@/components/Modal";
-import { Button } from "@/components/Button";
-import moment from "moment";
-import "moment/locale/pt-br";
-import { BsCartPlus, BsPencil, BsTrash } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
+import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Table } from "@/components/Table/index";
-import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
-import Lov from "@/components/Lov";
-import { api } from "@/services/api/api";
-import FormCliente from "./FormCliente";
-import { getAllClients } from "@/services/api/clients/get-all-clients";
+import { Table } from "@/components/Table/index";
 import { deleteClient } from "@/services/api/clients/delete-client";
+import { getAllClients } from "@/services/api/clients/get-all-clients";
+import "moment/locale/pt-br";
+import { Router, useRouter } from "next/router";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/router";
+import { BsCartPlus, BsPencil, BsTrash } from "react-icons/bs";
+import FormCliente from "./FormCliente";
+import Pagination from "@/components/Pagination";
 
 type ClienteProps = {
   items: number;
@@ -33,16 +24,19 @@ type ClienteProps = {
   };
 };
 
-
-export async function getServerSideProps() {
+export const getServerSideProps = async ({ query }: any) => {
   const clientes = await getAllClients({
-    limit: '12',
-    page: '1'
+    limit: '1',
+    page: query.page || '1'
   });
 
+
+  console.log('QUERY')
+  console.log(query)
+  console.log(clientes)
   return {
     props: {
-      clientes: clientes,
+      clientes: clientes
     },
   };
 }
@@ -53,8 +47,21 @@ export default function Clientes({ clientes }: ClienteProps) {
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
   //const [listaClientes, setListaClientes] = useState(clientes);
   const [clientToEdit, setClientToEdit] = useState<Client>();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { reload } = useRouter();
+  const router = useRouter()
+
+  const handlePageChange = (page: any) => {
+    const path = router.pathname
+    const query = router.query
+    query.page = page
+    router.push({
+      pathname: path,
+      query: query,
+    })
+
+  }
 
   const deletarCliente = async (id: number) => {
     try {
@@ -84,12 +91,12 @@ export default function Clientes({ clientes }: ClienteProps) {
         <FormCliente
           formClienteIsOpen={isOpenClienteRegister}
           titleModal={"Cadastrar Cliente"}
-          toogleFormCliente={() => setIsOpenClienteRegister(false)}
+          toggleFormCliente={() => setIsOpenClienteRegister(false)}
         />
         <FormCliente
           formClienteIsOpen={isOpenClienteEdit}
           titleModal={"Editar Cliente"}
-          toogleFormCliente={() => setIsOpenClienteEdit(false)}
+          toggleFormCliente={() => setIsOpenClienteEdit(false)}
           clienteEdicao={clientToEdit}
         />
 
@@ -118,8 +125,7 @@ export default function Clientes({ clientes }: ClienteProps) {
             />
             <Table.Body className="overflow-y-auto">
               {clientes.content.map((cliente) => (
-                < Table.Tr
-                  key={cliente.id}
+                < Table.Tr key={cliente.id}
                   className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <Table.Td className="w-4 p-4">{cliente.id}</Table.Td>
                   <Table.Td
@@ -136,7 +142,7 @@ export default function Clientes({ clientes }: ClienteProps) {
                       <ButtonTable onClick={() => setarClienteEdicao(cliente.id)}>
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
-                      <ButtonTable className="bg-red-600 dark:bg-red-500 text-white" onClick={() => deletarCliente(cliente.id)}>
+                      <ButtonTable variant="red" onClick={() => deletarCliente(cliente.id)}>
                         <BsTrash className={"text-lg"} />
                       </ButtonTable>
                     </div>
@@ -146,17 +152,15 @@ export default function Clientes({ clientes }: ClienteProps) {
             </Table.Body>
           </Table.Root>
         </div>
-
         <div className="sticky bottom-2 mt-4">
-          {/*           <Pagination
+          <Pagination
             totalPages={clientes.pagination.totalPages}
-            perPage={2}
-            next={clientes.pagination.next}
-            prev={clientes.pagination.prev}
-            lastPage={clientes.pagination.lastPage}
-            currentPage={clientes.pagination.currentPage}
+            totalItems={clientes.pagination.totalItems}
+            nextPage={clientes.pagination.nextPage}
+            prevPage={clientes.pagination.prevPage}
+            currentPage={Number(clientes.pagination.page)}
             onPageChange={handlePageChange}
-          /> */}
+          />
         </div>
       </div>
     </MountTransition >

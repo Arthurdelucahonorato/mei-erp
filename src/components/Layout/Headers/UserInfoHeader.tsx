@@ -20,7 +20,7 @@ export function UserInfoHeader() {
       <div className="pr-5">
         <ToggleDarkMode />
       </div>
-      <div className="flex bg-primary-fifth-tone dark:bg-gray-800 rounded-xl p-1 mr-2 px-3">
+      <div className="flex bg-primary-fifth-tone dark:bg-theme-dark.100 rounded-xl p-1 mr-2 px-3">
         <Image
           src={Avatar}
           className={`duration-200 rounded-full`}

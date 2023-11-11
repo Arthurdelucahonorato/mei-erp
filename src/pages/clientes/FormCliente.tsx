@@ -16,29 +16,36 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import { api } from "@/services/api/api";
-import { el } from "@faker-js/faker";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
+import { editClient } from "@/services/api/clients/edit-client";
+import { registerClient } from "@/services/api/clients/register-client";
+
 
 interface FormClienteType {
     formClienteIsOpen: boolean;
     titleModal: String;
-    toogleFormCliente: () => void;
+    toggleFormCliente: () => void;
     clienteEdicao?: Client;
 }
 
-export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormCliente, clienteEdicao }: FormClienteType) {
+export default function FormCliente({ formClienteIsOpen, titleModal, toggleFormCliente, clienteEdicao }: FormClienteType) {
     useEffect(() => {
         if (clienteEdicao) {
             setValue("nome", clienteEdicao.nome);
             setValue("telefone", clienteEdicao.telefone);
             setValue("email", clienteEdicao.email);
             setValue("endereco.cep", clienteEdicao?.endereco?.cep);
-            /*  setValue("endereco.cidade", clienteEdicao.endereco.cidade); */
+            setValue("endereco.cidade", clienteEdicao.endereco.cidade);
             setValue("endereco.bairro", clienteEdicao?.endereco?.bairro);
             setValue("endereco.rua", clienteEdicao?.endereco?.rua);
             setValue("endereco.numero", clienteEdicao?.endereco?.numero);
             setValue("endereco.complemento", clienteEdicao?.endereco?.complemento);
         }
     }, [clienteEdicao])
+
+    const { reload } = useRouter();
+
 
     const validateRegister = z.object({
         nome: z.string().nonempty("Campo obrigatório"),
@@ -47,6 +54,7 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         endereco: z.object({
             bairro: z.string().nonempty("Campo obrigatório"),
             cep: z.string().nonempty("Campo obrigatório"),
+            cidade: z.string().nonempty("Campo obrigatório"),
             complemento: z.string(),
             numero: z.string().nonempty("Campo obrigatório"),
             rua: z.string().nonempty("Campo obrigatório"),
@@ -61,6 +69,7 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
         reset,
         setValue,
         watch,
+        getValues,
         formState: { errors, isSubmitting },
     } = useForm<ValidateData>({
         mode: "onSubmit",
@@ -69,46 +78,46 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
     console.log(errors)
 
     const submitFormRegister = async (data: ValidateData) => {
-        console.log('data')
-        console.log(data)
         try {
-            const request = await api.post("/clients", data)
-            console.log('Executou insert')
-            console.log(request.data)
-            return request.data
+            toast.promise(registerClient(data), {
+                loading: 'Salvando novo cliente',
+                success: (d) => {
+                    reload();
+                    return d.message;
+                },
+                error: (error) => error.response.data.message
+            })
         } catch (error: any) {
-            console.log(error);
-            return;
-        }
-    };
-    const submitFormEdit = async (id: number, data: ValidateData) => {
-        try {
-            const request = await api.put("/clients/" + id, data)
-            console.log('Executou update')
-            console.log(request.data)
-            return request.data
-        } catch (error: any) {
-            console.log(error);
+            toast.error(error.response.data.message);
             return;
         }
     };
 
-    /*     const qualUsar = (cliente: Client) => {
-            if (clienteEdicao) {
-                submitFormEdit(clienteEdicao.id, clienteEdicao);
-            } else {
-                submitFormRegister(cliente);
-            }
-        } */
+    const submitFormEdit = async (id: number, data: ValidateData) => {
+        try {
+            toast.promise(editClient(id, data), {
+                loading: 'Salvando alterações do cliente',
+                success: (d) => {
+                    reload();
+                    return d.message;
+                },
+                error: (error) => error.response.data.message
+            })
+        } catch (error: any) {
+            toast.error(error.response.data.message);
+            return;
+        }
+    };
+
     return (
         <Modal
             isOpen={formClienteIsOpen}
-            toggle={toogleFormCliente}
+            toggle={toggleFormCliente}
             title={titleModal}
         >
             <form
                 className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-                onSubmit={handleSubmit(submitFormRegister)}
+                onSubmit={handleSubmit((data) => (clienteEdicao ? submitFormEdit(clienteEdicao.id, data) : submitFormRegister(data)))}
             >
                 <Input
                     className="col-span-3 md:col-span-12"
@@ -149,12 +158,14 @@ export default function FormCliente({ formClienteIsOpen, titleModal, toogleFormC
                     required
                 />
                 <Input
-                    /* {...register("endereco.cidade")} */
+                    {...register("endereco.cidade")}
                     className="col-span-2 md:col-span-10"
                     label="Cidade"
                     htmlFor="cidade"
+                    errorMessage={errors.endereco?.cidade?.message}
                     type="text"
                     placeholder="Cidade"
+                    required
 
                 />
                 <Input
