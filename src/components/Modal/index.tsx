@@ -17,7 +17,7 @@ export default function Modal({ ...props }: ModalType) {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`bg-white dark:bg-gray-800 p-4 rounded-md flex-col flex gap-2`}
+            className={`bg-white dark:bg-theme-dark.150 p-4 rounded-md flex-col flex gap-2`}
           >
             <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">

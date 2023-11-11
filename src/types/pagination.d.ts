@@ -1,10 +1,10 @@
 type Pagination = {
+    page: number,
+    limit: number,
+    totalItems: number;
     totalPages: number;
-    lastPage: number,
-    currentPage: number,
-    perPage: number,
-    prev: number,
-    next: number
+    prevPage: number,
+    nextPage: number
 };
 
 type PaginationParams = {

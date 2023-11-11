@@ -23,9 +23,9 @@ export function ToggleDarkMode() {
     <>
       <button onClick={toggleDarkMode}>
         {isDarkMode ? (
-          <CiCloudSun className="w-10 h-10 text-black dark:text-white" />
+          <CiCloudSun className="w-10 h-10 text-black dark:text-white hover:scale-105" />
         ) : (
-          <CiCloudMoon className="w-10 h-10" />
+          <CiCloudMoon className="w-10 h-10 hover:scale-105" />
         )}
       </button>
     </>

@@ -114,7 +114,7 @@ export function PrivateHeader() {
                 <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium">
                   {!open && (
                     <span
-                      className={`-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-200 dark:bg-gray-800 p-2 text-xs group-hover:scale-100 ${pathname === menu.href &&
+                      className={`-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-100 dark:bg-theme-dark.150 p-2 text-xs group-hover:scale-100 ${pathname === menu.href &&
                         "bg-primary text-white hover:text-white dark:bg-secondary hover:dark:text-white"
                         } hover:text-primary hover:dark:text-secondary`}
                     >
