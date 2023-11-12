@@ -26,14 +26,9 @@ type ClienteProps = {
 
 export const getServerSideProps = async ({ query }: any) => {
   const clientes = await getAllClients({
-    limit: '1',
-    page: query.page || '1'
+    limit: 12,
+    page: query.page || 1
   });
-
-
-  console.log('QUERY')
-  console.log(query)
-  console.log(clientes)
   return {
     props: {
       clientes: clientes
@@ -45,9 +40,7 @@ export const getServerSideProps = async ({ query }: any) => {
 export default function Clientes({ clientes }: ClienteProps) {
   const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
-  //const [listaClientes, setListaClientes] = useState(clientes);
   const [clientToEdit, setClientToEdit] = useState<Client>();
-  const [currentPage, setCurrentPage] = useState(1);
 
   const { reload } = useRouter();
   const router = useRouter()
@@ -136,7 +129,7 @@ export default function Clientes({ clientes }: ClienteProps) {
                   </Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
-                  <Table.Td>{cliente?.endereco?.rua}</Table.Td>
+                  <Table.Td>{cliente?.endereco?.cidade + ' - ' + cliente?.endereco?.bairro + ' - ' + cliente?.endereco?.rua + ' - ' + cliente?.endereco?.numero}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                       <ButtonTable onClick={() => setarClienteEdicao(cliente.id)}>

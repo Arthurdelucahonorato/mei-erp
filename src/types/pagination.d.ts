@@ -8,6 +8,6 @@ type Pagination = {
 };
 
 type PaginationParams = {
-    limit: string;
-    page: string;
+    limit: number;
+    page: number;
 }
