@@ -3,7 +3,7 @@ import { CardGrid } from "@/components/CardProduct/CardGrid";
 import { getAllProducts } from "@/services/api/products/get-all-products";
 
 type CardapioPageProps = {
-  produtos: Product[];
+  produtos: PaginatedResult<Product[]>;
 };
 
 export async function getServerSideProps() {
@@ -19,7 +19,7 @@ export async function getServerSideProps() {
 export default function Cardapio({ produtos }: CardapioPageProps) {
   return (
     <CardGrid>
-      {produtos?.map((produto) => {
+      {produtos?.content.map((produto) => {
         return (
           <Card
             categoria={produto.categoria.descricao}
