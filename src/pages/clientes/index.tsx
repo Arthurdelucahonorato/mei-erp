@@ -139,7 +139,15 @@ export default function Clientes({ clientes }: ClienteProps) {
                   </Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
-                  <Table.Td>{cliente?.endereco?.rua}</Table.Td>
+                  <Table.Td>
+                    {cliente?.endereco?.cidade +
+                      " - " +
+                      cliente?.endereco?.bairro +
+                      " - " +
+                      cliente?.endereco?.rua +
+                      " - " +
+                      cliente?.endereco?.numero}
+                  </Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                       <ButtonTable
