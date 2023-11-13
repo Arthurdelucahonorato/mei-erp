@@ -24,7 +24,7 @@ export default function Cardapio({ produtos }: CardapioPageProps) {
           <Card
             categoria={produto.categoria.descricao}
             nome={produto.descricao}
-            imagem={produto.imagensProduto[0].path}
+            imagem={produto.imagensProduto[0]?.path}
           />
         );
       })}

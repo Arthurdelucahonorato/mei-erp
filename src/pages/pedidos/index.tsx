@@ -303,7 +303,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           onSubmit={submitFormPedido}
         >
           <Input
-            className="col-span-1 md:col-span-3"
+            containerClassName="col-span-1 md:col-span-3"
             {...register("codigoCliente")}
             label="Codigo do Cliente"
             htmlFor="codigoCliente"
@@ -314,7 +314,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
             // lovButton={lovValues}
           />
           <Input
-            className="col-span-2 md:col-span-9"
+            containerClassName="col-span-2 md:col-span-9"
             {...register("nomeCliente")}
             label="Nome"
             htmlFor="nomeCliente"
@@ -325,7 +325,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           />
 
           <Input
-            className="col-span-1 md:col-span-4"
+            containerClassName="col-span-1 md:col-span-4"
             {...register("dataPedido")}
             label="Data do Pedido"
             htmlFor="dataPedido"
@@ -358,7 +358,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           />
           <Input
             {...register("status")}
-            className="col-span-1 md:col-span-4"
+            containerClassName="col-span-1 md:col-span-4"
             label="Status"
             htmlFor="status"
             errorMessage={errors.status?.message}
@@ -368,7 +368,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           />
 
           <Input
-            className="col-span-1 md:col-span-4"
+            containerClassName="col-span-1 md:col-span-4"
             {...register("dataEntrega")}
             label="Data da Entrega"
             htmlFor="dataEntrega"
@@ -379,7 +379,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           />
 
           <Input
-            className="col-span-1 md:col-span-4"
+            containerClassName="col-span-1 md:col-span-4"
             {...register("modalidadeEntrega")}
             label="Modalidade da Entrega"
             htmlFor="modalidadeEntrega"
@@ -391,7 +391,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
 
           <Input
             {...register("observacao")}
-            className="col-span-3 md:col-span-12"
+            containerClassName="col-span-3 md:col-span-12"
             label="Observação"
             htmlFor="observacao"
             type="text"

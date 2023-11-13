@@ -1,7 +1,15 @@
 import { api } from "../api";
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  const request = await api.get("/products?page=1&limit=10");
+export const getAllProducts = async (
+  data?: FilterPaginatedRequest<Product>
+): Promise<PaginatedResult<Product[]>> => {
+  const params = new URLSearchParams({
+    categoria: String(data?.params?.categoria?.id) || "",
+    limit: data?.pagination?.perPage || "",
+    page: data?.pagination?.page || "",
+  });
 
-  return await request.data.content;
+  const request = await api.get(`/products?${String(params)}`);
+
+  return await request.data;
 };
