@@ -18,6 +18,23 @@ export default function Pagination({
   onPageChange,
 }: PaginationProps) {
   const pages = _.range(1, totalPages + 1);
+
+  function buscarPaginasProximas(values: number[], targetIndex: number): number[] {
+    // Calcula a diferença entre o índice desejado e os índices dos valores
+    const proximidade = values.map((value, index) => Math.abs(index - targetIndex));
+
+    // Cria uma matriz de pares (valor, diferença)
+    const matrizValorDiferenca = values.map((valor, index) => ({ valor, diferenca: proximidade[index] }));
+
+    // Classifica os pares com base na diferença
+    matrizValorDiferenca.sort((a, b) => a.diferenca - b.diferenca);
+
+    // Retorna os quatro valores com as menores diferenças
+    const valoresProximos = matrizValorDiferenca.slice(0, 5).map(pair => pair.valor);
+    // Reordena a lista conforme valores originais
+    return valoresProximos.sort((a, b) => values.indexOf(a) - values.indexOf(b));
+  }
+
   return (
     <nav
       className="flex flex-1 items-center justify-between p-3 bg-white dark:bg-theme-dark.100 rounded-md shadow-md"
@@ -44,7 +61,7 @@ export default function Pagination({
             {"<-"}
           </a>
         </li>
-        {pages.map((page) => (
+        {buscarPaginasProximas(pages, pages.indexOf(currentPage)).map((page) => (
           <li key={page} onClick={() => onPageChange(page)}>
             <a
               href="#"

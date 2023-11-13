@@ -7,7 +7,7 @@ type InputProps = {
   errorMessage?: string;
   required?: boolean;
   lovButton?: LovType;
-  containerClassName: string;
+  containerClassName?: string;
 } & ComponentProps<"input">;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -41,9 +41,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
             ref={ref}
             id={htmlFor}
-            className={`text-sm appearance-none rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 leading-tight focus:outline-none focus:shadow-outline h-10 ${
-              errorMessage && " border-[1px] border-red-500"
-            }`}
+            className={`text-sm appearance-none rounded w-full py-2 px-3 text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 leading-tight focus:outline-none focus:shadow-outline h-10 ${errorMessage && " border-[1px] border-red-500"
+              }`}
           />
           {lovButton && (
             <Lov
