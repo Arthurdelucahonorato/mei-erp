@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { BsCartPlus, BsPencil, BsTrash } from "react-icons/bs";
 import FormCliente from "./FormCliente";
 import Pagination from "@/components/Pagination";
+import { GetServerSidePropsContext } from "next";
 
 type ClienteProps = {
   items: number;
@@ -24,70 +25,68 @@ type ClienteProps = {
   };
 };
 
-export const getServerSideProps = async ({ query }: any) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { query } = context;
+
+  const pageQueries = query as PaginationParams;
+
   const clientes = await getAllClients({
-    limit: '1',
-    page: query.page || '1'
+    perPage: pageQueries.perPage,
+    page: pageQueries.page,
   });
 
-
-  console.log('QUERY')
-  console.log(query)
-  console.log(clientes)
   return {
     props: {
-      clientes: clientes
+      clientes: clientes,
     },
   };
-}
-
+};
 
 export default function Clientes({ clientes }: ClienteProps) {
   const [isOpenClienteRegister, setIsOpenClienteRegister] = useState(false);
   const [isOpenClienteEdit, setIsOpenClienteEdit] = useState(false);
-  //const [listaClientes, setListaClientes] = useState(clientes);
   const [clientToEdit, setClientToEdit] = useState<Client>();
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const { reload } = useRouter();
-  const router = useRouter()
+  const { reload, query, push } = useRouter();
 
-  const handlePageChange = (page: any) => {
-    const path = router.pathname
-    const query = router.query
-    query.page = page
-    router.push({
-      pathname: path,
-      query: query,
-    })
+  const pageQueries = query as PaginationParams;
 
-  }
+  const onPageChange = (page: number) => {
+    if (page != Number(pageQueries.page)) {
+      push({
+        query: {
+          page: page,
+        },
+      });
+    }
+  };
 
   const deletarCliente = async (id: number) => {
     try {
       toast.promise(deleteClient(id), {
-        loading: 'Deletando',
+        loading: "Deletando",
         success: (data) => {
           reload();
           return data.message;
         },
-        error: (error) => error.response.data.message
-      })
+        error: (error) => error.response.data.message,
+      });
     } catch (error: any) {
-      toast.error(error.response.data.message)
+      toast.error(error.response.data.message);
     }
-  }
+  };
 
   const setarClienteEdicao = (id: number) => {
-    const cliente = clientes.content.find(cliente => cliente.id == id);
+    const cliente = clientes.content.find((cliente) => cliente.id == id);
     setClientToEdit(cliente);
-    setIsOpenClienteEdit(!isOpenClienteEdit)
-  }
+    setIsOpenClienteEdit(!isOpenClienteEdit);
+  };
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-
         <FormCliente
           formClienteIsOpen={isOpenClienteRegister}
           titleModal={"Cadastrar Cliente"}
@@ -102,14 +101,16 @@ export default function Clientes({ clientes }: ClienteProps) {
 
         <div className="flex justify-between my-1 max-h-12">
           <Input
-            className="col-span-2 md:col-span-9 mb-1"
+            containerClassName="col-span-2 md:col-span-9 mb-1"
             htmlFor="nome"
             type="text"
             placeholder="Pesquisar"
           />
           <div className="relative"></div>
           <div className="flex aspect-square">
-            <Button onClick={() => setIsOpenClienteRegister(!isOpenClienteRegister)}>
+            <Button
+              onClick={() => setIsOpenClienteRegister(!isOpenClienteRegister)}
+            >
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Cliente
               </div>
@@ -125,8 +126,10 @@ export default function Clientes({ clientes }: ClienteProps) {
             />
             <Table.Body className="overflow-y-auto">
               {clientes.content.map((cliente) => (
-                < Table.Tr key={cliente.id}
-                  className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <Table.Tr
+                  key={cliente.id}
+                  className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
                   <Table.Td className="w-4 p-4">{cliente.id}</Table.Td>
                   <Table.Td
                     scope="row"
@@ -136,13 +139,26 @@ export default function Clientes({ clientes }: ClienteProps) {
                   </Table.Td>
                   <Table.Td>{cliente.telefone}</Table.Td>
                   <Table.Td>{cliente.email}</Table.Td>
-                  <Table.Td>{cliente?.endereco?.rua}</Table.Td>
+                  <Table.Td>
+                    {cliente?.endereco?.cidade +
+                      " - " +
+                      cliente?.endereco?.bairro +
+                      " - " +
+                      cliente?.endereco?.rua +
+                      " - " +
+                      cliente?.endereco?.numero}
+                  </Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => setarClienteEdicao(cliente.id)}>
+                      <ButtonTable
+                        onClick={() => setarClienteEdicao(cliente.id)}
+                      >
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
-                      <ButtonTable variant="red" onClick={() => deletarCliente(cliente.id)}>
+                      <ButtonTable
+                        variant="red"
+                        onClick={() => deletarCliente(cliente.id)}
+                      >
                         <BsTrash className={"text-lg"} />
                       </ButtonTable>
                     </div>
@@ -158,11 +174,11 @@ export default function Clientes({ clientes }: ClienteProps) {
             totalItems={clientes.pagination.totalItems}
             nextPage={clientes.pagination.nextPage}
             prevPage={clientes.pagination.prevPage}
-            currentPage={Number(clientes.pagination.page)}
-            onPageChange={handlePageChange}
+            currentPage={Number(clientes.pagination.currentPage)}
+            onPageChange={onPageChange}
           />
         </div>
       </div>
-    </MountTransition >
+    </MountTransition>
   );
 }

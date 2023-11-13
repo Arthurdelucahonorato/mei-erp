@@ -8,8 +8,7 @@ const API_URL = "https://inoven-api.onrender.com"; // Produção
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
-    Authorization: `Bearer ${
-      parseCookies(undefined, "mei.authToken")["mei.authToken"]
-    }`,
+    Authorization: `Bearer ${parseCookies(undefined, "mei.authToken")["mei.authToken"]
+      }`,
   },
 });

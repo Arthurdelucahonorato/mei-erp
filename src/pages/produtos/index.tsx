@@ -21,6 +21,8 @@ import { getAllCategories } from "@/services/api/categories/get-all-categories";
 import { getAllVariations } from "@/services/api/variations/get-all-variations";
 import { createProduct } from "@/services/api/products/create-product";
 import { Unit } from "@/types/enum/unit.enum";
+import { useRouter } from "next/router";
+import { GetServerSidePropsContext } from "next";
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -31,13 +33,22 @@ interface ProdutoProps {
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  produtos: Product[];
+  produtos: PaginatedResult<Product[]>;
   categorias: Category[];
   variacoes: Variation[];
 }
 
-export async function getServerSideProps() {
-  const produtos = await getAllProducts();
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { query } = context;
+
+  const pageQueries = query as any;
+
+  const produtos = await getAllProducts({
+    pagination: {
+      page: pageQueries.page ?? "",
+      perPage: pageQueries.perPage ?? "",
+    },
+  });
 
   const categorias = await getAllCategories();
 
@@ -112,9 +123,12 @@ export default function produtos({
     try {
       const formData = new FormData();
 
-      if (data.imagensProduto) {
-        formData.append("imagensProduto", data.imagensProduto[0]);
+      if (data.imagensProduto && data.imagensProduto.length > 0) {
+        for (let i = 0; i < data.imagensProduto.length; i++) {
+          formData.append("imagensProduto", data.imagensProduto[i]);
+        }
       }
+
       formData.append("descricao", data.descricao);
       formData.append("categoriaId", data.categoriaId.toString());
       formData.append("variacaoId", data.variacaoId.toString());
@@ -167,7 +181,7 @@ export default function produtos({
           onSubmit={handleSubmit(submitFormRegister)}
         >
           <Input
-            className="col-span-3 md:col-span-12"
+            containerClassName="col-span-3 md:col-span-12"
             {...register("descricao")}
             label="Nome"
             htmlFor="nomeProduto"
@@ -210,8 +224,10 @@ export default function produtos({
           <Input
             {...register("imagensProduto")}
             type="file"
+            multiple
+            accept="image/*"
             label="Imagem"
-            className="col-span-12"
+            containerClassName="col-span-12"
           />
 
           <div className="ml-auto col-span-3 md:col-span-12">
@@ -220,6 +236,32 @@ export default function produtos({
         </form>
       </Modal>
     );
+  };
+
+  const [isOpenImagesModal, setIsOpenImagesModal] = useState(false);
+
+  const [productImages, setProductImages] = useState<Product>();
+
+  const openModalProductImages = (produtoId: number) => {
+    const product = produtos.content.find((produto) => produto.id == produtoId);
+
+    setProductImages(product);
+
+    setIsOpenImagesModal(true);
+  };
+
+  const { push, query } = useRouter();
+
+  const pageQueries = query as PaginationParams;
+
+  const onPageChange = (page: number) => {
+    if (page != Number(pageQueries.page)) {
+      push({
+        query: {
+          page: page ?? "",
+        },
+      });
+    }
   };
 
   return (
@@ -259,49 +301,84 @@ export default function produtos({
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={["ID", "Nome", "Categoria", "Variação", "Ações"]}
+              headers={[
+                "ID",
+                "Nome",
+                "Categoria",
+                "Variação",
+                "Imagens",
+                "Ações",
+              ]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {produtos.map((produto) => (
-                <Table.Tr
-                  key={produto.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
-                  <Table.Td className="w-4 p-4">{produto.id}</Table.Td>
-                  <Table.Td
-                    scope="row"
-                    className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+              <Modal
+                isOpen={isOpenImagesModal}
+                title={`Imagens do produto ${productImages?.descricao}`}
+                toggle={() => setIsOpenImagesModal(false)}
+              >
+                {productImages?.imagensProduto.map((imagem) => {
+                  return (
+                    <img
+                      key={imagem.id}
+                      className="w-40 h-40 rounded"
+                      src={imagem.path}
+                      alt="imagem"
+                    />
+                  );
+                })}
+              </Modal>
+              {produtos.content?.map((produto) => {
+                return (
+                  <Table.Tr
+                    key={produto.id}
+                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
-                    {produto.descricao}
-                  </Table.Td>
-                  <Table.Td>{produto.categoria.descricao}</Table.Td>
-                  <Table.Td>{produto.variacao.descricao}</Table.Td>
+                    <Table.Td className="w-4 p-4">{produto.id}</Table.Td>
+                    <Table.Td
+                      scope="row"
+                      className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      {produto.descricao}
+                    </Table.Td>
+                    <Table.Td>{produto.categoria.descricao}</Table.Td>
+                    <Table.Td>{produto.variacao.descricao}</Table.Td>
 
-                  <Table.Td isButton={true}>
-                    <div className="flex gap-2 mx-2">
-                      <ButtonTable onClick={() => toogleProdutoEdit()}>
-                        <BsPencil className={"text-lg"} />
+                    <Table.Td>
+                      <ButtonTable
+                        onClick={() => openModalProductImages(produto.id)}
+                      >
+                        Ver Imagens
                       </ButtonTable>
-                      <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
-                        <BsTrash className={"text-lg"} />
-                      </ButtonTable>
-                    </div>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
+                    </Table.Td>
+
+                    <Table.Td isButton={true}>
+                      <div className="flex gap-2 mx-2">
+                        <ButtonTable onClick={toogleProdutoEdit}>
+                          <BsPencil className={"text-lg"} />
+                        </ButtonTable>
+                        <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                          <BsTrash className={"text-lg"} />
+                        </ButtonTable>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
             </Table.Body>
           </Table.Root>
         </div>
 
-        {/* <div className="sticky bottom-2 mt-4">
+        <div className="sticky bottom-2 mt-4">
           <Pagination
-            items={produtos?.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
+            totalPages={produtos.pagination?.totalPages}
+            totalItems={produtos.pagination?.totalItems}
+            nextPage={produtos.pagination?.nextPage}
+            prevPage={produtos.pagination?.prevPage}
+            currentPage={Number(produtos.pagination?.currentPage)}
+            onPageChange={onPageChange}
           />
-        </div> */}
+        </div>
       </div>
     </MountTransition>
   );

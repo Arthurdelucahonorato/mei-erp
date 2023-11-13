@@ -1,13 +1,18 @@
 type Pagination = {
-    page: number,
-    limit: number,
-    totalItems: number;
-    totalPages: number;
-    prevPage: number,
-    nextPage: number
+  currentPage: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  prevPage: number;
+  nextPage: number;
 };
 
 type PaginationParams = {
-    limit: string;
-    page: string;
-}
+  perPage: string;
+  page: string;
+};
+
+type PaginatedResult<T> = {
+  content: T;
+  pagination: Pagination;
+};

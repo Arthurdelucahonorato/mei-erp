@@ -3,7 +3,6 @@ import { ComponentProps, ReactNode } from "react";
 type ButtonTableProps = {
   children: ReactNode;
   variant?: "default" | "red";
-
 } & ComponentProps<"button">;
 
 export const ButtonTable = ({
@@ -19,7 +18,8 @@ export const ButtonTable = ({
   return (
     <button
       {...props}
-      className={`font-medium p-2 rounded-xl aspect-square hover:scale-110 transition-transform ${className} ${variantClasses[variant]}`}>
+      className={`font-medium py-2 px-4 rounded-lg hover:scale-110 transition-transform ${className} ${variantClasses[variant]}`}
+    >
       {children}
     </button>
   );
