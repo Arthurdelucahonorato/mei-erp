@@ -6,7 +6,10 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import moment from "moment";
 
 interface DashboardPageProps {
-  pedidos: OrderRequest[];
+  pedidos: {
+    content: OrderRequest[];
+    pagination: Pagination;
+  }
 }
 
 export async function getServerSideProps() {
@@ -55,7 +58,7 @@ export default function Dashboard({ pedidos }: DashboardPageProps) {
           <Table.Root>
             <Table.Header headers={headersTable} />
             <Table.Body>
-              {pedidos?.slice(0, 7).map((pedido) => (
+              {pedidos?.content?.map((pedido) => (
                 <Table.Tr key={pedido.id}>
                   <Table.Td>{pedido.id}</Table.Td>
                   <Table.Td>{pedido.id}</Table.Td>

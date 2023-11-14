@@ -1,9 +1,18 @@
 import { api } from "../api";
 
-export const getAllRequests = async (): Promise<OrderRequest[]> => {
-  const request = await api.get("/requests");
+type GetRequests = {
+  pedidos: OrderRequest[];
+} & Pagination;
 
-  const response = await request.data.content;
+export const getAllRequests = async (
+  data?: PaginationParams
+): Promise<OrderRequest[]> => {
+  const params = new URLSearchParams({
+    limit: data?.perPage || "",
+    page: data?.page || "",
+  });
 
-  return response;
+  const request = await api.get("/requests?" + String(params));
+  console.log(request.data)
+  return await request.data;
 };
