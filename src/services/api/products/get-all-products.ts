@@ -1,13 +1,13 @@
 import { api } from "../api";
 
+export type ProductSearchQueries = {
+  descricao: string;
+} & PaginationParams;
+
 export const getAllProducts = async (
-  data?: FilterPaginatedRequest<Product>
+  data?: ProductSearchQueries
 ): Promise<PaginatedResult<Product[]>> => {
-  const params = new URLSearchParams({
-    categoria: String(data?.params?.categoria?.id) || "",
-    limit: data?.pagination?.perPage || "",
-    page: data?.pagination?.page || "",
-  });
+  const params = new URLSearchParams(data);
 
   const request = await api.get(`/products?${String(params)}`);
 

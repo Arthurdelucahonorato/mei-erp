@@ -4,7 +4,7 @@ import { UserInfoHeader } from "@/components/Layout/Headers/UserInfoHeader";
 import { PageLoader } from "@/components/Loader/PageLoader";
 import { api } from "@/services/api/api";
 import { publicRoutes } from "@/services/secure/public-routes";
-
+import "@/styles/custom.css";
 import "@/styles/globals.css";
 import type { AppContext, AppInitialProps, AppProps } from "next/app";
 import { Inter } from "next/font/google";
@@ -53,13 +53,14 @@ export default function App({
 
   return (
     <main
-      className={`${inter.className} ${isAuthenticated ? "flex-row" : "flex-col"
-        } flex min-h-screen max-w-screen overflow-auto`}
+      className={`${inter.className} ${
+        isAuthenticated ? "flex-row" : "flex-col"
+      } flex min-h-screen max-w-screen overflow-auto`}
     >
       {loading && <PageLoader />}
       {pathname !== "/_error" &&
-        pathname !== "/404" &&
-        pathname !== "/login" ? (
+      pathname !== "/404" &&
+      pathname !== "/login" ? (
         isPrivateRouterAndAuth ? (
           <div className="flex flex-1 absolute w-full h-full overflow-y-hidden">
             <PrivateHeader />

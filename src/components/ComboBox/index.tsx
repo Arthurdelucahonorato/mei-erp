@@ -29,17 +29,20 @@ export default function ComboBox({
   const textValue = values.find((val) => val.value === value);
   return (
     <div className={`flex flex-1 flex-col gap-1 ${className}`}>
-      <div className="flex flex-row">
-        <label
-          htmlFor={htmlFor}
-          className="block text-gray-700 dark:text-white text-sm font-semibold truncate"
-        >
-          {label}
-        </label>
-        {required && (
-          <p className="text-red-500 text-sm font-semibold pl-1">{"*"}</p>
-        )}
-      </div>
+      {label && (
+        <div className="flex flex-row">
+          <label
+            htmlFor={htmlFor}
+            className="block text-gray-700 dark:text-white text-sm font-semibold truncate"
+          >
+            {label}
+          </label>
+          {required && (
+            <p className="text-red-500 text-sm font-semibold pl-1">{"*"}</p>
+          )}
+        </div>
+      )}
+
       <div className="">
         <Listbox
           value={value}
@@ -48,10 +51,11 @@ export default function ComboBox({
             onChangeValue(val.value);
           }}
         >
-          <div className="relative mt-1">
+          <div className="relative">
             <Listbox.Button
-              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-2.5 items-center ${errorMessage && " border-[1px] border-red-500"
-                }`}
+              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-3 items-center ${
+                errorMessage && " border-[1px] border-red-500"
+              }`}
             >
               {value ? (
                 <span className="block truncate">{textValue?.name}</span>
@@ -73,14 +77,15 @@ export default function ComboBox({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-600 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-600 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 {values.map((person, personIdx) => (
                   <Listbox.Option
                     key={personIdx}
                     className={({ active }) =>
-                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${active
-                        ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
-                        : "text-gray-900 hover:!bg-gray-600"
+                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${
+                        active
+                          ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
+                          : "text-gray-900 hover:!bg-gray-600"
                       } `
                     }
                     value={person}
@@ -88,8 +93,9 @@ export default function ComboBox({
                     {({ selected }) => (
                       <>
                         <span
-                          className={`block truncate ${selected ? "font-medium" : "font-normal"
-                            }`}
+                          className={`block truncate ${
+                            selected ? "font-medium" : "font-normal"
+                          }`}
                         >
                           {person.name}
                         </span>

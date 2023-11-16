@@ -16,13 +16,17 @@ import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
 import ComboBox from "@/components/ComboBox";
-import { getAllProducts } from "@/services/api/products/get-all-products";
+import {
+  ProductSearchQueries,
+  getAllProducts,
+} from "@/services/api/products/get-all-products";
 import { getAllCategories } from "@/services/api/categories/get-all-categories";
 import { getAllVariations } from "@/services/api/variations/get-all-variations";
 import { createProduct } from "@/services/api/products/create-product";
 import { Unit } from "@/types/enum/unit.enum";
 import { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
+import { api } from "@/services/api/api";
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -41,13 +45,12 @@ interface ProdutoProps {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { query } = context;
 
-  const pageQueries = query as any;
+  const pageQueries = query as unknown as ProductSearchQueries;
 
   const produtos = await getAllProducts({
-    pagination: {
-      page: pageQueries.page ?? "",
-      perPage: pageQueries.perPage ?? "",
-    },
+    page: pageQueries.page ?? "",
+    perPage: pageQueries.perPage ?? "",
+    descricao: pageQueries.descricao ?? "",
   });
 
   const categorias = await getAllCategories();
@@ -69,7 +72,6 @@ export default function produtos({
   variacoes,
 }: ProdutoProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
   const [isOpenProdutoEdit, setIsOpenProdutoEdit] = useState(false);
   const [lovIsOpen, setLovIsOpen] = useState(false);
@@ -112,6 +114,14 @@ export default function produtos({
       name: categoria.descricao,
     };
   });
+
+  const categoriasOpt = categorias.map((categoria) => {
+    return {
+      value: String(categoria.descricao),
+      name: categoria.descricao,
+    };
+  });
+
   const variationOptions = variacoes.map((variacao) => {
     return {
       value: String(variacao.id),
@@ -153,8 +163,6 @@ export default function produtos({
   //     return;
   //   }
   // };
-
-  const paginateProduto = paginate([], currentPage, pageSize);
 
   interface FormProdutoType {
     formProdutoIsOpen: boolean;
@@ -242,6 +250,13 @@ export default function produtos({
 
   const [productImages, setProductImages] = useState<Product>();
 
+  const [searchClient, setSearchClient] = useState({
+    descricao: "",
+    categoria: "",
+  });
+
+  console.log(searchClient);
+
   const openModalProductImages = (produtoId: number) => {
     const product = produtos.content.find((produto) => produto.id == produtoId);
 
@@ -254,6 +269,14 @@ export default function produtos({
 
   const pageQueries = query as PaginationParams;
 
+  const onFilterQueryChange = (field: string, value: string) => {
+    push({
+      query: {
+        [field]: value,
+      },
+    });
+  };
+
   const onPageChange = (page: number) => {
     if (page != Number(pageQueries.page)) {
       push({
@@ -262,6 +285,16 @@ export default function produtos({
         },
       });
     }
+  };
+
+  const search = () => {
+    push({
+      query: {
+        ...pageQueries,
+        ...searchClient,
+        descricao: searchClient.descricao,
+      },
+    });
   };
 
   return (
@@ -288,9 +321,38 @@ export default function produtos({
           submitFormProduto={() => console.log("editar")}
         />
 
-        <div className="flex justify-between m-1 max-h-12">
-          <div className="relative"></div>
-          <div className="flex aspect-square">
+        <div className="flex w-full  justify-between">
+          <div className="flex items-center h-full gap-2">
+            <div className="flex items-center h-full">
+              <Input
+                value={searchClient.descricao}
+                onChange={(e) => {
+                  setSearchClient({
+                    ...searchClient,
+                    descricao: e.target.value,
+                  });
+                }}
+                placeholder="Buscar Produto"
+              />
+            </div>
+            <div className="w-full">
+              <ComboBox
+                className="col-span-1 md:col-span-6"
+                value={watch("categoriaId")?.toString()}
+                values={categoriasOpt}
+                onChangeValue={(value) =>
+                  setSearchClient({
+                    ...searchClient,
+                    categoria: value,
+                  })
+                }
+              />
+            </div>
+            <div>
+              <Button onClick={search}>Buscar</Button>
+            </div>
+          </div>
+          <div className="flex p-2">
             <Button onClick={() => toogleProdutoRegister()}>
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Produto
