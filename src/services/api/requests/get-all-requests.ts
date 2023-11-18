@@ -1,3 +1,4 @@
+import { OrderRequest } from "@/types/request";
 import { api } from "../api";
 
 type GetRequests = {
@@ -13,6 +14,6 @@ export const getAllRequests = async (
   });
 
   const request = await api.get("/requests?" + String(params));
-  console.log(request.data)
+  console.log(request.data);
   return await request.data;
 };

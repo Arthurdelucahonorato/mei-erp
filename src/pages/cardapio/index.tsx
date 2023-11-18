@@ -9,11 +9,7 @@ type CardapioPageProps = {
 };
 
 export async function getServerSideProps() {
-  const produtos = await getAllProducts({
-    pagination: {
-      perPage: "20",
-    },
-  });
+  const produtos = await getAllProducts();
 
   return {
     props: {

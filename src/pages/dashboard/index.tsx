@@ -3,13 +3,14 @@ import { Box } from "@/components/Box";
 import { LineChart } from "@/components/Charts/Line";
 import { Table } from "@/components/Table";
 import { getAllRequests } from "@/services/api/requests/get-all-requests";
+import { OrderRequest } from "@/types/request";
 import moment from "moment";
 
 interface DashboardPageProps {
   pedidos: {
     content: OrderRequest[];
     pagination: Pagination;
-  }
+  };
 }
 
 export async function getServerSideProps() {

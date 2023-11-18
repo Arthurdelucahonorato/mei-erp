@@ -30,13 +30,14 @@ import { useRouter } from "next/router";
 import { error } from "console";
 import toast from "react-hot-toast";
 import { deleteRequests } from "@/services/api/requests/delete-requests";
+import { OrderRequest } from "@/types/request";
 
 type PedidosProps = {
   items: number;
   pageSize: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  pedidos?: {
+  pedidos: {
     content?: OrderRequest[];
     pagination: Pagination;
   };
@@ -45,13 +46,11 @@ type PedidosProps = {
     pagination: Pagination;
   };
   produtos: Product[];
-}
-
+};
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-
   const { query } = context;
 
   const pageQueries = query as PaginationParams;
@@ -60,12 +59,9 @@ export const getServerSideProps = async (
     perPage: pageQueries.perPage,
     page: pageQueries.page,
   });
-  const produtos = await getAllProducts({
-    pagination: {
-      page: pageQueries.page ?? "",
-      perPage: pageQueries.perPage ?? "",
-    },
-  });
+
+  const produtos = await getAllProducts();
+
   const clientes = await getAllClients({
     perPage: pageQueries.perPage,
     page: pageQueries.page,
@@ -75,12 +71,13 @@ export const getServerSideProps = async (
     props: {
       pedidos: pedidos,
       produtos: produtos,
-      clientes: clientes
+      clientes: clientes,
     },
   };
-}
+};
 
 export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
+  console.log(pedidos);
   const [isOpenPedidoEdit, setIsOpenPedidoEdit] = useState(false);
   const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
   const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
@@ -89,33 +86,42 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { reload } = useRouter();
-  const router = useRouter();
+  const { reload, push, query } = useRouter();
+
+  const pageQueries = query;
 
   const handlePageChange = (page: any) => {
-    const path = router.pathname
-    const query = router.query
-    query.page = page
-    router.push({
-      pathname: path,
+    query.page = page;
+    push({
       query: query,
     });
+  };
 
-    const deleterPedido = async (id: number) => {
-      try {
-        toast.promise(deleteRequests(id), {
-          loading: 'Deletando',
-          success: (data) => {
-            reload();
-            return data.message;
-          },
-          error: (error) => error.response.data.message
-        })
-      } catch (error: any) {
-        toast.error(error.responde.data.message)
-      }
+  const deleterPedido = async (id: number) => {
+    try {
+      toast.promise(deleteRequests(id), {
+        loading: "Deletando",
+        success: (data) => {
+          reload();
+          return data.message;
+        },
+        error: (error) => error.response.data.message,
+      });
+    } catch (error: any) {
+      toast.error(error.responde.data.message);
     }
-  }
+  };
+
+  const onPageChange = (page: number) => {
+    if (page != Number(pageQueries.page)) {
+      push({
+        query: {
+          ...pageQueries,
+          page: page ?? "",
+        },
+      });
+    }
+  };
   /* 
   interface FormPedidoType {
     formPedidoIsOpen: boolean;
@@ -127,7 +133,6 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
-
         <FormPedido
           formPedidoIsOpen={isOpenPedidoRegister}
           toggleFormPedido={() => setIsOpenPedidoRegister(false)}
@@ -141,7 +146,9 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         <div className="flex justify-between m-1 max-h-12">
           <div className="relative"></div>
           <div className="flex aspect-square">
-            <Button onClick={() => setIsOpenPedidoRegister(!isOpenPedidoRegister)}>
+            <Button
+              onClick={() => setIsOpenPedidoRegister(!isOpenPedidoRegister)}
+            >
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Pedido
               </div>
@@ -151,7 +158,14 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={["ID", "Cliente", "Itens", "Data Retirada", "Valor Total",]}
+              headers={[
+                "ID",
+                "Cliente",
+                "Itens",
+                "Data Retirada",
+                "Status",
+                "Valor Total",
+              ]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
@@ -165,16 +179,23 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                     scope="row"
                     className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {pedido.cliente + "precisa do nome"}
+                    {pedido.cliente.nome}
                   </Table.Td>
-                  <Table.Td>{pedido.itensPedido.join(", ")}</Table.Td>
+                  <Table.Td>
+                    {pedido.itensPedido.map(
+                      (item) => item.produto.descricao + ", "
+                    )}
+                  </Table.Td>
                   <Table.Td>
                     {moment(pedido.dataRetirada).locale("pt-br").format("L")}
                   </Table.Td>
-                  <Table.Td>{pedido.valorTotal}</Table.Td>
+                  <Table.Td>{pedido.status}</Table.Td>
+                  <Table.Td>R$ {pedido.valorTotal}</Table.Td>
                   <Table.Td isButton={true}>
                     <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable onClick={() => setIsOpenPedidoEdit(!isOpenPedidoEdit)}>
+                      <ButtonTable
+                        onClick={() => setIsOpenPedidoEdit(!isOpenPedidoEdit)}
+                      >
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
                       <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
@@ -189,12 +210,14 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         </div>
 
         <div className="sticky bottom-2 mt-4">
-          {/* <Pagination
-            items={pedidos.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-          /> */}
+          <Pagination
+            totalPages={pedidos.pagination?.totalPages}
+            totalItems={pedidos.pagination?.totalItems}
+            nextPage={pedidos.pagination?.nextPage}
+            prevPage={pedidos.pagination?.prevPage}
+            currentPage={Number(pedidos.pagination?.currentPage)}
+            onPageChange={onPageChange}
+          />
         </div>
       </div>
     </MountTransition>

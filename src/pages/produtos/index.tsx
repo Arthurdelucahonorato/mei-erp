@@ -115,13 +115,6 @@ export default function produtos({
     };
   });
 
-  const categoriasOpt = categorias.map((categoria) => {
-    return {
-      value: String(categoria.descricao),
-      name: categoria.descricao,
-    };
-  });
-
   const variationOptions = variacoes.map((variacao) => {
     return {
       value: String(variacao.id),
@@ -255,8 +248,6 @@ export default function produtos({
     categoria: "",
   });
 
-  console.log(searchClient);
-
   const openModalProductImages = (produtoId: number) => {
     const product = produtos.content.find((produto) => produto.id == produtoId);
 
@@ -281,6 +272,7 @@ export default function produtos({
     if (page != Number(pageQueries.page)) {
       push({
         query: {
+          ...pageQueries,
           page: page ?? "",
         },
       });
@@ -335,7 +327,7 @@ export default function produtos({
                 placeholder="Buscar Produto"
               />
             </div>
-            <div className="w-full">
+            {/* <div className="w-full">
               <ComboBox
                 className="col-span-1 md:col-span-6"
                 value={watch("categoriaId")?.toString()}
@@ -347,7 +339,7 @@ export default function produtos({
                   })
                 }
               />
-            </div>
+            </div> */}
             <div>
               <Button onClick={search}>Buscar</Button>
             </div>
