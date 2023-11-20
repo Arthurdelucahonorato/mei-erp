@@ -27,6 +27,8 @@ import { Unit } from "@/types/enum/unit.enum";
 import { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
+import toast from "react-hot-toast";
+import { deleteProduct } from "@/services/api/products/delete-product";
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -71,14 +73,11 @@ export default function produtos({
   categorias,
   variacoes,
 }: ProdutoProps) {
-  const [currentPage, setCurrentPage] = useState(1);
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
   const [isOpenProdutoEdit, setIsOpenProdutoEdit] = useState(false);
   const [lovIsOpen, setLovIsOpen] = useState(false);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const { reload } = useRouter();
 
   const toogleProdutoRegister = () => {
     setIsOpenProdutoRegister(!isOpenProdutoRegister);
@@ -137,9 +136,17 @@ export default function produtos({
       formData.append("variacaoId", data.variacaoId.toString());
       formData.append("unidade", data.unidade);
 
-      const created = await createProduct(formData);
+      toast.promise(createProduct(formData), {
+        error: (data) => data.response.data.message,
+        loading: "Cadastrando produto...",
+        success: (data) => {
+          setIsOpenProdutoRegister(false);
+          reload();
+          return data.message;
+        },
+      });
     } catch (error: any) {
-      console.log(error);
+      toast(error.response.data.message);
       return;
     }
   };
@@ -245,7 +252,6 @@ export default function produtos({
 
   const [searchClient, setSearchClient] = useState({
     descricao: "",
-    categoria: "",
   });
 
   const openModalProductImages = (produtoId: number) => {
@@ -259,14 +265,6 @@ export default function produtos({
   const { push, query } = useRouter();
 
   const pageQueries = query as PaginationParams;
-
-  const onFilterQueryChange = (field: string, value: string) => {
-    push({
-      query: {
-        [field]: value,
-      },
-    });
-  };
 
   const onPageChange = (page: number) => {
     if (page != Number(pageQueries.page)) {
@@ -287,6 +285,18 @@ export default function produtos({
         descricao: searchClient.descricao,
       },
     });
+  };
+
+  const deleteProductById = async (id: number) => {
+    try {
+      toast.promise(deleteProduct(id), {
+        error: (data) => data.response.data.message,
+        loading: "Deletando produto...",
+        success: (data) => data.message,
+      });
+    } catch (error) {
+      toast("Ocorreu um erro");
+    }
   };
 
   return (
@@ -411,7 +421,10 @@ export default function produtos({
                         <ButtonTable onClick={toogleProdutoEdit}>
                           <BsPencil className={"text-lg"} />
                         </ButtonTable>
-                        <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                        <ButtonTable
+                          onClick={() => deleteProductById(produto.id)}
+                          variant="red"
+                        >
                           <BsTrash className={"text-lg"} />
                         </ButtonTable>
                       </div>

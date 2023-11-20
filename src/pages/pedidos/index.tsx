@@ -33,7 +33,9 @@ import { useRouter } from "next/router";
 import { error } from "console";
 import toast from "react-hot-toast";
 import { deleteRequests } from "@/services/api/requests/delete-requests";
-import { OrderRequest } from "@/types/request";
+import { OrderRequest, RequestItem } from "@/types/request";
+import { tr } from "@faker-js/faker";
+import ProductCard from "@/components/CardProduct/CardStack";
 
 type PedidosProps = {
   items: number;
@@ -149,6 +151,21 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
     submitFormPedido: () => void;
   }
    */
+
+  const [showItensModal, setShowItensModal] = useState<boolean>(false);
+  const [itensModal, setItensModal] = useState<RequestItem[]>();
+
+  console.log(itensModal);
+
+  const toggleShowModalItens = (idPedido: number) => {
+    const pedido = pedidos.content?.find((pedido) => pedido.id == idPedido);
+
+    const itensPedido = pedido?.itensPedido;
+
+    setItensModal(itensPedido);
+
+    setShowItensModal(true);
+  };
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
@@ -203,6 +220,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
             </Button>
           </div>
         </div>
+
         <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
@@ -213,48 +231,73 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                 "Data Retirada",
                 "Status",
                 "Valor Total",
+                "Ações",
               ]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
               {pedidos?.content?.map((pedido) => (
-                <Table.Tr
-                  key={pedido.id}
-                  className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600"
-                >
-                  <Table.Td className="w-4 p-4">{pedido.id}</Table.Td>
-                  <Table.Td
-                    scope="row"
-                    className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                <>
+                  <Modal
+                    isOpen={showItensModal}
+                    title={`Itens do pedido ${pedido.id}`}
+                    toggle={() => setShowItensModal(false)}
                   >
-                    {pedido.cliente.nome}
-                  </Table.Td>
-                  <Table.Td>
-                    {pedido.itensPedido.map(
-                      (item) => item.produto.descricao + ", "
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    {moment(pedido.dataRetirada).locale("pt-br").format("L")}
-                  </Table.Td>
-                  <Table.Td>{pedido.status}</Table.Td>
-                  <Table.Td>R$ {pedido.valorTotal}</Table.Td>
-                  <Table.Td isButton={true}>
-                    <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
-                      <ButtonTable
-                        onClick={() => setIsOpenPedidoEdit(!isOpenPedidoEdit)}
-                      >
-                        <BsPencil className={"text-lg"} />
-                      </ButtonTable>
-                      <ButtonTable
-                        variant="red"
-                        onClick={() => deleterPedido(pedido.id)}
-                      >
-                        <BsTrash className={"text-lg"} />
-                      </ButtonTable>
+                    <div className="flex gap-4 max-w-3xl">
+                      {itensModal?.map((item) => {
+                        const images = item.produto.imagensProduto.map(
+                          (images) => images.path
+                        );
+                        return (
+                          <ProductCard
+                            category={item.produto.categoria?.descricao}
+                            name={item.produto.descricao}
+                            images={images}
+                          />
+                        );
+                      })}
                     </div>
-                  </Table.Td>
-                </Table.Tr>
+                  </Modal>
+                  <Table.Tr
+                    key={pedido.id}
+                    className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  >
+                    <Table.Td className="w-4 p-4">{pedido.id}</Table.Td>
+                    <Table.Td
+                      scope="row"
+                      className="font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      {pedido.cliente.nome}
+                    </Table.Td>
+                    <Table.Td>
+                      <ButtonTable
+                        onClick={() => toggleShowModalItens(pedido.id)}
+                      >
+                        Ver itens
+                      </ButtonTable>
+                    </Table.Td>
+                    <Table.Td>
+                      {moment(pedido.dataRetirada).locale("pt-br").format("L")}
+                    </Table.Td>
+                    <Table.Td>{pedido.status}</Table.Td>
+                    <Table.Td>R$ {pedido.valorTotal}</Table.Td>
+                    <Table.Td isButton={true}>
+                      <div className="flex gap-3 mx-2">
+                        <ButtonTable
+                          onClick={() => setIsOpenPedidoEdit(!isOpenPedidoEdit)}
+                        >
+                          <BsPencil className={"text-lg"} />
+                        </ButtonTable>
+                        <ButtonTable
+                          variant="red"
+                          onClick={() => deleterPedido(pedido.id)}
+                        >
+                          <BsTrash className={"text-lg"} />
+                        </ButtonTable>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </>
               ))}
             </Table.Body>
           </Table.Root>

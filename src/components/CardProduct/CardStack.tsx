@@ -36,7 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <p className="text-gray-600 p-4">{category}</p>
 
       <div className="relative overflow-hidden">
-        {images.length > 0 ? (
+        {images?.length > 0 ? (
           <motion.img
             key={currentImageIndex}
             src={images[currentImageIndex]}
@@ -52,7 +52,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <p className="text-gray-500">Nenhuma imagem disponível</p>
           </div>
         )}
-        {images.length > 1 && (
+        {images?.length > 1 && (
           <>
             <button
               className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
@@ -71,7 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       <div className="flex p-4">
-        {images.map((url, index) => (
+        {images?.map((url, index) => (
           <motion.img
             key={index}
             src={url}
