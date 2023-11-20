@@ -55,7 +55,7 @@ export default function Dashboard({ pedidos }: DashboardPageProps) {
         <h3 className="dark:text-white text-xl font-medium mb-4">
           Últimos pedidos
         </h3>
-        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root>
             <Table.Header headers={headersTable} />
             <Table.Body>

@@ -41,12 +41,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         <div className="flex flex-row gap-2">
-          <input
-            {...props}
-            ref={ref}
-            id={htmlFor}
-            className={`${className} text-sm appearance-none rounded w-full py-3 px-4 text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 leading-tight focus:outline-none focus:shadow-outline ${
-              errorMessage && " border-[1px] border-red-500"
+          <input {...props} ref={ref} id={htmlFor} className={`${className} text-sm appearance-none rounded w-full py-3 px-4 text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 leading-tight focus:outline-none focus:shadow-outline ${errorMessage && " border-[1px] border-red-500"
             }`}
           />
           {lovButton && (

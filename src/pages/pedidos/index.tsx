@@ -198,7 +198,10 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                       >
                         <BsPencil className={"text-lg"} />
                       </ButtonTable>
-                      <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                      <ButtonTable
+                        variant="red"
+                        onClick={() => deleterPedido(pedido.id)}
+                      >
                         <BsTrash className={"text-lg"} />
                       </ButtonTable>
                     </div>

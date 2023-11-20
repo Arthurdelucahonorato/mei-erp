@@ -1,7 +1,7 @@
 type LovType = {
     children?: ReactNode;
     title: String;
-    listValues: any[];
+    listValues?: PaginatedResult<any[]>;
     listLabels: string[];
     onClick: (selectedValue: any[]) => void;
 }

@@ -2,7 +2,7 @@ import { ComponentProps, ReactNode } from "react";
 
 type ButtonTableProps = {
   children: ReactNode;
-  variant?: "default" | "red";
+  variant?: "default" | "red" | "primarySecondary";
 } & ComponentProps<"button">;
 
 export const ButtonTable = ({
@@ -14,6 +14,7 @@ export const ButtonTable = ({
   const variantClasses = {
     default: "text-gray-500 dark:text-white bg-gray-100 dark:bg-theme-dark.100",
     red: "bg-red-600 text-white",
+    primarySecondary: "bg-primary text-white dark:bg-secondary",
   };
   return (
     <button

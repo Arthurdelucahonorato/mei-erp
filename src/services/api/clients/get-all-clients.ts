@@ -1,12 +1,8 @@
 import { api } from "../api";
 
-type GetClients = {
-  clientes: Client[];
-} & Pagination;
-
 export const getAllClients = async (
   data?: PaginationParams
-): Promise<GetClients> => {
+): Promise<PaginatedResult<Client[]>> => {
   const params = new URLSearchParams({
     limit: data?.perPage || "",
     page: data?.page || "",

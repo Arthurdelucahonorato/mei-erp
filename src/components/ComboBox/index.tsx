@@ -53,9 +53,8 @@ export default function ComboBox({
         >
           <div className="relative">
             <Listbox.Button
-              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-3 items-center ${
-                errorMessage && " border-[1px] border-red-500"
-              }`}
+              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-3 items-center ${errorMessage && " border-[1px] border-red-500"
+                }`}
             >
               {value ? (
                 <span className="block truncate">{textValue?.name}</span>
@@ -77,29 +76,27 @@ export default function ComboBox({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-600 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {values.map((person, personIdx) => (
+              <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-theme-dark.100 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                {values.map((vl, vlIdx) => (
                   <Listbox.Option
-                    key={personIdx}
+                    key={vlIdx}
                     className={({ active }) =>
-                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${
-                        active
-                          ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
-                          : "text-gray-900 hover:!bg-gray-600"
+                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${active
+                        ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
+                        : "text-gray-900 hover:!bg-gray-600"
                       } `
                     }
-                    value={person}
+                    value={vl}
                   >
                     {({ selected }) => (
                       <>
                         <span
-                          className={`block truncate ${
-                            selected ? "font-medium" : "font-normal"
-                          }`}
+                          className={`block truncate ${selected ? "font-medium" : "font-normal"
+                            }`}
                         >
-                          {person.name}
+                          {vl.name}
                         </span>
-                        {value === person.name ? (
+                        {value === vl.value ? (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary dark:text-secondary">
                             <BsCheck className="h-5 w-5" aria-hidden="true" />
                           </span>

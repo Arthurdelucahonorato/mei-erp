@@ -9,6 +9,7 @@ import { Input } from "@/components/Input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/router";
 
 export default function Lov({
   listValues,
@@ -39,8 +40,19 @@ export default function Lov({
     mode: "onChange",
     resolver: zodResolver(queryRegister),
   });
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+
+  const { reload, query, push } = useRouter();
+
+  const pageQueries = query as PaginationParams;
+
+  const onPageChange = (page: number) => {
+    if (page != Number(pageQueries.page)) {
+      push({
+        query: {
+          page: page,
+        },
+      });
+    }
   };
 
   const onClickLov = (value: any[]) => {
@@ -48,28 +60,13 @@ export default function Lov({
     toggleIsOpen();
   };
 
-  const listValuesFilter = listValues?.filter((val) =>
-    val?.some((v: string) =>
-      v
-        ?.toLowerCase()
-        .includes(
-          (watch("nome") != undefined ? watch("nome") : "").toLowerCase()
-        )
-    )
-  );
-  const paginateLov: any[][] = paginate(
-    listValuesFilter ?? [[]],
-    currentPage,
-    pageSize
-  );
-  currentPage > Math.ceil(listValuesFilter?.length / pageSize) &&
-    handlePageChange(currentPage - 1);
   return (
     <div>
       <ButtonTable
         type="button"
+        variant={"primarySecondary"}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg py-2 h-10"
+        className="flex justify-center items-center text-xl dark:bg-secondary dark:text-white aspect-square rounded-lg py-2 h-10 mr-3"
       >
         <BsSearch />
       </ButtonTable>
@@ -80,7 +77,7 @@ export default function Lov({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`bg-white dark:bg-gray-800 p-4 rounded-md flex-col flex gap-2`}
+            className={`bg-white dark:bg-theme-dark.150 p-4 rounded-md flex-col flex gap-2`}
           >
             <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -124,15 +121,17 @@ export default function Lov({
                     className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
                   />
                   <Table.Body className="overflow-y-auto">
-                    {paginateLov.map((value, index) => (
+                    {listValues?.content.map((value, index) => (
                       <Table.Tr
                         key={index}
                         onClick={() => onClickLov(value)}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        className="bg-white border-b dark:bg-theme-dark.150 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                       >
-                        {value.map((coluna: any) => (
-                          <Table.Td>{coluna}</Table.Td>
-                        ))}
+                        {
+                          Object.values(value).map((valor: any) => (
+                            typeof valor !== 'object' && <Table.Td>{valor}</Table.Td>
+                          ))
+                        }
                       </Table.Tr>
                     ))}
                   </Table.Body>
@@ -140,12 +139,15 @@ export default function Lov({
               </div>
             </div>
             <div className="sticky bottom-2 mt-4">
-              {/* <Pagination
-                items={listValuesFilter?.length}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                onPageChange={handlePageChange}
-              /> */}
+              {/*               <Pagination
+                totalPages={listValues?.pagination?.totalPages}
+                totalItems={listValues?.pagination?.totalItems}
+                nextPage={listValues?.pagination?.nextPage}
+                prevPage={listValues?.pagination?.prevPage}
+                currentPage={Number(listValues?.pagination?.currentPage)}
+                onPageChange={onPageChange}
+              />
+ */}
             </div>
           </div>
         </div>

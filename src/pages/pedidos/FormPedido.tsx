@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import Pagination from "@/components/Pagination";
 import { paginate } from "@/utils/paginate";
@@ -8,7 +8,7 @@ import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
 import moment from "moment";
 import "moment/locale/pt-br";
-import { BsCartPlus, BsPencil, BsTrash, BsX, BsPlus } from "react-icons/bs";
+import { BsCartPlus, BsPencil, BsTrash, BsX, BsPlus, BsSubtract } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
 import { z } from "zod";
@@ -34,14 +34,6 @@ interface FormPedidosType {
   titleModal: String;
   toggleFormPedido: () => void;
   pedidoEdicao?: OrderRequest;
-  clientes?: {
-    content?: Client[];
-    pagination: Pagination;
-  };
-  produtos?: {
-    content?: Product[];
-    pagination: Pagination;
-  };
 }
 
 export const getServerSideProps = async (
@@ -55,20 +47,12 @@ export const getServerSideProps = async (
     perPage: pageQueries.perPage,
     page: pageQueries.page,
   });
-  const produtos = await getAllProducts();
-  const clientes = await getAllClients({
-    perPage: pageQueries.perPage,
-    page: pageQueries.page,
-  });
 
   console.log("produtos");
-  console.log(produtos);
 
   return {
     props: {
       pedidos: pedidos,
-      produtos: produtos,
-      clientes: clientes,
     },
   };
 };
@@ -86,10 +70,22 @@ export default function FormPedido({
   titleModal,
   toggleFormPedido,
   pedidoEdicao,
-  clientes,
-  produtos,
 }: FormPedidosType) {
   const [openModalProducts, setOpenModalProducts] = useState<boolean>(false);
+  const [produtos, setProdutos] = useState<PaginatedResult<Product[]>>();
+  const [clientes, setClientes] = useState<PaginatedResult<Client[]>>();
+
+  async function buscarProdutos() {
+    return await getAllProducts();
+  }
+  async function buscarClientes() {
+    return await getAllClients();
+  }
+  useLayoutEffect(() => {
+    buscarProdutos().then((produto) => setProdutos(produto));
+    buscarClientes().then((cliente) => setClientes(cliente));
+    console.log('produtos')
+  }, [])
 
   useEffect(() => {
     if (pedidoEdicao) {
@@ -109,18 +105,10 @@ export default function FormPedido({
 
   const { reload } = useRouter();
 
-  const arrayId = clientes?.content?.map((cliente) => {
-    return [
-      cliente.id,
-      cliente.nome,
-      cliente.endereco?.bairro,
-      cliente.telefone,
-    ];
-  });
 
-  const onClickLov = (selectedValue: any[]) => {
-    setValue("codigoCliente", selectedValue[0]);
-    setValue("nomeCliente", selectedValue[1]);
+  const onClickLov = (selectedValue: any) => {
+    setValue("codigoCliente", selectedValue.id);
+    setValue("nomeCliente", selectedValue.nome);
   };
   const onChangeComboBox = (selectedValue: string) => {
     console.log("selectedValue", selectedValue);
@@ -211,8 +199,8 @@ export default function FormPedido({
 
   const lovValues = {
     title: "Seleção de Cliente",
-    listLabels: ["ID", "Nome", "Cidade", "Telefone"],
-    listValues: arrayId,
+    listValues: clientes,
+    listLabels: ["ID", "Nome", "Telefone", "E-mail"],
     onClick: onClickLov,
   };
 
@@ -258,14 +246,14 @@ export default function FormPedido({
                   <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                     {fields.some((field) => field.produtoId === produto.id) ? (
                       <Button
-                        className="!max-h-10 !w-32 text-black !bg-red-700"
+                        className="text-black !bg-red-700"
                         onClick={() => removeProduto(produto.id)}
                       >
-                        Remover
+                        -
                       </Button>
                     ) : (
                       <Button
-                        className="!max-h-10 !w-32 text-black !bg-green-700"
+                        className="text-black !bg-green-700"
                         onClick={() => {
                           append({
                             produtoId: produto.id,
@@ -276,7 +264,7 @@ export default function FormPedido({
                           });
                         }}
                       >
-                        Adicionar
+                        +
                       </Button>
                     )}
                   </div>
@@ -288,7 +276,7 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-        //  onSubmit={submitFormPedido}
+      //  onSubmit={submitFormPedido}
       >
         <Input
           containerClassName="col-span-1 md:col-span-3"
@@ -299,7 +287,7 @@ export default function FormPedido({
           type="text"
           placeholder="Codigo do Cliente"
           required
-          // lovButton={lovValues}
+          lovButton={lovValues}
         />
         <Input
           containerClassName="col-span-2 md:col-span-9"
@@ -425,7 +413,7 @@ export default function FormPedido({
               {fields.map((itemPedido) => (
                 <li
                   key={itemPedido.id}
-                  className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.200 hover:bg-gray-50 dark:hover:bg-theme-dark.150"
                 >
                   <InputTable className="w-20" value={itemPedido.id} />
                   <InputTable
@@ -446,7 +434,7 @@ export default function FormPedido({
                   />
                   <InputTable className="w-20" value={"KG"} />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <ButtonTable className="bg-red-600 dark:bg-red-600 text-white">
+                    <ButtonTable variant="red" className="text-white">
                       <BsX className={"text-xl"} />
                     </ButtonTable>
                   </div>
