@@ -62,7 +62,7 @@ export default function Dashboard({ pedidos }: DashboardPageProps) {
               {pedidos?.content?.map((pedido) => (
                 <Table.Tr key={pedido.id}>
                   <Table.Td>{pedido.id}</Table.Td>
-                  <Table.Td>{pedido.id}</Table.Td>
+                  <Table.Td>{pedido.cliente.nome}</Table.Td>
                   <Table.Td>{"Salgado"}</Table.Td>
                   <Table.Td>
                     {moment(pedido.dataRetirada).locale("pt-br").format()}

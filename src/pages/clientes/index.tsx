@@ -4,7 +4,10 @@ import { Input } from "@/components/Input";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import { Table } from "@/components/Table/index";
 import { deleteClient } from "@/services/api/clients/delete-client";
-import { getAllClients } from "@/services/api/clients/get-all-clients";
+import {
+  GetClients,
+  getAllClients,
+} from "@/services/api/clients/get-all-clients";
 import "moment/locale/pt-br";
 import { Router, useRouter } from "next/router";
 import { useState } from "react";
@@ -30,9 +33,10 @@ export const getServerSideProps = async (
 ) => {
   const { query } = context;
 
-  const pageQueries = query as PaginationParams;
+  const pageQueries = query as GetClients;
 
   const clientes = await getAllClients({
+    nomeCliente: pageQueries.nomeCliente,
     perPage: pageQueries.perPage,
     page: pageQueries.page,
   });
@@ -84,6 +88,20 @@ export default function Clientes({ clientes }: ClienteProps) {
     setIsOpenClienteEdit(!isOpenClienteEdit);
   };
 
+  const [searchClients, setSearchClients] = useState({
+    nomeCliente: "",
+  });
+
+  const search = () => {
+    push({
+      query: {
+        ...pageQueries,
+        ...searchClients,
+        nomeCliente: searchClients.nomeCliente,
+      },
+    });
+  };
+
   return (
     <MountTransition className="flex flex-1 flex-col h-full justify-between">
       <div className="flex flex-1 flex-col h-full justify-between">
@@ -100,14 +118,37 @@ export default function Clientes({ clientes }: ClienteProps) {
         />
 
         <div className="flex justify-between my-1 max-h-12">
-          <Input
-            containerClassName="col-span-2 md:col-span-9 mb-1"
-            htmlFor="nome"
-            type="text"
-            placeholder="Pesquisar"
-          />
-          <div className="relative"></div>
-          <div className="flex aspect-square">
+          <div className="flex items-center h-full gap-2">
+            <div className="flex items-center h-full">
+              <Input
+                value={searchClients.nomeCliente}
+                onChange={(e) => {
+                  setSearchClients({
+                    ...searchClients,
+                    nomeCliente: e.target.value,
+                  });
+                }}
+                placeholder="Buscar cliente pelo nome"
+              />
+            </div>
+            {/* <div className="w-full">
+              <ComboBox
+                className="col-span-1 md:col-span-6"
+                value={watch("categoriaId")?.toString()}
+                values={categoriasOpt}
+                onChangeValue={(value) =>
+                  setSearchProduct({
+                    ...searchClient,
+                    categoria: value,
+                  })
+                }
+              />
+            </div> */}
+            <div>
+              <Button onClick={search}>Buscar</Button>
+            </div>
+          </div>
+          <div className="flex ">
             <Button
               onClick={() => setIsOpenClienteRegister(!isOpenClienteRegister)}
             >

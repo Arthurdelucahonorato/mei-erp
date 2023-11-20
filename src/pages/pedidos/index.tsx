@@ -17,7 +17,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
 import { RootTable } from "@/components/Table/RootTable";
 import { get, max } from "lodash";
-import { getAllRequests } from "@/services/api/requests/get-all-requests";
+import {
+  GetRequests,
+  getAllRequests,
+} from "@/services/api/requests/get-all-requests";
 import { Textarea } from "@/components/Textarea";
 import { ButtonTable } from "@/components/Table/ButtonTable";
 import Lov from "@/components/Lov";
@@ -53,9 +56,10 @@ export const getServerSideProps = async (
 ) => {
   const { query } = context;
 
-  const pageQueries = query as PaginationParams;
+  const pageQueries = query as GetRequests;
 
   const pedidos = await getAllRequests({
+    cliente: pageQueries.cliente,
     perPage: pageQueries.perPage,
     page: pageQueries.page,
   });
@@ -122,6 +126,21 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
       });
     }
   };
+
+  const [searchProducts, setSearchProduct] = useState({
+    cliente: "",
+  });
+
+  const search = () => {
+    push({
+      query: {
+        ...pageQueries,
+        ...searchProducts,
+        cliente: searchProducts.cliente,
+      },
+    });
+  };
+
   /* 
   interface FormPedidoType {
     formPedidoIsOpen: boolean;
@@ -144,8 +163,37 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           titleModal={"Editar Pedido"}
         />
         <div className="flex justify-between m-1 max-h-12">
-          <div className="relative"></div>
-          <div className="flex aspect-square">
+          <div className="flex items-center h-full gap-2">
+            <div className="flex items-center h-full">
+              <Input
+                value={searchProducts.cliente}
+                onChange={(e) => {
+                  setSearchProduct({
+                    ...searchProducts,
+                    cliente: e.target.value,
+                  });
+                }}
+                placeholder="Buscar pedido por cliente"
+              />
+            </div>
+            {/* <div className="w-full">
+              <ComboBox
+                className="col-span-1 md:col-span-6"
+                value={watch("categoriaId")?.toString()}
+                values={categoriasOpt}
+                onChangeValue={(value) =>
+                  setSearchProduct({
+                    ...searchClient,
+                    categoria: value,
+                  })
+                }
+              />
+            </div> */}
+            <div>
+              <Button onClick={search}>Buscar</Button>
+            </div>
+          </div>
+          <div className="flex">
             <Button
               onClick={() => setIsOpenPedidoRegister(!isOpenPedidoRegister)}
             >
