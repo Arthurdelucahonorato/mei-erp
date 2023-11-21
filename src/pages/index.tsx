@@ -1,5 +1,7 @@
 import { Button } from "@/components/Button";
 import Bolo1 from "@/assets/boloChocolateMorango.jpeg";
+import Doce from "@/assets/docinhosDeFesta.webp";
+import Salgados from "@/assets/salgadinhos.webp";
 import Image from "next/image";
 import { BsMap, BsBasket, BsCalendar3 } from "react-icons/bs";
 import React, { useState, useEffect } from "react";
@@ -58,7 +60,7 @@ export default function Home() {
                 variants={titleVariants}
                 className="font-bold text-8xl text-center"
               >
-                Algum Titulo Aqui
+              Venha adoçar a sua vida!!!
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -66,10 +68,9 @@ export default function Home() {
                 transition={{ delay: 1, duration: 1 }}
                 className="font-semibold text-lg text-center"
               >
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book.
+                Prove os melhores bolos, doces e salgados! Se delicie com nossos 
+                produtos de alta qualidade! Aqui você encontra nossas mercadorias 
+                de dar água na boca, tudo por um preço acessível e feito com muito amor.
               </motion.p>
               <div className="flex w-full max-w-xl mx-auto justify-center flex-col md:flex-row gap-5">
                 <motion.div
@@ -118,11 +119,10 @@ export default function Home() {
               alt="bolo"
               className="rounded-full aspect-square object-cover max-w-[15rem] "
             />
-            <h3 className="text-2xl font-bold text-primary">Algum texto</h3>
+            <h3 className="text-2xl font-bold text-primary">Missão</h3>
             <p className="text-base font-sans text-black text-center">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500.
+              Servir aos nossos clientes doces, tortas e salgados da melhor 
+              qualidade possível pelo melhor preço.
             </p>
           </motion.div>
           <motion.div
@@ -134,15 +134,13 @@ export default function Home() {
             className="flex flex-1 items-center flex-col max-w-xs gap-5 mt-28"
           >
             <Image
-              src={Bolo1}
-              alt="bolo"
+              src={Doce}
+              alt="docinhos"
               className="rounded-full aspect-square object-cover max-w-[15rem] "
             />
-            <h3 className="text-2xl font-bold text-primary">Algum texto</h3>
+            <h3 className="text-2xl font-bold text-primary">Visão</h3>
             <p className="text-base font-sans text-black text-center">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500.
+              Ser a melhor fornecedora de pratos de festa de todo o Brasil.
             </p>
           </motion.div>
           <motion.div
@@ -154,15 +152,14 @@ export default function Home() {
             className="flex flex-1 items-center flex-col max-w-xs gap-5"
           >
             <Image
-              src={Bolo1}
-              alt="bolo"
+              src={Salgados}
+              alt="salgadinhos"
               className="rounded-full aspect-square object-cover max-w-[15rem] "
             />
-            <h3 className="text-2xl font-bold text-primary">Algum texto</h3>
+            <h3 className="text-2xl font-bold text-primary">Valores</h3>
             <p className="text-base font-sans text-black text-center">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500.
+              Nossos valores são: Honestidade, diligência, criatividade e 
+              proatividade.
             </p>
           </motion.div>
         </div>
