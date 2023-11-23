@@ -3,6 +3,7 @@ import { CardGrid } from "@/components/CardProduct/CardGrid";
 import ProductCard from "@/components/CardProduct/CardStack";
 
 import { getAllProducts } from "@/services/api/products/get-all-products";
+import { Product } from "@/types/product";
 
 type CardapioPageProps = {
   produtos: PaginatedResult<Product[]>;
@@ -31,7 +32,7 @@ export default function Cardapio({ produtos }: CardapioPageProps) {
             //   imagem={produto.imagensProduto[0]?.path}
             // />
             <ProductCard
-              category={produto.categoria.descricao}
+              category={produto.categoria}
               name={produto.descricao}
               images={images}
             />

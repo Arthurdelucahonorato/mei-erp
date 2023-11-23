@@ -1,9 +1,8 @@
+import { CategoryEnum } from "./enum/category.enum";
+
 type Product = {
   id: number;
-  categoria: {
-    id: number;
-    descricao: string;
-  };
+  categoria: CategoryEnum;
   descricao: string;
   variacao: {
     id: number;

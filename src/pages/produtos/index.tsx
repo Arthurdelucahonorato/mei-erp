@@ -29,6 +29,8 @@ import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
 import toast from "react-hot-toast";
 import { deleteProduct } from "@/services/api/products/delete-product";
+import { Product } from "@/types/product";
+import { CategoryEnum } from "@/types/enum/category.enum";
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -55,15 +57,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     descricao: pageQueries.descricao ?? "",
   });
 
-  const categorias = await getAllCategories();
-
-  const variacoes = await getAllVariations();
-
   return {
     props: {
       produtos: produtos,
-      categorias: categorias,
-      variacoes: variacoes,
     },
   };
 }
@@ -89,8 +85,7 @@ export default function produtos({
   const validateRegister = z.object({
     imagensProduto: z.any().optional(),
     descricao: z.string().nonempty("Campo obrigatório"),
-    categoriaId: z.string().nonempty("Campo obrigatório"),
-    variacaoId: z.string(),
+    categoria: z.nativeEnum(CategoryEnum),
     unidade: z.nativeEnum(Unit),
   });
 
@@ -107,17 +102,10 @@ export default function produtos({
     resolver: zodResolver(validateRegister),
   });
 
-  const categoriesOptions = categorias.map((categoria) => {
+  const categoriesOptions = ["DOCE", "SALGADO"].map((categoria) => {
     return {
-      value: String(categoria.id),
-      name: categoria.descricao,
-    };
-  });
-
-  const variationOptions = variacoes.map((variacao) => {
-    return {
-      value: String(variacao.id),
-      name: variacao.descricao,
+      value: String(categoria),
+      name: categoria,
     };
   });
 
@@ -132,8 +120,7 @@ export default function produtos({
       }
 
       formData.append("descricao", data.descricao);
-      formData.append("categoriaId", data.categoriaId.toString());
-      formData.append("variacaoId", data.variacaoId.toString());
+      formData.append("categoria", data.categoria.toString());
       formData.append("unidade", data.unidade);
 
       toast.promise(createProduct(formData), {
@@ -201,18 +188,14 @@ export default function produtos({
 
           <ComboBox
             className="col-span-1 md:col-span-6"
-            value={watch("categoriaId")?.toString()}
+            value={watch("categoria")?.toString()}
             values={categoriesOptions}
             label="Categoria do produto"
-            onChangeValue={(value) => setValue("categoriaId", value)}
+            onChangeValue={(value) =>
+              setValue("categoria", value as CategoryEnum)
+            }
           />
-          <ComboBox
-            className="col-span-1 md:col-span-6"
-            value={watch("variacaoId")?.toString()}
-            values={variationOptions}
-            label="Variação do produto"
-            onChangeValue={(value) => setValue("variacaoId", value)}
-          />
+
           <ComboBox
             className="col-span-1 md:col-span-6"
             value={watch("unidade")?.toString()}
@@ -300,8 +283,8 @@ export default function produtos({
   };
 
   return (
-    <MountTransition className="flex flex-1 flex-col h-full justify-between">
-      <div className="flex flex-1 flex-col h-full justify-between">
+    <MountTransition className="flex flex-1 w-full flex-col h-full justify-between">
+      <div className="flex flex-1 flex-col w-full h-full justify-between">
         {/*         <Modal
           isOpen={isOpenDetails}
           toggle={toggleDetails}
@@ -362,17 +345,10 @@ export default function produtos({
             </Button>
           </div>
         </div>
-        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+        <div className="flex flex-1 w-full flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
-              headers={[
-                "ID",
-                "Nome",
-                "Categoria",
-                "Variação",
-                "Imagens",
-                "Ações",
-              ]}
+              headers={["ID", "Nome", "Categoria", "Imagens", "Ações"]}
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
@@ -396,7 +372,7 @@ export default function produtos({
                 return (
                   <Table.Tr
                     key={produto.id}
-                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                    className="bg-white border-b w-full flex-1 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
                     <Table.Td className="w-4 p-4">{produto.id}</Table.Td>
                     <Table.Td
@@ -405,8 +381,8 @@ export default function produtos({
                     >
                       {produto.descricao}
                     </Table.Td>
-                    <Table.Td>{produto.categoria.descricao}</Table.Td>
-                    <Table.Td>{produto.variacao.descricao}</Table.Td>
+                    <Table.Td>{produto.categoria}</Table.Td>
+                    {/* <Table.Td>{produto.variacao.descricao}</Table.Td> */}
 
                     <Table.Td>
                       <ButtonTable

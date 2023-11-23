@@ -53,8 +53,9 @@ export default function ComboBox({
         >
           <div className="relative">
             <Listbox.Button
-              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-3 items-center ${errorMessage && " border-[1px] border-red-500"
-                }`}
+              className={`relative w-full cursor-default pl-3 pr-10 text-left text-gray-700 dark:text-white bg-gray-200 dark:bg-theme-dark.100 focus:outline-none font-medium rounded text-sm px-5 py-3 items-center ${
+                errorMessage && " border-[1px] border-red-500"
+              }`}
             >
               {value ? (
                 <span className="block truncate">{textValue?.name}</span>
@@ -81,9 +82,10 @@ export default function ComboBox({
                   <Listbox.Option
                     key={vlIdx}
                     className={({ active }) =>
-                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${active
-                        ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
-                        : "text-gray-900 hover:!bg-gray-600"
+                      `relative  cursor-default select-none py-2 pl-10 pr-4 text-gray-700 dark:text-white ${
+                        active
+                          ? "bg-primary-fifth-tone dark:bg-secondary-third-tone"
+                          : "text-gray-900 hover:!bg-gray-600"
                       } `
                     }
                     value={vl}
@@ -91,8 +93,9 @@ export default function ComboBox({
                     {({ selected }) => (
                       <>
                         <span
-                          className={`block truncate ${selected ? "font-medium" : "font-normal"
-                            }`}
+                          className={`block truncate ${
+                            selected ? "font-medium" : "font-normal"
+                          }`}
                         >
                           {vl.name}
                         </span>

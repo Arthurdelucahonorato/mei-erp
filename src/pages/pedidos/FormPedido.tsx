@@ -8,7 +8,14 @@ import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
 import moment from "moment";
 import "moment/locale/pt-br";
-import { BsCartPlus, BsPencil, BsTrash, BsX, BsPlus, BsSubtract } from "react-icons/bs";
+import {
+  BsCartPlus,
+  BsPencil,
+  BsTrash,
+  BsX,
+  BsPlus,
+  BsSubtract,
+} from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
 import { z } from "zod";
@@ -28,6 +35,7 @@ import { getAllClients } from "@/services/api/clients/get-all-clients";
 import { useRouter } from "next/router";
 import { OrderStats, Unit } from "@/types/enum/unit.enum";
 import { OrderRequest } from "@/types/request";
+import { Product } from "@/types/product";
 
 interface FormPedidosType {
   formPedidoIsOpen: boolean;
@@ -84,8 +92,8 @@ export default function FormPedido({
   useLayoutEffect(() => {
     buscarProdutos().then((produto) => setProdutos(produto));
     buscarClientes().then((cliente) => setClientes(cliente));
-    console.log('produtos')
-  }, [])
+    console.log("produtos");
+  }, []);
 
   useEffect(() => {
     if (pedidoEdicao) {
@@ -104,7 +112,6 @@ export default function FormPedido({
   }, [pedidoEdicao]);
 
   const { reload } = useRouter();
-
 
   const onClickLov = (selectedValue: any) => {
     setValue("codigoCliente", selectedValue.id);
@@ -239,8 +246,8 @@ export default function FormPedido({
                 >
                   {produto.descricao}
                 </Table.Td>
-                <Table.Td>{produto.categoria.descricao}</Table.Td>
-                <Table.Td>{produto.variacao.descricao}</Table.Td>
+                <Table.Td>{produto.categoria}</Table.Td>
+                {/* <Table.Td>{produto.variacao.descricao}</Table.Td> */}
                 <Table.Td>{produto.unidade}</Table.Td>
                 <Table.Td isButton={true}>
                   <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
@@ -276,7 +283,7 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-      //  onSubmit={submitFormPedido}
+        //  onSubmit={submitFormPedido}
       >
         <Input
           containerClassName="col-span-1 md:col-span-3"
