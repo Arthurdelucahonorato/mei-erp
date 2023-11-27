@@ -36,6 +36,7 @@ import { deleteRequests } from "@/services/api/requests/delete-requests";
 import { OrderRequest, RequestItem } from "@/types/request";
 import { tr } from "@faker-js/faker";
 import ProductCard from "@/components/CardProduct/CardStack";
+import { Product } from "@/types/product";
 
 type PedidosProps = {
   items: number;

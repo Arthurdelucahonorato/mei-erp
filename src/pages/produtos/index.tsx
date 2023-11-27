@@ -43,7 +43,6 @@ interface ProdutoProps {
   onPageChange: (page: number) => void;
   produtos: PaginatedResult<Product[]>;
   categorias: Category[];
-  variacoes: Variation[];
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -67,7 +66,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function produtos({
   produtos,
   categorias,
-  variacoes,
 }: ProdutoProps) {
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
   const [isOpenProdutoEdit, setIsOpenProdutoEdit] = useState(false);
@@ -140,7 +138,6 @@ export default function produtos({
   // const submitFormEdit = async ({
   //   codigoProduto,
   //   nomeProduto,
-  //   variacao,
   //   categoria,
   //   unidade,
   // }: ValidateData) => {
@@ -306,7 +303,7 @@ export default function produtos({
           submitFormProduto={() => console.log("editar")}
         />
 
-        <div className="flex w-full  justify-between">
+        <div className="flex w-full justify-between">
           <div className="flex items-center h-full gap-2">
             <div className="flex items-center h-full">
               <Input
@@ -345,7 +342,7 @@ export default function produtos({
             </Button>
           </div>
         </div>
-        <div className="flex flex-1 w-full flex-col bg-gray-50 dark:bg-gray-700 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+        <div className="flex flex-1 w-full flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <Table.Root className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <Table.Header
               headers={["ID", "Nome", "Categoria", "Imagens", "Ações"]}
@@ -382,8 +379,6 @@ export default function produtos({
                       {produto.descricao}
                     </Table.Td>
                     <Table.Td>{produto.categoria}</Table.Td>
-                    {/* <Table.Td>{produto.variacao.descricao}</Table.Td> */}
-
                     <Table.Td>
                       <ButtonTable
                         onClick={() => openModalProductImages(produto.id)}

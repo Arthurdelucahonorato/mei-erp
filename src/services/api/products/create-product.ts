@@ -1,4 +1,5 @@
 import { api } from "../api";
+import { Product } from "@/types/product";
 
 type CreateProductResponse = {
   content: Product;

@@ -4,10 +4,6 @@ type Product = {
   id: number;
   categoria: CategoryEnum;
   descricao: string;
-  variacao: {
-    id: number;
-    descricao: string;
-  };
   quantidade: number;
   observacao: string;
   valor: number;

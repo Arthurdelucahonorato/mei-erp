@@ -36,6 +36,9 @@ import { useRouter } from "next/router";
 import { OrderStats, Unit } from "@/types/enum/unit.enum";
 import { OrderRequest } from "@/types/request";
 import { Product } from "@/types/product";
+import toast from "react-hot-toast";
+import { editRequest } from "@/services/api/requests/edit-request";
+import { registerRequest } from "@/services/api/requests/register-request";
 
 interface FormPedidosType {
   formPedidoIsOpen: boolean;
@@ -70,7 +73,7 @@ const ValoresFormaPagamento = [
   { value: "A_VISTA", name: "A vista" },
   { value: "CARTAO_CREDITO", name: "Cartão Crédito" },
   { value: "CARTAO_DEBITO", name: "Cartão Débito" },
-  { value: "DINHEIRO", name: "Dinheiro" },
+  { value: "BOLETO", name: "boleto" },
 ];
 
 export default function FormPedido({
@@ -106,8 +109,8 @@ export default function FormPedido({
               valorTotal: number; */
 
       setValue("codigoCliente", pedidoEdicao.cliente.id);
-      setValue("dataPedido", pedidoEdicao.createdAt);
-      setValue("dataEntrega", pedidoEdicao.dataRetirada);
+      // setValue("dataPedido", pedidoEdicao.createdAt);
+      //  setValue("dataEntrega", pedidoEdicao.dataRetirada);
     }
   }, [pedidoEdicao]);
 
@@ -124,17 +127,21 @@ export default function FormPedido({
   };
 
   const validateRegister = z.object({
-    codigoCliente: z.number(),
-    nomeCliente: z.string().nonempty("Campo obrigatório"),
-    dataPedido: z.date(),
-    dataEntrega: z.date(),
-    status: z.nativeEnum(OrderStats),
-    formaPagamento: z.string().nonempty("Campo obrigatório"),
-    modalidadeEntrega: z.string().nonempty("Campo obrigatório"),
+    codigoCliente: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+    nomeCliente: z.string({ required_error: 'Campo obrigatório' }),
+    dataPedido: z.string().nonempty("Campo obrigatório"),
+    dataEntrega: z.string().nonempty("Campo obrigatório"),
+    status: z.string({ required_error: 'Campo obrigatório' }),
+    formaPagamento: z.string({ required_error: 'Campo obrigatório' }),
+    modalidadeEntrega: z.string({ required_error: 'Campo obrigatório' }),
     observacao: z.string().nonempty("Campo obrigatório"),
     itensPedido: z.array(
       z.object({
+        id: z.string(),
         produtoId: z.string().transform((value) => Number(value)),
+        produtoDescricao: z.string(),
+        categoria: z.string(),
+        unidade: z.string(),
         quantidade: z.string().transform((value) => Number(value)),
         observacao: z.string(),
         valorUnitario: z.string().transform((value) => Number(value)),
@@ -159,7 +166,7 @@ export default function FormPedido({
     resolver: zodResolver(validateRegister),
   });
 
-  const { append, fields, remove } = useFieldArray({
+  const { append, fields, remove, update, } = useFieldArray({
     name: "itensPedido",
     control: control,
   });
@@ -171,38 +178,39 @@ export default function FormPedido({
     }
   };
 
-  const submitFormRegister = async ({
-    codigoCliente,
-    nomeCliente,
-    dataPedido,
-    dataEntrega,
-    status,
-    formaPagamento,
-    modalidadeEntrega,
-    observacao,
-  }: ValidateData) => {
+  const submitFormRegister = async (data: ValidateData) => {
     try {
-      console.log("algo");
+      toast.promise(registerRequest(data), {
+        loading: "Salvando novo pedido",
+        success: (d) => {
+          reload();
+          return d.message;
+        },
+        error: (error) => error.response.data.message,
+      });
     } catch (error: any) {
+      toast.error(error.response.data.message);
       return;
     }
   };
-  const submitFormEdit = async ({
-    codigoCliente,
-    nomeCliente,
-    dataPedido,
-    dataEntrega,
-    status,
-    formaPagamento,
-    modalidadeEntrega,
-    observacao,
-  }: ValidateData) => {
+
+  const submitFormEdit = async (id: number, data: ValidateData) => {
+    console.log(data);
     try {
-      console.log("algo");
+      toast.promise(editRequest(id, data), {
+        loading: "Salvando alterações do pedido",
+        success: (d) => {
+          reload();
+          return d.message;
+        },
+        error: (error) => error.response.data.message,
+      });
     } catch (error: any) {
+      toast.error(error.response.data.message);
       return;
     }
   };
+
 
   const lovValues = {
     title: "Seleção de Cliente",
@@ -210,7 +218,6 @@ export default function FormPedido({
     listLabels: ["ID", "Nome", "Telefone", "E-mail"],
     onClick: onClickLov,
   };
-
   return (
     <Modal
       isOpen={formPedidoIsOpen}
@@ -228,7 +235,6 @@ export default function FormPedido({
               "ID",
               "Nome",
               "Categoria",
-              "Variação",
               "Unidade",
               "Ações",
             ]}
@@ -247,7 +253,6 @@ export default function FormPedido({
                   {produto.descricao}
                 </Table.Td>
                 <Table.Td>{produto.categoria}</Table.Td>
-                {/* <Table.Td>{produto.variacao.descricao}</Table.Td> */}
                 <Table.Td>{produto.unidade}</Table.Td>
                 <Table.Td isButton={true}>
                   <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
@@ -263,7 +268,11 @@ export default function FormPedido({
                         className="text-black !bg-green-700"
                         onClick={() => {
                           append({
+                            id: '',
                             produtoId: produto.id,
+                            produtoDescricao: produto.descricao,
+                            categoria: produto.categoria,
+                            unidade: produto.unidade,
                             observacao: "",
                             quantidade: 1,
                             valorUnitario: 0,
@@ -283,7 +292,11 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-        //  onSubmit={submitFormPedido}
+        onSubmit={handleSubmit((data) =>
+          pedidoEdicao
+            ? submitFormEdit(pedidoEdicao.id, data)
+            : submitFormRegister(data)
+        )}
       >
         <Input
           containerClassName="col-span-1 md:col-span-3"
@@ -291,7 +304,7 @@ export default function FormPedido({
           label="Codigo do Cliente"
           htmlFor="codigoCliente"
           errorMessage={errors.codigoCliente?.message}
-          type="text"
+          type="number"
           placeholder="Codigo do Cliente"
           required
           lovButton={lovValues}
@@ -306,7 +319,6 @@ export default function FormPedido({
           placeholder="Nome do Cliente"
           disabled
         />
-
         <Input
           containerClassName="col-span-1 md:col-span-4"
           {...register("dataPedido")}
@@ -317,16 +329,6 @@ export default function FormPedido({
           placeholder="Data do Pedido"
           required
         />
-
-        {/*           <Input 
-            label="Forma de Pagamento"
-            htmlFor="formaPagamento"
-            errorMessage={errors.formaPagamento?.message}
-            type=""
-            placeholder="Forma de Pagamento"
-            required
-          /> */}
-
         <ComboBox
           // {...register("formaPagamento")}
           className="col-span-1 md:col-span-4"
@@ -339,17 +341,24 @@ export default function FormPedido({
             setValue("formaPagamento", value);
           }}
         />
-        <Input
-          {...register("status")}
-          containerClassName="col-span-1 md:col-span-4"
+        <ComboBox
+          // {...register("status")}
+          className="col-span-1 md:col-span-4"
+          value={watch("status")}
+          values={
+            //Temporario, arrumar depois isso
+            [
+              { value: 'ACEITO', name: 'Aceito' },
+              { value: 'VALOR 2', name: 'Valor 2' }
+            ]
+          }
           label="Status"
-          htmlFor="status"
           errorMessage={errors.status?.message}
-          type="text"
-          placeholder="Status"
           required
+          onChangeValue={(value) => {
+            setValue("status", value);
+          }}
         />
-
         <Input
           containerClassName="col-span-1 md:col-span-4"
           {...register("dataEntrega")}
@@ -360,16 +369,23 @@ export default function FormPedido({
           placeholder="Data da Entrega"
           required
         />
-
-        <Input
-          containerClassName="col-span-1 md:col-span-4"
-          {...register("modalidadeEntrega")}
-          label="Modalidade da Entrega"
-          htmlFor="modalidadeEntrega"
+        <ComboBox
+          // {...register("modalidadeEntrega")}
+          className="col-span-1 md:col-span-4"
+          value={watch("modalidadeEntrega")}
+          values={
+            //Temporario, arrumar depois isso
+            [
+              { value: 'RETIRADA', name: 'Retirar no local' },
+              { value: 'DELIVERY', name: 'Entregar' }
+            ]
+          }
+          label="Modalidade Entrega"
           errorMessage={errors.modalidadeEntrega?.message}
-          type="number"
-          placeholder="Modalidade da Entrega"
           required
+          onChangeValue={(value) => {
+            setValue("modalidadeEntrega", value);
+          }}
         />
 
         <Input
@@ -384,17 +400,16 @@ export default function FormPedido({
           <div className="max-h-14 max-w-full overflow-y-hidden">
             <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 max-w-full">
               <div className="flex flex-row gap-2 sticky top-0 py-2.5 font-bold text-xs text-gray-700 uppercase bg-gray-50 dark:bg-theme-dark.100 dark:text-gray-400 justify-center items-center rounded-lg pr-[8px]">
-                <text className="px-3 w-20">ID</text>
-                <text className="px-3 w-60">Produto</text>
-                <text className="px-3 w-44">Variação</text>
-                <text className="px-3 w-44">Categoria</text>
-                <text className="px-3 w-16 text-end">QTD</text>
-                <text className="px-3 w-32 text-end">Valor</text>
-                <text className="pl-3 w-20">UN</text>
-                <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
+                <text className="pl-2 w-20">ID</text>
+                <text className="pl-2 w-60">Produto</text>
+                <text className="pl-2 w-44">Categoria</text>
+                <text className="pr-2 w-16 text-end">QTD</text>
+                <text className="pr-2 w-32 text-end">Valor</text>
+                <text className="pl-2 w-20">UN</text>
+                <div className="flex flex-1 flex-row justify-center items-center max-w-md">
                   <button
                     type="button"
-                    className="flex justify-center w-6 aspect-square"
+                    className="flex justify-center w-6 aspect-square mx-3.5"
                     onClick={
                       () => setOpenModalProducts(true)
                       // append({
@@ -405,6 +420,7 @@ export default function FormPedido({
                       // })
                     }
                   >
+
                     <BsPlus
                       className={
                         "text-2xl cursor-pointer text-white bg-primary dark:bg-secondary rounded-lg"
@@ -412,34 +428,45 @@ export default function FormPedido({
                     />
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
           <div className="max-h-32 max-w-full overflow-x-auto mt-1 rounded-lg">
             <ul className="overflow-y-auto">
-              {fields.map((itemPedido) => (
+              {fields.map((itemPedido, index) => (
                 <li
                   key={itemPedido.id}
                   className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.200 hover:bg-gray-50 dark:hover:bg-theme-dark.150"
                 >
-                  <InputTable className="w-20" value={itemPedido.id} />
-                  <InputTable
-                    className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    value={itemPedido.produtoId}
+                  <InputTable disabled
+                    className="w-20"
+                    {...register(`itensPedido.${index}.id`)}
                   />
-                  <InputTable className="w-44" value={"itemPedido.variacao"} />
-                  <InputTable className="w-44" value={"itemPedido.categoria"} />
+                  <InputTable disabled
+                    className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    {...register(`itensPedido.${index}.produtoDescricao`)}
+                  />
+                  <InputTable disabled
+                    className="w-44"
+                    {...register(`itensPedido.${index}.categoria`)}
+                  />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-16"
-                    value={itemPedido.quantidade}
+                    {...register(`itensPedido.${index}.quantidade`)}
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-32"
-                    value={itemPedido.valorUnitario}
+                    {...register(`itensPedido.${index}.valorUnitario`)}
                   />
-                  <InputTable className="w-20" value={"KG"} />
+                  <InputTable
+                    disabled
+                    className="w-20"
+                    {...register(`itensPedido.${index}.unidade`)}
+
+                  />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
                     <ButtonTable variant="red" className="text-white">
                       <BsX className={"text-xl"} />
