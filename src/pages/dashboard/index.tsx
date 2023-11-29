@@ -1,7 +1,14 @@
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Box } from "@/components/Box";
-import { LineChart } from "@/components/Charts/Line";
+import { RevenuesBox } from "@/components/Box/RevenuesBox";
+import { BarChart } from "@/components/Charts/Bar";
 import { Table } from "@/components/Table";
+import {
+  ResponseGetRevenuesPerYear,
+  getRevenuesPerYear,
+} from "@/services/api/dashboard/get-revenues-per-year";
+import { getRevenuesThisMonth } from "@/services/api/dashboard/get-revenues-this-month";
+import { getTotalRevenues } from "@/services/api/dashboard/get-total-revenues";
 import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { OrderRequest } from "@/types/request";
 import moment from "moment";
@@ -11,69 +18,99 @@ interface DashboardPageProps {
     content: OrderRequest[];
     pagination: Pagination;
   };
+  receitaMensal: number;
+  receitaTotal: number;
+  variacao: number;
+  receitas: ResponseGetRevenuesPerYear;
 }
 
 export async function getServerSideProps() {
   const pedidos = await getAllRequests();
 
+  const receitaAnual = await getRevenuesPerYear();
+
+  const receitaMensal = await getRevenuesThisMonth();
+
+  const receitaTotal = await getTotalRevenues();
+
   return {
     props: {
       pedidos: pedidos,
+      receitas: receitaAnual,
+      receitaMensal: receitaMensal.revenue,
+      variacao: receitaMensal.variation,
+      receitaTotal: receitaTotal,
     },
   };
 }
 
-export default function Dashboard({ pedidos }: DashboardPageProps) {
+export default function Dashboard({
+  pedidos,
+  receitas,
+  receitaMensal,
+  receitaTotal,
+  variacao,
+}: DashboardPageProps) {
   const headersTable = [
     "ID",
     "Cliente",
     "Itens",
+    "Status",
     "Data Retirada",
     "Valor Total",
   ];
 
   return (
     <MountTransition className="flex flex-1 flex-col h-full gap-4">
-      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        <Box>
-          <div>
-            <LineChart />
+      <div className="grid grid-cols-2 gap-4 w-full">
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <Box>
+              <RevenuesBox title="Todas as Receitas" value={receitaTotal} />
+            </Box>
+            <Box>
+              <RevenuesBox
+                title="Receita Mensal"
+                value={receitaMensal}
+                variationPercent={variacao}
+              />
+            </Box>
           </div>
-        </Box>
+
+          <Box>
+            <h3 className="dark:text-white text-xl font-medium mb-4">
+              Gráfico de receitas ({moment().year()})
+            </h3>
+            <BarChart data={receitas.values} labels={receitas.months} />
+          </Box>
+        </div>
         <Box>
-          <div>
-            <LineChart />
-          </div>
-        </Box>
-        <Box className="lg:col-span-2 xl:col-span-1">
-          <div>
-            <LineChart />
+          <h3 className="dark:text-white text-xl font-medium mb-4">
+            Últimos pedidos
+          </h3>
+          <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+            <Table.Root>
+              <Table.Header headers={headersTable} />
+              <Table.Body>
+                {pedidos?.content?.slice(0, 10).map((pedido) => (
+                  <Table.Tr key={pedido.id}>
+                    <Table.Td>{pedido.id}</Table.Td>
+                    <Table.Td>{pedido.cliente.nome}</Table.Td>
+                    <Table.Td>{"Salgado"}</Table.Td>
+                    <Table.Td>{pedido.status}</Table.Td>
+                    <Table.Td>
+                      {moment(pedido.dataRetirada)
+                        .locale("pt-br")
+                        .format("DD/MM/YYYY HH:mm")}
+                    </Table.Td>
+                    <Table.Td>{pedido.valorTotal.toFixed(2)}</Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Body>
+            </Table.Root>
           </div>
         </Box>
       </div>
-      <Box>
-        <h3 className="dark:text-white text-xl font-medium mb-4">
-          Últimos pedidos
-        </h3>
-        <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
-          <Table.Root>
-            <Table.Header headers={headersTable} />
-            <Table.Body>
-              {pedidos?.content?.map((pedido) => (
-                <Table.Tr key={pedido.id}>
-                  <Table.Td>{pedido.id}</Table.Td>
-                  <Table.Td>{pedido.cliente.nome}</Table.Td>
-                  <Table.Td>{"Salgado"}</Table.Td>
-                  <Table.Td>
-                    {moment(pedido.dataRetirada).locale("pt-br").format()}
-                  </Table.Td>
-                  <Table.Td>{pedido.valorTotal}</Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Body>
-          </Table.Root>
-        </div>
-      </Box>
     </MountTransition>
   );
 }
