@@ -1,3 +1,4 @@
+import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Card } from "@/components/CardProduct/Card";
 import { CardGrid } from "@/components/CardProduct/CardGrid";
 import ProductCard from "@/components/CardProduct/CardStack";
@@ -20,8 +21,17 @@ export async function getServerSideProps() {
 }
 
 export default function Cardapio({ produtos }: CardapioPageProps) {
+  const textToSendWhatsApp = (nomeProduto: string) => {
+    const numeroTelefone = "48999582066"; // Substitua pelo seu número de telefone do WhatsApp
+    const mensagem = encodeURIComponent(
+      `Olá! Gostaria de fazer um pedido do seu produto: ${nomeProduto}`
+    );
+    const linkWhatsApp = `https://api.whatsapp.com/send?phone=${numeroTelefone}&text=${mensagem}`;
+
+    window.open(linkWhatsApp, "_blank");
+  };
   return (
-    <>
+    <div className="flex">
       <CardGrid>
         {produtos?.content.map((produto) => {
           const images = produto.imagensProduto.map(({ path }) => path);
@@ -32,6 +42,9 @@ export default function Cardapio({ produtos }: CardapioPageProps) {
             //   imagem={produto.imagensProduto[0]?.path}
             // />
             <ProductCard
+              sendProductToWhatsApp={() =>
+                textToSendWhatsApp(produto.descricao)
+              }
               category={produto.categoria}
               name={produto.descricao}
               images={images}
@@ -39,6 +52,6 @@ export default function Cardapio({ produtos }: CardapioPageProps) {
           );
         })}
       </CardGrid>
-    </>
+    </div>
   );
 }

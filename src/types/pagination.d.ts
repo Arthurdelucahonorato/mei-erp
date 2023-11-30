@@ -8,8 +8,8 @@ type Pagination = {
 };
 
 type PaginationParams = {
-  perPage: string;
-  page: string;
+  perPage?: string;
+  page?: string;
 };
 
 type PaginatedResult<T> = {

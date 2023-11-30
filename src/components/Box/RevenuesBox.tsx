@@ -14,9 +14,9 @@ export function RevenuesBox({
   return (
     <article className="rounded-lg h-full flex flex-col items-start justify-center">
       <div>
-        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-sm dark:text-white">{title}</p>
 
-        <p className="text-2xl font-medium mt-2 text-gray-500">R$ {value}</p>
+        <p className="text-2xl font-medium mt-2 dark:text-white">R$ {value}</p>
       </div>
       {variationPercent && (
         <div className="flex gap-2 mt-2 items-center">

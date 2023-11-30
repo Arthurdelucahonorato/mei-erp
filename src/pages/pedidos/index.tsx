@@ -32,10 +32,10 @@ import FormPedido from "./FormPedido";
 import { useRouter } from "next/router";
 import { error } from "console";
 import toast from "react-hot-toast";
-import { deleteRequests } from "@/services/api/requests/delete-requests";
+import { deleteRequest } from "@/services/api/requests/delete-requests";
 import { OrderRequest, RequestItem } from "@/types/request";
 import { tr } from "@faker-js/faker";
-import ProductCard from "@/components/CardProduct/CardStack";
+import { ProductCard } from "@/components/CardProduct/ProductCard";
 import { Product } from "@/types/product";
 
 type PedidosProps = {
@@ -84,7 +84,6 @@ export const getServerSideProps = async (
 };
 
 export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
-  console.log(pedidos);
   const [isOpenPedidoEdit, setIsOpenPedidoEdit] = useState(false);
   const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
   const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
@@ -104,9 +103,9 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
     });
   };
 
-  const deleterPedido = async (id: number) => {
+  const deletarPedido = async (id: number) => {
     try {
-      toast.promise(deleteRequests(id), {
+      toast.promise(deleteRequest(id), {
         loading: "Deletando",
         success: (data) => {
           reload();
@@ -278,7 +277,9 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                       </ButtonTable>
                     </Table.Td>
                     <Table.Td>
-                      {moment(pedido.dataRetirada).locale("pt-br").format("L")}
+                      {moment(pedido.dataRetirada)
+                        .locale("pt-br")
+                        .format("DD/MM/YYYY HH:mm")}
                     </Table.Td>
                     <Table.Td>{pedido.status}</Table.Td>
                     <Table.Td>R$ {pedido.valorTotal}</Table.Td>
@@ -291,7 +292,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                         </ButtonTable>
                         <ButtonTable
                           variant="red"
-                          onClick={() => deleterPedido(pedido.id)}
+                          onClick={() => deletarPedido(pedido.id)}
                         >
                           <BsTrash className={"text-lg"} />
                         </ButtonTable>

@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../Button";
+import { BsWhatsapp } from "react-icons/bs";
 
 interface ProductCardProps {
   name: string;
   category: string;
   images: string[];
+  sendProductToWhatsApp: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   name,
   category,
   images,
+  sendProductToWhatsApp,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -82,6 +86,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           />
         ))}
       </div>
+      {sendProductToWhatsApp && (
+        <Button
+          onClick={sendProductToWhatsApp}
+          className="flex gap-4 items-center justify-center"
+        >
+          <BsWhatsapp className="w-6 h-6" />
+          Solicitar pelo WhatsApp
+        </Button>
+      )}
     </motion.div>
   );
 };

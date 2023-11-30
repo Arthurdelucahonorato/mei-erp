@@ -10,6 +10,7 @@ import {
 import { getRevenuesThisMonth } from "@/services/api/dashboard/get-revenues-this-month";
 import { getTotalRevenues } from "@/services/api/dashboard/get-total-revenues";
 import { getAllRequests } from "@/services/api/requests/get-all-requests";
+import { RequestStatusEnum } from "@/types/enum/request.status.enum";
 import { OrderRequest } from "@/types/request";
 import moment from "moment";
 
@@ -25,7 +26,9 @@ interface DashboardPageProps {
 }
 
 export async function getServerSideProps() {
-  const pedidos = await getAllRequests();
+  const pedidos = await getAllRequests({
+    perPage: "9999999",
+  });
 
   const receitaAnual = await getRevenuesPerYear();
 
@@ -60,11 +63,15 @@ export default function Dashboard({
     "Valor Total",
   ];
 
+  const pedidosFinalizados = pedidos.content.filter(
+    (item) => item.status === RequestStatusEnum.FINALIZADO
+  )?.length;
+
   return (
-    <MountTransition className="flex flex-1 flex-col h-full gap-4">
-      <div className="grid grid-cols-2 gap-4 w-full">
-        <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
+    <MountTransition className="flex xl:flex-1 flex-col h-full gap-4">
+      <div className="grid xl:grid-cols-2 gap-4 w-full">
+        <div className="grid gap-4 max-md:max-w-sm">
+          <div className="grid xl:grid-cols-3 gap-4">
             <Box>
               <RevenuesBox title="Todas as Receitas" value={receitaTotal} />
             </Box>
@@ -75,20 +82,28 @@ export default function Dashboard({
                 variationPercent={variacao}
               />
             </Box>
+            <Box>
+              <p className="text-sm dark:text-white">
+                Total de Pedidos Finalizados
+              </p>
+              <div className="flex items-center h-full">
+                <h3 className="text-4xl text-white">{pedidosFinalizados}</h3>
+              </div>
+            </Box>
           </div>
 
-          <Box>
+          <Box className="max-w-screen overflow-x-auto">
             <h3 className="dark:text-white text-xl font-medium mb-4">
               Gráfico de receitas ({moment().year()})
             </h3>
             <BarChart data={receitas.values} labels={receitas.months} />
           </Box>
         </div>
-        <Box>
+        <Box className="flex xl:flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
           <h3 className="dark:text-white text-xl font-medium mb-4">
             Últimos pedidos
           </h3>
-          <div className="flex flex-1 flex-col bg-gray-50 dark:bg-theme-dark.100 justify-start overflow-x-auto shadow-md sm:rounded-lg overflow-y-auto">
+          <div>
             <Table.Root>
               <Table.Header headers={headersTable} />
               <Table.Body>
