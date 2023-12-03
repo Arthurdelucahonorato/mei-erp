@@ -6,7 +6,7 @@ import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
-import moment from "moment";
+import moment, { locale } from "moment";
 import "moment/locale/pt-br";
 import {
   BsCartPlus,
@@ -88,23 +88,35 @@ export default function FormPedido({
     return await getAllClients();
   }
   useLayoutEffect(() => {
+    reset();
+
     buscarProdutos().then((produto) => setProdutos(produto));
     buscarClientes().then((cliente) => setClientes(cliente));
   }, []);
 
   useEffect(() => {
     if (pedidoEdicao) {
-      /* 
-              id: number;
-              createdAt: Date;
-              cliente: number;
-              dataRetirada: Date;
-              itensPedido: Product[];
-              valorTotal: number; */
-
+      reset();
       setValue("clienteId", pedidoEdicao.cliente.id);
-      // setValue("dataPedido", pedidoEdicao.createdAt);
-      //  setValue("dataEntrega", pedidoEdicao.dataRetirada);
+      setValue("nomeCliente", pedidoEdicao.cliente.nome);
+      setValue("dataPedido", moment(pedidoEdicao.dataPedido).locale("pt-br").format("yyyy-MM-DD"));
+      setValue("dataEntrega", moment(pedidoEdicao.dataEntrega).locale("pt-br").format("yyyy-MM-DD"));
+      setValue("formaPagamento", pedidoEdicao.formaPagamento);
+      setValue("modalidadeEntrega", pedidoEdicao.modalidadeEntrega);
+      setValue("observacao", pedidoEdicao.observacao);
+      setValue("status", pedidoEdicao.status);
+      pedidoEdicao.itensPedido.map((value, index) => {
+        insert(index, {
+          id: value.id,
+          produtoId: value.produto.id,
+          produtoDescricao: value.produto.descricao,
+          categoria: value.produto.categoria,
+          unidade: value.produto.unidade,
+          observacao: value.observacao,
+          quantidade: value.quantidade,
+          valorUnitario: value.valorUnitario
+        })
+      })
     }
   }, [pedidoEdicao]);
 
@@ -114,13 +126,10 @@ export default function FormPedido({
     setValue("clienteId", selectedValue.id);
     setValue("nomeCliente", selectedValue.nome);
   };
-  const onChangeComboBox = (selectedValue: string) => {
-    setValue("formaPagamento", selectedValue);
-  };
 
   const validateRegister = z.object({
     clienteId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
-    nomeCliente: z.string({ required_error: 'Campo obrigatório', }),
+    nomeCliente: z.string().nonempty("Campo obrigatório"),
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
     status: z.string({ required_error: 'Campo obrigatório' }),
@@ -129,15 +138,15 @@ export default function FormPedido({
     observacao: z.string().optional(),
     itensPedido: z.array(
       z.object({
+        id: z.number(),
         produtoId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
         quantidade: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
         observacao: z.string().optional(),
         valorUnitario: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
 
-        /*        produtoDescricao: z.string(),
-               categoria: z.string(),
-               unidade: z.string(), */
-        /*   imagem: z.string(), */
+        produtoDescricao: z.string(),
+        categoria: z.string(),
+        unidade: z.string(),
       })
     ),
   });
@@ -148,11 +157,10 @@ export default function FormPedido({
     register,
     handleSubmit,
     setValue,
-    getValues,
     reset,
     control,
     watch,
-    formState: { errors, isSubmitting, },
+    formState: { errors, isSubmitting, isLoading },
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
@@ -171,30 +179,63 @@ export default function FormPedido({
   };
 
   const submitFormRegister = async (data: ValidateData) => {
+    const reqBodyItensPedido = data.itensPedido.map((value) => {
+      return {
+        produtoId: Number(value.produtoId),
+        quantidade: Number(value.quantidade),
+        observacao: value.observacao,
+        valorUnitario: Number(value.valorUnitario),
+      };
+    })
+    const reqBody = {
+      clienteId: data.clienteId,
+      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      status: data.status,
+      formaPagamento: data.formaPagamento,
+      modalidadeEntrega: data.modalidadeEntrega,
+      observacao: data.observacao,
+      itensPedido: reqBodyItensPedido
+    }
     try {
-      toast.promise(registerRequest(data), {
+      toast.promise(registerRequest(reqBody), {
         loading: "Salvando novo pedido",
         success: (d) => {
           reload();
           return d.message;
         },
         error: (error) => {
-          console.error('error')
-          console.error(error)
           return error.response.data.message
         }
       });
     } catch (error: any) {
-      console.error('error')
-      console.error(error)
       toast.error(error.response.data.message);
       return;
     }
   };
 
   const submitFormEdit = async (id: number, data: ValidateData) => {
+    const reqBodyItensPedido = data.itensPedido.map((value) => {
+      return {
+        id: Number(value.id),
+        produtoId: Number(value.produtoId),
+        quantidade: Number(value.quantidade),
+        observacao: value.observacao,
+        valorUnitario: Number(value.valorUnitario),
+      };
+    })
+    const reqBody = {
+      clienteId: data.clienteId,
+      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      status: data.status,
+      formaPagamento: data.formaPagamento,
+      modalidadeEntrega: data.modalidadeEntrega,
+      observacao: data.observacao,
+      itensPedido: reqBodyItensPedido
+    }
     try {
-      toast.promise(editRequest(id, data), {
+      toast.promise(editRequest(id, reqBody), {
         loading: "Salvando alterações do pedido",
         success: (d) => {
           reload();
@@ -266,14 +307,14 @@ export default function FormPedido({
                         className="text-black !bg-green-700"
                         onClick={() => {
                           append({
+                            id: 0,
                             produtoId: produto.id,
-                            /*         produtoDescricao: produto.descricao,
-                                    categoria: produto.categoria,
-                                    unidade: produto.unidade, */
+                            produtoDescricao: produto.descricao,
+                            categoria: produto.categoria,
+                            unidade: produto.unidade,
                             observacao: "",
                             quantidade: 1,
                             valorUnitario: 0,
-                            /*         imagem: "", */
                           });
                         }}
                       >
@@ -292,7 +333,6 @@ export default function FormPedido({
         onSubmit={handleSubmit((data) => pedidoEdicao
           ? submitFormEdit(pedidoEdicao.id, data)
           : submitFormRegister(data)
-
         )}
       >
         <Input
@@ -327,7 +367,6 @@ export default function FormPedido({
           required
         />
         <ComboBox
-          // {...register("formaPagamento")}
           className="col-span-1 md:col-span-4"
           value={watch("formaPagamento")}
           values={enumToList(PaymentMethodsEnum)}
@@ -339,7 +378,6 @@ export default function FormPedido({
           }}
         />
         <ComboBox
-          // {...register("status")}
           className="col-span-1 md:col-span-4"
           value={watch("status")}
           values={enumToList(RequestStatusEnum)}
@@ -361,7 +399,6 @@ export default function FormPedido({
           required
         />
         <ComboBox
-          // {...register("modalidadeEntrega")}
           className="col-span-1 md:col-span-4"
           value={watch("modalidadeEntrega")}
           values={enumToList(DeliveryModalityEnum)}
@@ -397,12 +434,6 @@ export default function FormPedido({
                     className="flex justify-center w-6 aspect-square mx-3.5"
                     onClick={
                       () => setOpenModalProducts(true)
-                      // append({
-                      //   produtoId: 5,
-                      //   valorUnitario: 1.0,
-                      //   observacao: "Teste",
-                      //   quantidade: 6,
-                      // })
                     }
                   >
 
@@ -427,18 +458,18 @@ export default function FormPedido({
                   <InputTable disabled
                     className="w-20"
                     htmlFor={`idItemPedido-${itemPedido.id}`}
-                  /*  {...register(`itensPedido.${index}.id`)} */
+                    {...register(`itensPedido.${index}.id`)}
                   />
                   <Input disabled
                     className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-/*                     {...register(`itensPedido.${index}.produtoDescricao`)}
- */                    htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
+                    {...register(`itensPedido.${index}.produtoDescricao`)}
+                    htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
 
                   />
                   <InputTable disabled
                     className="w-44"
-/*                     {...register(`itensPedido.${index}.categoria`)}
- */                    htmlFor={`categoriaItemPedido-${itemPedido.id}`}
+                    {...register(`itensPedido.${index}.categoria`)}
+                    htmlFor={`categoriaItemPedido-${itemPedido.id}`}
 
                   />
                   <InputTable
@@ -458,8 +489,8 @@ export default function FormPedido({
                   <InputTable
                     disabled
                     className="w-20"
-/*                     {...register(`itensPedido.${index}.unidade`)}
- */                    htmlFor={`unidadeItemPedido-${itemPedido.id}`}
+                    {...register(`itensPedido.${index}.unidade`)}
+                    htmlFor={`unidadeItemPedido-${itemPedido.id}`}
 
                   />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
@@ -474,7 +505,7 @@ export default function FormPedido({
         </div>
         <div className="flex justify-end col-span-3 md:col-span-12">
           <div>
-            <Button type="button" onClick={() => { console.log(getValues()); submitFormRegister(getValues()) }}>{titleModal}</Button>
+            <Button type="submit">{titleModal}</Button>
           </div>
         </div>
       </form>

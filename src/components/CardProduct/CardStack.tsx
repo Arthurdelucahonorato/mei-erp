@@ -7,6 +7,7 @@ interface ProductCardProps {
   name: string;
   category: string;
   images: string[];
+  requestInfos?: { quantidade: number, valorUnitario: number, unidade: string, observacao?: string }
   sendProductToWhatsApp?: () => void;
 }
 
@@ -14,6 +15,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   name,
   category,
   images,
+  requestInfos,
   sendProductToWhatsApp,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -34,9 +36,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5 }}
-      className="border border-gray-300 shadow-lg rounded overflow-hidden w-96 mx-auto"
+      className="border border-gray-300 shadow-lg rounded-xl overflow-hidden w-96 mx-auto"
     >
       <h2 className="text-xl font-semibold p-4">{name}</h2>
+      {
+        requestInfos && (
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <h3 className="text-md font-bold pl-4">Quantidade:</h3>
+              <h3 className="text-md pl-2">{requestInfos?.quantidade.toFixed(2) + " " + requestInfos?.unidade}</h3>
+            </div>
+            <div className="flex flex-row">
+              <h3 className="text-md font-bold pl-4">Valor Unitário:</h3>
+              <h3 className="text-md pl-2">{requestInfos?.valorUnitario.toFixed(2)}</h3>
+            </div>
+            <div className="flex flex-row">
+              <h3 className="text-md font-bold pl-4">Total:</h3>
+              <h3 className="text-md pl-2">{(requestInfos?.quantidade * requestInfos?.valorUnitario).toFixed(2)}</h3>
+            </div>
+          </div>
+        )
+      }
+
       <p className="text-gray-600 p-4">{category}</p>
 
       <div className="relative overflow-hidden">

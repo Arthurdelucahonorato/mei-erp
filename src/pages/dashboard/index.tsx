@@ -115,7 +115,7 @@ export default function Dashboard({
                     <Table.Td>{"Salgado"}</Table.Td>
                     <Table.Td>{enumDecode(RequestStatusEnum, pedido.status)}</Table.Td>
                     <Table.Td>
-                      {moment(pedido.dataRetirada)
+                      {moment(pedido.dataEntrega)
                         .locale("pt-br")
                         .format("DD/MM/YYYY HH:mm")}
                     </Table.Td>
