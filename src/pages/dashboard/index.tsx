@@ -12,6 +12,7 @@ import { getTotalRevenues } from "@/services/api/dashboard/get-total-revenues";
 import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { RequestStatusEnum } from "@/types/enum/request.status.enum";
 import { OrderRequest } from "@/types/request";
+import { enumDecode } from "@/utils/enumDecode";
 import moment from "moment";
 
 interface DashboardPageProps {
@@ -112,7 +113,7 @@ export default function Dashboard({
                     <Table.Td>{pedido.id}</Table.Td>
                     <Table.Td>{pedido.cliente.nome}</Table.Td>
                     <Table.Td>{"Salgado"}</Table.Td>
-                    <Table.Td>{pedido.status}</Table.Td>
+                    <Table.Td>{enumDecode(RequestStatusEnum, pedido.status)}</Table.Td>
                     <Table.Td>
                       {moment(pedido.dataRetirada)
                         .locale("pt-br")

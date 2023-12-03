@@ -31,6 +31,9 @@ import toast from "react-hot-toast";
 import { deleteProduct } from "@/services/api/products/delete-product";
 import { Product } from "@/types/product";
 import { CategoryEnum } from "@/types/enum/category.enum";
+import { enumToList } from "@/utils/enumToList";
+import { enumDecode } from "@/utils/enumDecode";
+
 const valoresCombo = [
   { value: "QUILOGRAMAS", name: "kg" },
   { value: "UNIDADE", name: "un" },
@@ -98,13 +101,6 @@ export default function produtos({
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
-  });
-
-  const categoriesOptions = ["DOCE", "SALGADO"].map((categoria) => {
-    return {
-      value: String(categoria),
-      name: categoria,
-    };
   });
 
   const submitFormRegister = async (data: ValidateData) => {
@@ -186,7 +182,7 @@ export default function produtos({
           <ComboBox
             className="col-span-1 md:col-span-6"
             value={watch("categoria")?.toString()}
-            values={categoriesOptions}
+            values={enumToList(CategoryEnum)}
             label="Categoria do produto"
             onChangeValue={(value) =>
               setValue("categoria", value as CategoryEnum)
@@ -196,16 +192,7 @@ export default function produtos({
           <ComboBox
             className="col-span-1 md:col-span-6"
             value={watch("unidade")?.toString()}
-            values={[
-              {
-                name: "KG",
-                value: "KG",
-              },
-              {
-                name: "UN",
-                value: "UN",
-              },
-            ]}
+            values={enumToList(Unit)}
             label="Tipo de unidade"
             onChangeValue={(value) => setValue("unidade", value as Unit)}
           />
@@ -378,7 +365,7 @@ export default function produtos({
                     >
                       {produto.descricao}
                     </Table.Td>
-                    <Table.Td>{produto.categoria}</Table.Td>
+                    <Table.Td>{enumDecode(CategoryEnum, produto.categoria)}</Table.Td>
                     <Table.Td>
                       <ButtonTable
                         onClick={() => openModalProductImages(produto.id)}

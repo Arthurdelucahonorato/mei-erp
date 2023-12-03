@@ -35,8 +35,12 @@ import toast from "react-hot-toast";
 import { deleteRequest } from "@/services/api/requests/delete-requests";
 import { OrderRequest, RequestItem } from "@/types/request";
 import { tr } from "@faker-js/faker";
-import { ProductCard } from "@/components/CardProduct/ProductCard";
 import { Product } from "@/types/product";
+import ProductCard from "@/components/CardProduct/CardStack";
+import { enumDecode } from "@/utils/enumDecode";
+import { RequestStatusEnum } from "@/types/enum/request.status.enum";
+import { enumEncode } from "@/utils/enumEncode";
+import { CategoryEnum } from "@/types/enum/category.enum";
 
 type PedidosProps = {
   items: number;
@@ -155,8 +159,6 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
   const [showItensModal, setShowItensModal] = useState<boolean>(false);
   const [itensModal, setItensModal] = useState<RequestItem[]>();
 
-  console.log(itensModal);
-
   const toggleShowModalItens = (idPedido: number) => {
     const pedido = pedidos.content?.find((pedido) => pedido.id == idPedido);
 
@@ -236,7 +238,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {pedidos?.content?.map((pedido) => (
+              {pedidos.content?.map((pedido) => (
                 <>
                   <Modal
                     isOpen={showItensModal}
@@ -281,8 +283,8 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                         .locale("pt-br")
                         .format("DD/MM/YYYY HH:mm")}
                     </Table.Td>
-                    <Table.Td>{pedido.status}</Table.Td>
-                    <Table.Td>R$ {pedido.valorTotal}</Table.Td>
+                    <Table.Td>{enumDecode(RequestStatusEnum, pedido.status)}</Table.Td>
+                    <Table.Td>R$ {pedido.valorTotal.toFixed(2)}</Table.Td>
                     <Table.Td isButton={true}>
                       <div className="flex gap-3 mx-2">
                         <ButtonTable

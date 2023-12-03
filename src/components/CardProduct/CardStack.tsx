@@ -7,7 +7,7 @@ interface ProductCardProps {
   name: string;
   category: string;
   images: string[];
-  sendProductToWhatsApp: () => void;
+  sendProductToWhatsApp?: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({

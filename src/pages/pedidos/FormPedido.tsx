@@ -18,7 +18,7 @@ import {
 } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
-import { z } from "zod";
+import { ZodObject, z } from "zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
@@ -39,6 +39,10 @@ import { Product } from "@/types/product";
 import toast from "react-hot-toast";
 import { editRequest } from "@/services/api/requests/edit-request";
 import { registerRequest } from "@/services/api/requests/register-request";
+import { enumToList } from "@/utils/enumToList";
+import { PaymentMethodsEnum } from "@/types/enum/paymentMethods.enum";
+import { RequestStatusEnum } from "@/types/enum/request.status.enum";
+import { DeliveryModalityEnum } from "@/types/enum/deliveryModality.enum";
 
 interface FormPedidosType {
   formPedidoIsOpen: boolean;
@@ -59,7 +63,6 @@ export const getServerSideProps = async (
     page: pageQueries.page,
   });
 
-  console.log("produtos");
 
   return {
     props: {
@@ -67,14 +70,6 @@ export const getServerSideProps = async (
     },
   };
 };
-
-const ValoresFormaPagamento = [
-  { value: "PIX", name: "Pix" },
-  { value: "A_VISTA", name: "A vista" },
-  { value: "CARTAO_CREDITO", name: "Cartão Crédito" },
-  { value: "CARTAO_DEBITO", name: "Cartão Débito" },
-  { value: "BOLETO", name: "boleto" },
-];
 
 export default function FormPedido({
   formPedidoIsOpen,
@@ -95,7 +90,6 @@ export default function FormPedido({
   useLayoutEffect(() => {
     buscarProdutos().then((produto) => setProdutos(produto));
     buscarClientes().then((cliente) => setClientes(cliente));
-    console.log("produtos");
   }, []);
 
   useEffect(() => {
@@ -108,7 +102,7 @@ export default function FormPedido({
               itensPedido: Product[];
               valorTotal: number; */
 
-      setValue("codigoCliente", pedidoEdicao.cliente.id);
+      setValue("clienteId", pedidoEdicao.cliente.id);
       // setValue("dataPedido", pedidoEdicao.createdAt);
       //  setValue("dataEntrega", pedidoEdicao.dataRetirada);
     }
@@ -117,35 +111,33 @@ export default function FormPedido({
   const { reload } = useRouter();
 
   const onClickLov = (selectedValue: any) => {
-    setValue("codigoCliente", selectedValue.id);
+    setValue("clienteId", selectedValue.id);
     setValue("nomeCliente", selectedValue.nome);
   };
   const onChangeComboBox = (selectedValue: string) => {
-    console.log("selectedValue", selectedValue);
     setValue("formaPagamento", selectedValue);
-    console.log(getValues("formaPagamento"));
   };
 
   const validateRegister = z.object({
-    codigoCliente: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
-    nomeCliente: z.string({ required_error: 'Campo obrigatório' }),
+    clienteId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+    nomeCliente: z.string({ required_error: 'Campo obrigatório', }),
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
     status: z.string({ required_error: 'Campo obrigatório' }),
     formaPagamento: z.string({ required_error: 'Campo obrigatório' }),
     modalidadeEntrega: z.string({ required_error: 'Campo obrigatório' }),
-    observacao: z.string().nonempty("Campo obrigatório"),
+    observacao: z.string().optional(),
     itensPedido: z.array(
       z.object({
-        id: z.string(),
-        produtoId: z.string().transform((value) => Number(value)),
-        produtoDescricao: z.string(),
-        categoria: z.string(),
-        unidade: z.string(),
-        quantidade: z.string().transform((value) => Number(value)),
-        observacao: z.string(),
-        valorUnitario: z.string().transform((value) => Number(value)),
-        imagem: z.string(),
+        produtoId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        quantidade: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        observacao: z.string().optional(),
+        valorUnitario: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+
+        /*        produtoDescricao: z.string(),
+               categoria: z.string(),
+               unidade: z.string(), */
+        /*   imagem: z.string(), */
       })
     ),
   });
@@ -160,13 +152,13 @@ export default function FormPedido({
     reset,
     control,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, },
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
   });
 
-  const { append, fields, remove, update, } = useFieldArray({
+  const { append, fields, remove, update, insert } = useFieldArray({
     name: "itensPedido",
     control: control,
   });
@@ -186,16 +178,21 @@ export default function FormPedido({
           reload();
           return d.message;
         },
-        error: (error) => error.response.data.message,
+        error: (error) => {
+          console.error('error')
+          console.error(error)
+          return error.response.data.message
+        }
       });
     } catch (error: any) {
+      console.error('error')
+      console.error(error)
       toast.error(error.response.data.message);
       return;
     }
   };
 
   const submitFormEdit = async (id: number, data: ValidateData) => {
-    console.log(data);
     try {
       toast.promise(editRequest(id, data), {
         loading: "Salvando alterações do pedido",
@@ -258,25 +255,25 @@ export default function FormPedido({
                   <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                     {fields.some((field) => field.produtoId === produto.id) ? (
                       <Button
+                        type="button"
                         className="text-black !bg-red-700"
                         onClick={() => removeProduto(produto.id)}
                       >
                         -
                       </Button>
                     ) : (
-                      <Button
+                      <Button type="button"
                         className="text-black !bg-green-700"
                         onClick={() => {
                           append({
-                            id: '',
                             produtoId: produto.id,
-                            produtoDescricao: produto.descricao,
-                            categoria: produto.categoria,
-                            unidade: produto.unidade,
+                            /*         produtoDescricao: produto.descricao,
+                                    categoria: produto.categoria,
+                                    unidade: produto.unidade, */
                             observacao: "",
                             quantidade: 1,
                             valorUnitario: 0,
-                            imagem: "",
+                            /*         imagem: "", */
                           });
                         }}
                       >
@@ -292,18 +289,18 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-        onSubmit={handleSubmit((data) =>
-          pedidoEdicao
-            ? submitFormEdit(pedidoEdicao.id, data)
-            : submitFormRegister(data)
+        onSubmit={handleSubmit((data) => pedidoEdicao
+          ? submitFormEdit(pedidoEdicao.id, data)
+          : submitFormRegister(data)
+
         )}
       >
         <Input
           containerClassName="col-span-1 md:col-span-3"
-          {...register("codigoCliente")}
+          {...register("clienteId")}
           label="Codigo do Cliente"
-          htmlFor="codigoCliente"
-          errorMessage={errors.codigoCliente?.message}
+          htmlFor="clienteId"
+          errorMessage={errors.clienteId?.message}
           type="number"
           placeholder="Codigo do Cliente"
           required
@@ -333,7 +330,7 @@ export default function FormPedido({
           // {...register("formaPagamento")}
           className="col-span-1 md:col-span-4"
           value={watch("formaPagamento")}
-          values={ValoresFormaPagamento}
+          values={enumToList(PaymentMethodsEnum)}
           label="Forma de Pagamento"
           errorMessage={errors.formaPagamento?.message}
           required
@@ -345,13 +342,7 @@ export default function FormPedido({
           // {...register("status")}
           className="col-span-1 md:col-span-4"
           value={watch("status")}
-          values={
-            //Temporario, arrumar depois isso
-            [
-              { value: 'ACEITO', name: 'Aceito' },
-              { value: 'VALOR 2', name: 'Valor 2' }
-            ]
-          }
+          values={enumToList(RequestStatusEnum)}
           label="Status"
           errorMessage={errors.status?.message}
           required
@@ -373,13 +364,7 @@ export default function FormPedido({
           // {...register("modalidadeEntrega")}
           className="col-span-1 md:col-span-4"
           value={watch("modalidadeEntrega")}
-          values={
-            //Temporario, arrumar depois isso
-            [
-              { value: 'RETIRADA', name: 'Retirar no local' },
-              { value: 'DELIVERY', name: 'Entregar' }
-            ]
-          }
+          values={enumToList(DeliveryModalityEnum)}
           label="Modalidade Entrega"
           errorMessage={errors.modalidadeEntrega?.message}
           required
@@ -441,34 +426,44 @@ export default function FormPedido({
                 >
                   <InputTable disabled
                     className="w-20"
-                    {...register(`itensPedido.${index}.id`)}
+                    htmlFor={`idItemPedido-${itemPedido.id}`}
+                  /*  {...register(`itensPedido.${index}.id`)} */
                   />
-                  <InputTable disabled
+                  <Input disabled
                     className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    {...register(`itensPedido.${index}.produtoDescricao`)}
+/*                     {...register(`itensPedido.${index}.produtoDescricao`)}
+ */                    htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable disabled
                     className="w-44"
-                    {...register(`itensPedido.${index}.categoria`)}
+/*                     {...register(`itensPedido.${index}.categoria`)}
+ */                    htmlFor={`categoriaItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-16"
                     {...register(`itensPedido.${index}.quantidade`)}
+                    htmlFor={`quantidadeItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-32"
                     {...register(`itensPedido.${index}.valorUnitario`)}
+                    htmlFor={`valorUnitarioItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     disabled
                     className="w-20"
-                    {...register(`itensPedido.${index}.unidade`)}
+/*                     {...register(`itensPedido.${index}.unidade`)}
+ */                    htmlFor={`unidadeItemPedido-${itemPedido.id}`}
 
                   />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <ButtonTable variant="red" className="text-white">
+                    <ButtonTable type="button" variant="red" className="text-white" onClick={() => removeProduto(itemPedido.produtoId)}>
                       <BsX className={"text-xl"} />
                     </ButtonTable>
                   </div>
@@ -479,7 +474,7 @@ export default function FormPedido({
         </div>
         <div className="flex justify-end col-span-3 md:col-span-12">
           <div>
-            <Button type="submit">{titleModal}</Button>
+            <Button type="button" onClick={() => { console.log(getValues()); submitFormRegister(getValues()) }}>{titleModal}</Button>
           </div>
         </div>
       </form>

@@ -166,7 +166,7 @@ export default function Clientes({ clientes }: ClienteProps) {
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {clientes.content.map((cliente) => (
+              {clientes.content?.map((cliente) => (
                 <Table.Tr
                   key={cliente.id}
                   className="bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.50 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -211,11 +211,11 @@ export default function Clientes({ clientes }: ClienteProps) {
         </div>
         <div className="sticky bottom-2 mt-4">
           <Pagination
-            totalPages={clientes.pagination.totalPages}
-            totalItems={clientes.pagination.totalItems}
-            nextPage={clientes.pagination.nextPage}
-            prevPage={clientes.pagination.prevPage}
-            currentPage={Number(clientes.pagination.currentPage)}
+            totalPages={clientes.pagination?.totalPages}
+            totalItems={clientes.pagination?.totalItems}
+            nextPage={clientes.pagination?.nextPage}
+            prevPage={clientes.pagination?.prevPage}
+            currentPage={Number(clientes.pagination?.currentPage)}
             onPageChange={onPageChange}
           />
         </div>
