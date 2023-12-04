@@ -101,7 +101,6 @@ export default function produtos({ produtos, categorias }: ProdutoProps) {
   });
 
   const submitFormRegister = async (data: ValidateData) => {
-    console.log(data);
     try {
       const formData = new FormData();
 
