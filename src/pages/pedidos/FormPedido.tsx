@@ -63,7 +63,6 @@ export const getServerSideProps = async (
     page: pageQueries.page,
   });
 
-
   return {
     props: {
       pedidos: pedidos,
@@ -97,10 +96,16 @@ export default function FormPedido({
   useEffect(() => {
     if (pedidoEdicao) {
       reset();
-      setValue("clienteId", pedidoEdicao.cliente.id);
+      setValue("clienteId", String(pedidoEdicao.cliente.id));
       setValue("nomeCliente", pedidoEdicao.cliente.nome);
-      setValue("dataPedido", moment(pedidoEdicao.dataPedido).locale("pt-br").format("yyyy-MM-DD"));
-      setValue("dataEntrega", moment(pedidoEdicao.dataEntrega).locale("pt-br").format("yyyy-MM-DD"));
+      setValue(
+        "dataPedido",
+        moment(pedidoEdicao.dataPedido).locale("pt-br").format("yyyy-MM-DD")
+      );
+      setValue(
+        "dataEntrega",
+        moment(pedidoEdicao.dataEntrega).locale("pt-br").format("yyyy-MM-DD")
+      );
       setValue("formaPagamento", pedidoEdicao.formaPagamento);
       setValue("modalidadeEntrega", pedidoEdicao.modalidadeEntrega);
       setValue("observacao", pedidoEdicao.observacao);
@@ -114,9 +119,9 @@ export default function FormPedido({
           unidade: value.produto.unidade,
           observacao: value.observacao,
           quantidade: value.quantidade,
-          valorUnitario: value.valorUnitario
-        })
-      })
+          valorUnitario: value.valorUnitario,
+        });
+      });
     }
   }, [pedidoEdicao]);
 
@@ -128,21 +133,30 @@ export default function FormPedido({
   };
 
   const validateRegister = z.object({
-    clienteId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
-    nomeCliente: z.string().nonempty("Campo obrigatório"),
+    clienteId: z.string().nonempty("Campo obrigatório"),
+    nomeCliente: z.string().optional(),
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
-    status: z.string({ required_error: 'Campo obrigatório' }),
-    formaPagamento: z.string({ required_error: 'Campo obrigatório' }),
-    modalidadeEntrega: z.string({ required_error: 'Campo obrigatório' }),
+    status: z.string({ required_error: "Campo obrigatório" }),
+    formaPagamento: z.string({ required_error: "Campo obrigatório" }),
+    modalidadeEntrega: z.string({ required_error: "Campo obrigatório" }),
     observacao: z.string().optional(),
     itensPedido: z.array(
       z.object({
         id: z.number(),
-        produtoId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
-        quantidade: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        produtoId: z.number({
+          required_error: "Campo obrigatório",
+          invalid_type_error: "Campo obrigatório",
+        }),
+        quantidade: z.number({
+          required_error: "Campo obrigatório",
+          invalid_type_error: "Campo obrigatório",
+        }),
         observacao: z.string().optional(),
-        valorUnitario: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        valorUnitario: z.number({
+          required_error: "Campo obrigatório",
+          invalid_type_error: "Campo obrigatório",
+        }),
 
         produtoDescricao: z.string(),
         categoria: z.string(),
@@ -186,17 +200,21 @@ export default function FormPedido({
         observacao: value.observacao,
         valorUnitario: Number(value.valorUnitario),
       };
-    })
+    });
     const reqBody = {
-      clienteId: data.clienteId,
-      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
-      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      clienteId: Number(data.clienteId),
+      dataPedido:
+        moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+        "Z",
+      dataEntrega:
+        moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+        "Z",
       status: data.status,
       formaPagamento: data.formaPagamento,
       modalidadeEntrega: data.modalidadeEntrega,
       observacao: data.observacao,
-      itensPedido: reqBodyItensPedido
-    }
+      itensPedido: reqBodyItensPedido,
+    };
     try {
       toast.promise(registerRequest(reqBody), {
         loading: "Salvando novo pedido",
@@ -205,8 +223,8 @@ export default function FormPedido({
           return d.message;
         },
         error: (error) => {
-          return error.response.data.message
-        }
+          return error.response.data.message;
+        },
       });
     } catch (error: any) {
       toast.error(error.response.data.message);
@@ -223,17 +241,21 @@ export default function FormPedido({
         observacao: value.observacao,
         valorUnitario: Number(value.valorUnitario),
       };
-    })
+    });
     const reqBody = {
       clienteId: data.clienteId,
-      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
-      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      dataPedido:
+        moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+        "Z",
+      dataEntrega:
+        moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+        "Z",
       status: data.status,
       formaPagamento: data.formaPagamento,
       modalidadeEntrega: data.modalidadeEntrega,
       observacao: data.observacao,
-      itensPedido: reqBodyItensPedido
-    }
+      itensPedido: reqBodyItensPedido,
+    };
     try {
       toast.promise(editRequest(id, reqBody), {
         loading: "Salvando alterações do pedido",
@@ -248,7 +270,6 @@ export default function FormPedido({
       return;
     }
   };
-
 
   const lovValues = {
     title: "Seleção de Cliente",
@@ -269,13 +290,7 @@ export default function FormPedido({
       >
         <Table.Root>
           <Table.Header
-            headers={[
-              "ID",
-              "Nome",
-              "Categoria",
-              "Unidade",
-              "Ações",
-            ]}
+            headers={["ID", "Nome", "Categoria", "Unidade", "Ações"]}
           />
           <Table.Body className="overflow-y-auto">
             {produtos?.content?.map((produto) => (
@@ -303,7 +318,8 @@ export default function FormPedido({
                         -
                       </Button>
                     ) : (
-                      <Button type="button"
+                      <Button
+                        type="button"
                         className="text-black !bg-green-700"
                         onClick={() => {
                           append({
@@ -330,14 +346,15 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-        onSubmit={handleSubmit((data) => pedidoEdicao
-          ? submitFormEdit(pedidoEdicao.id, data)
-          : submitFormRegister(data)
+        onSubmit={handleSubmit((data) =>
+          pedidoEdicao
+            ? submitFormEdit(pedidoEdicao.id, data)
+            : submitFormRegister(data)
         )}
       >
         <Input
-          containerClassName="col-span-1 md:col-span-3"
           {...register("clienteId")}
+          containerClassName="col-span-1 md:col-span-3"
           label="Codigo do Cliente"
           htmlFor="clienteId"
           errorMessage={errors.clienteId?.message}
@@ -348,8 +365,8 @@ export default function FormPedido({
         />
         <Input
           containerClassName="col-span-2 md:col-span-9"
-          {...register("nomeCliente")}
           label="Nome"
+          {...register("nomeCliente")}
           htmlFor="nomeCliente"
           errorMessage={errors.nomeCliente?.message}
           type="text"
@@ -432,11 +449,8 @@ export default function FormPedido({
                   <button
                     type="button"
                     className="flex justify-center w-6 aspect-square mx-3.5"
-                    onClick={
-                      () => setOpenModalProducts(true)
-                    }
+                    onClick={() => setOpenModalProducts(true)}
                   >
-
                     <BsPlus
                       className={
                         "text-2xl cursor-pointer text-white bg-primary dark:bg-secondary rounded-lg"
@@ -444,7 +458,6 @@ export default function FormPedido({
                     />
                   </button>
                 </div>
-
               </div>
             </div>
           </div>
@@ -455,46 +468,49 @@ export default function FormPedido({
                   key={itemPedido.id}
                   className="flex flex-row gap-2 justify-center items-center bg-white border-b dark:bg-theme-dark.150 dark:border-theme-dark.200 hover:bg-gray-50 dark:hover:bg-theme-dark.150"
                 >
-                  <InputTable disabled
+                  <InputTable
+                    disabled
                     className="w-20"
                     htmlFor={`idItemPedido-${itemPedido.id}`}
                     {...register(`itensPedido.${index}.id`)}
                   />
-                  <Input disabled
+                  <Input
+                    disabled
                     className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     {...register(`itensPedido.${index}.produtoDescricao`)}
                     htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
-
                   />
-                  <InputTable disabled
+                  <InputTable
+                    disabled
                     className="w-44"
                     {...register(`itensPedido.${index}.categoria`)}
                     htmlFor={`categoriaItemPedido-${itemPedido.id}`}
-
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-16"
                     {...register(`itensPedido.${index}.quantidade`)}
                     htmlFor={`quantidadeItemPedido-${itemPedido.id}`}
-
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-32"
                     {...register(`itensPedido.${index}.valorUnitario`)}
                     htmlFor={`valorUnitarioItemPedido-${itemPedido.id}`}
-
                   />
                   <InputTable
                     disabled
                     className="w-20"
                     {...register(`itensPedido.${index}.unidade`)}
                     htmlFor={`unidadeItemPedido-${itemPedido.id}`}
-
                   />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <ButtonTable type="button" variant="red" className="text-white" onClick={() => removeProduto(itemPedido.produtoId)}>
+                    <ButtonTable
+                      type="button"
+                      variant="red"
+                      className="text-white"
+                      onClick={() => removeProduto(itemPedido.produtoId)}
+                    >
                       <BsX className={"text-xl"} />
                     </ButtonTable>
                   </div>

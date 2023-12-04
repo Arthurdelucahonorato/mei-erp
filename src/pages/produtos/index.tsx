@@ -66,10 +66,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
-export default function produtos({
-  produtos,
-  categorias,
-}: ProdutoProps) {
+export default function produtos({ produtos, categorias }: ProdutoProps) {
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
   const [isOpenProdutoEdit, setIsOpenProdutoEdit] = useState(false);
   const [lovIsOpen, setLovIsOpen] = useState(false);
@@ -104,6 +101,7 @@ export default function produtos({
   });
 
   const submitFormRegister = async (data: ValidateData) => {
+    console.log(data);
     try {
       const formData = new FormData();
 
@@ -117,7 +115,7 @@ export default function produtos({
       formData.append("categoria", data.categoria.toString());
       formData.append("unidade", data.unidade);
 
-      toast.promise(createProduct(formData), {
+      await toast.promise(createProduct(formData), {
         error: (data) => data.response.data.message,
         loading: "Cadastrando produto...",
         success: (data) => {
@@ -183,6 +181,7 @@ export default function produtos({
             className="col-span-1 md:col-span-6"
             value={watch("categoria")?.toString()}
             values={enumToList(CategoryEnum)}
+            errorMessage={errors.categoria?.message}
             label="Categoria do produto"
             onChangeValue={(value) =>
               setValue("categoria", value as CategoryEnum)
@@ -193,6 +192,7 @@ export default function produtos({
             className="col-span-1 md:col-span-6"
             value={watch("unidade")?.toString()}
             values={enumToList(Unit)}
+            errorMessage={errors.unidade?.message}
             label="Tipo de unidade"
             onChangeValue={(value) => setValue("unidade", value as Unit)}
           />
@@ -200,7 +200,7 @@ export default function produtos({
             {...register("imagensProduto")}
             type="file"
             multiple
-            accept="image/*"
+            // accept="image/*"
             label="Imagem"
             containerClassName="col-span-12"
           />
@@ -365,7 +365,9 @@ export default function produtos({
                     >
                       {produto.descricao}
                     </Table.Td>
-                    <Table.Td>{enumDecode(CategoryEnum, produto.categoria)}</Table.Td>
+                    <Table.Td>
+                      {enumDecode(CategoryEnum, produto.categoria)}
+                    </Table.Td>
                     <Table.Td>
                       <ButtonTable
                         onClick={() => openModalProductImages(produto.id)}
