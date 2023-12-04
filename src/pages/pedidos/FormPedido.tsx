@@ -6,7 +6,7 @@ import { GetServerSidePropsContext } from "next";
 import { api } from "@/services/api/api";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
-import moment from "moment";
+import moment, { locale } from "moment";
 import "moment/locale/pt-br";
 import {
   BsCartPlus,
@@ -18,7 +18,7 @@ import {
 } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
-import { z } from "zod";
+import { ZodObject, z } from "zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
@@ -39,6 +39,10 @@ import { Product } from "@/types/product";
 import toast from "react-hot-toast";
 import { editRequest } from "@/services/api/requests/edit-request";
 import { registerRequest } from "@/services/api/requests/register-request";
+import { enumToList } from "@/utils/enumToList";
+import { PaymentMethodsEnum } from "@/types/enum/paymentMethods.enum";
+import { RequestStatusEnum } from "@/types/enum/request.status.enum";
+import { DeliveryModalityEnum } from "@/types/enum/deliveryModality.enum";
 
 interface FormPedidosType {
   formPedidoIsOpen: boolean;
@@ -59,7 +63,6 @@ export const getServerSideProps = async (
     page: pageQueries.page,
   });
 
-  console.log("produtos");
 
   return {
     props: {
@@ -67,14 +70,6 @@ export const getServerSideProps = async (
     },
   };
 };
-
-const ValoresFormaPagamento = [
-  { value: "PIX", name: "Pix" },
-  { value: "A_VISTA", name: "A vista" },
-  { value: "CARTAO_CREDITO", name: "Cartão Crédito" },
-  { value: "CARTAO_DEBITO", name: "Cartão Débito" },
-  { value: "BOLETO", name: "boleto" },
-];
 
 export default function FormPedido({
   formPedidoIsOpen,
@@ -93,59 +88,65 @@ export default function FormPedido({
     return await getAllClients();
   }
   useLayoutEffect(() => {
+    reset();
+
     buscarProdutos().then((produto) => setProdutos(produto));
     buscarClientes().then((cliente) => setClientes(cliente));
-    console.log("produtos");
   }, []);
 
   useEffect(() => {
     if (pedidoEdicao) {
-      /* 
-              id: number;
-              createdAt: Date;
-              cliente: number;
-              dataRetirada: Date;
-              itensPedido: Product[];
-              valorTotal: number; */
-
-      setValue("codigoCliente", pedidoEdicao.cliente.id);
-      // setValue("dataPedido", pedidoEdicao.createdAt);
-      //  setValue("dataEntrega", pedidoEdicao.dataRetirada);
+      reset();
+      setValue("clienteId", pedidoEdicao.cliente.id);
+      setValue("nomeCliente", pedidoEdicao.cliente.nome);
+      setValue("dataPedido", moment(pedidoEdicao.dataPedido).locale("pt-br").format("yyyy-MM-DD"));
+      setValue("dataEntrega", moment(pedidoEdicao.dataEntrega).locale("pt-br").format("yyyy-MM-DD"));
+      setValue("formaPagamento", pedidoEdicao.formaPagamento);
+      setValue("modalidadeEntrega", pedidoEdicao.modalidadeEntrega);
+      setValue("observacao", pedidoEdicao.observacao);
+      setValue("status", pedidoEdicao.status);
+      pedidoEdicao.itensPedido.map((value, index) => {
+        insert(index, {
+          id: value.id,
+          produtoId: value.produto.id,
+          produtoDescricao: value.produto.descricao,
+          categoria: value.produto.categoria,
+          unidade: value.produto.unidade,
+          observacao: value.observacao,
+          quantidade: value.quantidade,
+          valorUnitario: value.valorUnitario
+        })
+      })
     }
   }, [pedidoEdicao]);
 
   const { reload } = useRouter();
 
   const onClickLov = (selectedValue: any) => {
-    setValue("codigoCliente", selectedValue.id);
+    setValue("clienteId", selectedValue.id);
     setValue("nomeCliente", selectedValue.nome);
-  };
-  const onChangeComboBox = (selectedValue: string) => {
-    console.log("selectedValue", selectedValue);
-    setValue("formaPagamento", selectedValue);
-    console.log(getValues("formaPagamento"));
   };
 
   const validateRegister = z.object({
-    codigoCliente: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
-    nomeCliente: z.string({ required_error: 'Campo obrigatório' }),
+    clienteId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+    nomeCliente: z.string().nonempty("Campo obrigatório"),
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
     status: z.string({ required_error: 'Campo obrigatório' }),
     formaPagamento: z.string({ required_error: 'Campo obrigatório' }),
     modalidadeEntrega: z.string({ required_error: 'Campo obrigatório' }),
-    observacao: z.string().nonempty("Campo obrigatório"),
+    observacao: z.string().optional(),
     itensPedido: z.array(
       z.object({
-        id: z.string(),
-        produtoId: z.string().transform((value) => Number(value)),
+        id: z.number(),
+        produtoId: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        quantidade: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+        observacao: z.string().optional(),
+        valorUnitario: z.number({ required_error: 'Campo obrigatório', invalid_type_error: 'Campo obrigatório' }),
+
         produtoDescricao: z.string(),
         categoria: z.string(),
         unidade: z.string(),
-        quantidade: z.string().transform((value) => Number(value)),
-        observacao: z.string(),
-        valorUnitario: z.string().transform((value) => Number(value)),
-        imagem: z.string(),
       })
     ),
   });
@@ -156,17 +157,16 @@ export default function FormPedido({
     register,
     handleSubmit,
     setValue,
-    getValues,
     reset,
     control,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isLoading },
   } = useForm<ValidateData>({
     mode: "onSubmit",
     resolver: zodResolver(validateRegister),
   });
 
-  const { append, fields, remove, update, } = useFieldArray({
+  const { append, fields, remove, update, insert } = useFieldArray({
     name: "itensPedido",
     control: control,
   });
@@ -179,14 +179,34 @@ export default function FormPedido({
   };
 
   const submitFormRegister = async (data: ValidateData) => {
+    const reqBodyItensPedido = data.itensPedido.map((value) => {
+      return {
+        produtoId: Number(value.produtoId),
+        quantidade: Number(value.quantidade),
+        observacao: value.observacao,
+        valorUnitario: Number(value.valorUnitario),
+      };
+    })
+    const reqBody = {
+      clienteId: data.clienteId,
+      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      status: data.status,
+      formaPagamento: data.formaPagamento,
+      modalidadeEntrega: data.modalidadeEntrega,
+      observacao: data.observacao,
+      itensPedido: reqBodyItensPedido
+    }
     try {
-      toast.promise(registerRequest(data), {
+      toast.promise(registerRequest(reqBody), {
         loading: "Salvando novo pedido",
         success: (d) => {
           reload();
           return d.message;
         },
-        error: (error) => error.response.data.message,
+        error: (error) => {
+          return error.response.data.message
+        }
       });
     } catch (error: any) {
       toast.error(error.response.data.message);
@@ -195,9 +215,27 @@ export default function FormPedido({
   };
 
   const submitFormEdit = async (id: number, data: ValidateData) => {
-    console.log(data);
+    const reqBodyItensPedido = data.itensPedido.map((value) => {
+      return {
+        id: Number(value.id),
+        produtoId: Number(value.produtoId),
+        quantidade: Number(value.quantidade),
+        observacao: value.observacao,
+        valorUnitario: Number(value.valorUnitario),
+      };
+    })
+    const reqBody = {
+      clienteId: data.clienteId,
+      dataPedido: moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      dataEntrega: moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") + "Z",
+      status: data.status,
+      formaPagamento: data.formaPagamento,
+      modalidadeEntrega: data.modalidadeEntrega,
+      observacao: data.observacao,
+      itensPedido: reqBodyItensPedido
+    }
     try {
-      toast.promise(editRequest(id, data), {
+      toast.promise(editRequest(id, reqBody), {
         loading: "Salvando alterações do pedido",
         success: (d) => {
           reload();
@@ -258,17 +296,18 @@ export default function FormPedido({
                   <div className="flex flex-1 flex-row justify-center max-w-xs gap-3 mx-2">
                     {fields.some((field) => field.produtoId === produto.id) ? (
                       <Button
+                        type="button"
                         className="text-black !bg-red-700"
                         onClick={() => removeProduto(produto.id)}
                       >
                         -
                       </Button>
                     ) : (
-                      <Button
+                      <Button type="button"
                         className="text-black !bg-green-700"
                         onClick={() => {
                           append({
-                            id: '',
+                            id: 0,
                             produtoId: produto.id,
                             produtoDescricao: produto.descricao,
                             categoria: produto.categoria,
@@ -276,7 +315,6 @@ export default function FormPedido({
                             observacao: "",
                             quantidade: 1,
                             valorUnitario: 0,
-                            imagem: "",
                           });
                         }}
                       >
@@ -292,18 +330,17 @@ export default function FormPedido({
       </Modal>
       <form
         className="max-w-3xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-        onSubmit={handleSubmit((data) =>
-          pedidoEdicao
-            ? submitFormEdit(pedidoEdicao.id, data)
-            : submitFormRegister(data)
+        onSubmit={handleSubmit((data) => pedidoEdicao
+          ? submitFormEdit(pedidoEdicao.id, data)
+          : submitFormRegister(data)
         )}
       >
         <Input
           containerClassName="col-span-1 md:col-span-3"
-          {...register("codigoCliente")}
+          {...register("clienteId")}
           label="Codigo do Cliente"
-          htmlFor="codigoCliente"
-          errorMessage={errors.codigoCliente?.message}
+          htmlFor="clienteId"
+          errorMessage={errors.clienteId?.message}
           type="number"
           placeholder="Codigo do Cliente"
           required
@@ -330,10 +367,9 @@ export default function FormPedido({
           required
         />
         <ComboBox
-          // {...register("formaPagamento")}
           className="col-span-1 md:col-span-4"
           value={watch("formaPagamento")}
-          values={ValoresFormaPagamento}
+          values={enumToList(PaymentMethodsEnum)}
           label="Forma de Pagamento"
           errorMessage={errors.formaPagamento?.message}
           required
@@ -342,16 +378,9 @@ export default function FormPedido({
           }}
         />
         <ComboBox
-          // {...register("status")}
           className="col-span-1 md:col-span-4"
           value={watch("status")}
-          values={
-            //Temporario, arrumar depois isso
-            [
-              { value: 'ACEITO', name: 'Aceito' },
-              { value: 'VALOR 2', name: 'Valor 2' }
-            ]
-          }
+          values={enumToList(RequestStatusEnum)}
           label="Status"
           errorMessage={errors.status?.message}
           required
@@ -370,16 +399,9 @@ export default function FormPedido({
           required
         />
         <ComboBox
-          // {...register("modalidadeEntrega")}
           className="col-span-1 md:col-span-4"
           value={watch("modalidadeEntrega")}
-          values={
-            //Temporario, arrumar depois isso
-            [
-              { value: 'RETIRADA', name: 'Retirar no local' },
-              { value: 'DELIVERY', name: 'Entregar' }
-            ]
-          }
+          values={enumToList(DeliveryModalityEnum)}
           label="Modalidade Entrega"
           errorMessage={errors.modalidadeEntrega?.message}
           required
@@ -412,12 +434,6 @@ export default function FormPedido({
                     className="flex justify-center w-6 aspect-square mx-3.5"
                     onClick={
                       () => setOpenModalProducts(true)
-                      // append({
-                      //   produtoId: 5,
-                      //   valorUnitario: 1.0,
-                      //   observacao: "Teste",
-                      //   quantidade: 6,
-                      // })
                     }
                   >
 
@@ -441,34 +457,44 @@ export default function FormPedido({
                 >
                   <InputTable disabled
                     className="w-20"
+                    htmlFor={`idItemPedido-${itemPedido.id}`}
                     {...register(`itensPedido.${index}.id`)}
                   />
-                  <InputTable disabled
+                  <Input disabled
                     className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     {...register(`itensPedido.${index}.produtoDescricao`)}
+                    htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable disabled
                     className="w-44"
                     {...register(`itensPedido.${index}.categoria`)}
+                    htmlFor={`categoriaItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-16"
                     {...register(`itensPedido.${index}.quantidade`)}
+                    htmlFor={`quantidadeItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-32"
                     {...register(`itensPedido.${index}.valorUnitario`)}
+                    htmlFor={`valorUnitarioItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     disabled
                     className="w-20"
                     {...register(`itensPedido.${index}.unidade`)}
+                    htmlFor={`unidadeItemPedido-${itemPedido.id}`}
 
                   />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
-                    <ButtonTable variant="red" className="text-white">
+                    <ButtonTable type="button" variant="red" className="text-white" onClick={() => removeProduto(itemPedido.produtoId)}>
                       <BsX className={"text-xl"} />
                     </ButtonTable>
                   </div>

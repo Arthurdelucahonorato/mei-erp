@@ -36,6 +36,7 @@ type BarChartProps = {
 };
 
 export function BarChart({ data, labels }: BarChartProps) {
+
   const chartData = {
     labels,
     borderWidth: 1,

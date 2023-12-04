@@ -101,6 +101,8 @@ App.getInitialProps = async (ctx: AppContext) => {
   api.interceptors.request.use((config) => {
     config.headers["Authorization"] = `Bearer ${cookies["mei.authToken"]}`;
 
+    console.log(config);
+
     return config;
   });
 

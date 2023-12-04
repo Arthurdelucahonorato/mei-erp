@@ -1,21 +1,20 @@
+import { DeliveryModalityEnum } from "./enum/deliveryModality.enum";
+import { PaymentMethodsEnum } from "./enum/paymentMethods.enum";
 import { RequestStatusEnum } from "./enum/request.status.enum";
 import { Unit } from "./enum/unit.enum";
 
 type RequestItem = {
   id: number;
   pedidoId: number;
-  produtoId: number;
   quantidade: number;
   observacao: string;
   valorUnitario: number;
   produto: {
+    id: number;
     categoria: any;
     imagensProduto: ProductImages[];
-    id: number;
     descricao: string;
     categoria: Category;
-    categoriaId: number;
-    variacaoId: number;
     unidade: Unit;
   };
 };
@@ -34,8 +33,12 @@ type OrderRequest = {
   id: number;
   createdAt: Date;
   cliente: Client;
-  dataRetirada: Date;
+  dataPedido: Date;
+  dataEntrega: Date;
   itensPedido: RequestItem[];
   status: RequestStatusEnum;
+  modalidadeEntrega: DeliveryModalityEnum;
+  formaPagamento: PaymentMethodsEnum;
+  observacao: string;
   valorTotal: number;
 };

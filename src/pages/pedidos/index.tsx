@@ -8,7 +8,7 @@ import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
 import moment from "moment";
 import "moment/locale/pt-br";
-import { BsCartPlus, BsPencil, BsTrash, BsX, BsPlus } from "react-icons/bs";
+import { BsCartPlus, BsPencil, BsTrash, BsX, BsPlus, BsBoxArrowInUpRight } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
 import { any, z } from "zod";
@@ -32,11 +32,16 @@ import FormPedido from "./FormPedido";
 import { useRouter } from "next/router";
 import { error } from "console";
 import toast from "react-hot-toast";
-import { deleteRequests } from "@/services/api/requests/delete-requests";
+import { deleteRequest } from "@/services/api/requests/delete-requests";
 import { OrderRequest, RequestItem } from "@/types/request";
 import { tr } from "@faker-js/faker";
-import ProductCard from "@/components/CardProduct/CardStack";
 import { Product } from "@/types/product";
+import ProductCard from "@/components/CardProduct/CardStack";
+import { enumDecode } from "@/utils/enumDecode";
+import { RequestStatusEnum } from "@/types/enum/request.status.enum";
+import { enumEncode } from "@/utils/enumEncode";
+import { CategoryEnum } from "@/types/enum/category.enum";
+import { enumToList } from "@/utils/enumToList";
 
 type PedidosProps = {
   items: number;
@@ -84,10 +89,10 @@ export const getServerSideProps = async (
 };
 
 export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
-  console.log(pedidos);
   const [isOpenPedidoEdit, setIsOpenPedidoEdit] = useState(false);
   const [isOpenPedidoRegister, setIsOpenPedidoRegister] = useState(false);
   const [isOpenPedidoDetails, setIsOpenPedidoDetails] = useState(false);
+  const [pedidoToEdit, setPedidoToEdit] = useState<OrderRequest>();
 
   const [listaItensDoPedido, setListaItensDoPedido] = useState<Product[]>([]);
 
@@ -104,9 +109,9 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
     });
   };
 
-  const deleterPedido = async (id: number) => {
+  const deletarPedido = async (id: number) => {
     try {
-      toast.promise(deleteRequests(id), {
+      toast.promise(deleteRequest(id), {
         loading: "Deletando",
         success: (data) => {
           reload();
@@ -118,7 +123,12 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
       toast.error(error.responde.data.message);
     }
   };
-
+  const setarPedidoEdicao = (id: number) => {
+    const pedido = pedidos.content?.find((pedido) => pedido.id == id);
+    console.log(pedido)
+    setPedidoToEdit(pedido);
+    setIsOpenPedidoEdit(!isOpenPedidoEdit);
+  };
   const onPageChange = (page: number) => {
     if (page != Number(pageQueries.page)) {
       push({
@@ -132,6 +142,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
 
   const [searchProducts, setSearchProduct] = useState({
     cliente: "",
+    //categoria: ""
   });
 
   const search = () => {
@@ -140,6 +151,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         ...pageQueries,
         ...searchProducts,
         cliente: searchProducts.cliente,
+        // categoria: searchProducts.categoria
       },
     });
   };
@@ -155,8 +167,6 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
 
   const [showItensModal, setShowItensModal] = useState<boolean>(false);
   const [itensModal, setItensModal] = useState<RequestItem[]>();
-
-  console.log(itensModal);
 
   const toggleShowModalItens = (idPedido: number) => {
     const pedido = pedidos.content?.find((pedido) => pedido.id == idPedido);
@@ -179,6 +189,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
           formPedidoIsOpen={isOpenPedidoEdit}
           toggleFormPedido={() => setIsOpenPedidoEdit(false)}
           titleModal={"Editar Pedido"}
+          pedidoEdicao={pedidoToEdit}
         />
         <div className="flex justify-between m-1 max-h-12">
           <div className="flex items-center h-full gap-2">
@@ -194,16 +205,13 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                 placeholder="Buscar pedido por cliente"
               />
             </div>
-            {/* <div className="w-full">
+            {/*            <div className="w-full">
               <ComboBox
                 className="col-span-1 md:col-span-6"
-                value={watch("categoriaId")?.toString()}
-                values={categoriasOpt}
+                value={searchProducts.categoria}
+                values={([{ value: "", name: "Todos" }]).concat(enumToList(CategoryEnum))}
                 onChangeValue={(value) =>
-                  setSearchProduct({
-                    ...searchClient,
-                    categoria: value,
-                  })
+                  setSearchProduct({ ...searchProducts, categoria: value })
                 }
               />
             </div> */}
@@ -229,7 +237,8 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                 "ID",
                 "Cliente",
                 "Itens",
-                "Data Retirada",
+                " ",
+                "Data Entrega",
                 "Status",
                 "Valor Total",
                 "Ações",
@@ -237,24 +246,28 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
               className="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             />
             <Table.Body className="overflow-y-auto">
-              {pedidos?.content?.map((pedido) => (
+              {pedidos.content?.map((pedido) => (
                 <>
                   <Modal
                     isOpen={showItensModal}
                     title={`Itens do pedido ${pedido.id}`}
                     toggle={() => setShowItensModal(false)}
+                    classname="bg-opacity-[0.08]"
                   >
-                    <div className="flex gap-4 max-w-3xl">
+                    <div className="flex gap-4">
                       {itensModal?.map((item) => {
                         const images = item.produto.imagensProduto.map(
                           (images) => images.path
                         );
                         return (
-                          <ProductCard
-                            category={item.produto.categoria?.descricao}
-                            name={item.produto.descricao}
-                            images={images}
-                          />
+                          <div className="flex flex-col">
+                            <ProductCard
+                              category={item.produto.categoria?.descricao}
+                              name={item.produto.descricao}
+                              images={images}
+                              requestInfos={{ quantidade: item.quantidade, valorUnitario: item.valorUnitario, unidade: item.produto.unidade, observacao: item.observacao }}
+                            />
+                          </div>
                         );
                       })}
                     </div>
@@ -271,27 +284,32 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                       {pedido.cliente.nome}
                     </Table.Td>
                     <Table.Td>
+                      {pedido.itensPedido.map((value) => value.produto.descricao.concat(' / '))}
+                    </Table.Td>
+                    <Table.Td>
                       <ButtonTable
                         onClick={() => toggleShowModalItens(pedido.id)}
                       >
-                        Ver itens
+                        <BsBoxArrowInUpRight className={"text-lg"} />
                       </ButtonTable>
                     </Table.Td>
                     <Table.Td>
-                      {moment(pedido.dataRetirada).locale("pt-br").format("L")}
+                      {moment(pedido.dataEntrega)
+                        .locale("pt-br")
+                        .format("DD/MM/YYYY")}
                     </Table.Td>
-                    <Table.Td>{pedido.status}</Table.Td>
-                    <Table.Td>R$ {pedido.valorTotal}</Table.Td>
+                    <Table.Td>{enumDecode(RequestStatusEnum, pedido.status)}</Table.Td>
+                    <Table.Td>R$ {pedido.valorTotal.toFixed(2)}</Table.Td>
                     <Table.Td isButton={true}>
                       <div className="flex gap-3 mx-2">
                         <ButtonTable
-                          onClick={() => setIsOpenPedidoEdit(!isOpenPedidoEdit)}
+                          onClick={() => setarPedidoEdicao(pedido.id)}
                         >
                           <BsPencil className={"text-lg"} />
                         </ButtonTable>
                         <ButtonTable
                           variant="red"
-                          onClick={() => deleterPedido(pedido.id)}
+                          onClick={() => deletarPedido(pedido.id)}
                         >
                           <BsTrash className={"text-lg"} />
                         </ButtonTable>

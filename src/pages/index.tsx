@@ -7,28 +7,24 @@ import { BsMap, BsBasket, BsCalendar3 } from "react-icons/bs";
 import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion, useAnimation } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   const titleVariants = {
     initial: {
-      x: "100%", // Começa fora da tela à direita
       opacity: 0,
     },
     animate: {
-      x: 0, // Move para o centro da tela
       opacity: 1,
       transition: {
         duration: 1,
         type: "spring",
-        damping: 10,
-        stiffness: 100,
       },
     },
   };
 
   const squareVariants = {
-    visible: { opacity: 1, x: 0, transition: { duration: 1 } },
-    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, transition: { duration: 1 } },
   };
 
   const [ref, inView] = useInView();
@@ -43,13 +39,23 @@ export default function Home() {
     }
   }, [controls, inView]);
 
+  const textToSendWhatsApp = () => {
+    const numeroTelefone = "48999582066"; // Substitua pelo seu número de telefone do WhatsApp
+    const mensagem = encodeURIComponent(
+      `Olá! Gostaria de fazer um pedido`
+    );
+    const linkWhatsApp = `https://api.whatsapp.com/send?phone=${numeroTelefone}&text=${mensagem}`;
+
+    window.open(linkWhatsApp, "_blank");
+  };
+
   return (
     <div className="flex flex-col bg-red-50">
       <section className="flex flex-col h-screen">
         <div className="relative w-full left-0 overflow-hidden top-0 h-screen bg-[url('../assets/homeBackground.jpg')] bg-no-repeat bg-center bg-cover">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
             className="absolute flex flex-1 pt-[88px] w-full h-full justify-center text-white backdrop-brightness-95 bg-black bg-opacity-50"
           >
@@ -60,32 +66,36 @@ export default function Home() {
                 variants={titleVariants}
                 className="font-bold text-8xl text-center"
               >
-              Venha adoçar a sua vida!!!
+                Venha adoçar a sua vida!!!
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 1 }}
+                transition={{ delay: 1, duration: 1, type: "keyframes" }}
                 className="font-semibold text-lg text-center"
               >
-                Prove os melhores bolos, doces e salgados! Se delicie com nossos 
-                produtos de alta qualidade! Aqui você encontra nossas mercadorias 
+                Prove os melhores bolos, doces e salgados! Se delicie com nossos
+                produtos de alta qualidade! Aqui você encontra nossas mercadorias
                 de dar água na boca, tudo por um preço acessível e feito com muito amor.
               </motion.p>
               <div className="flex w-full max-w-xl mx-auto justify-center flex-col md:flex-row gap-5">
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 1.5, duration: 0.5 }}
                 >
-                  <Button>Cardápio</Button>
+                  <Button type="button" onClick={() => "/cardapio"} >
+                    <Link className="flex" href="/cardapio">
+                      Cardápio
+                    </Link>
+                  </Button>
                 </motion.div>
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 1.5, duration: 0.5 }}
                 >
-                  <Button variant="ghost">Faça um pedido</Button>
+                  <Button type={"button"} onClick={() => textToSendWhatsApp()} variant="ghost">Faça um pedido</Button>
                 </motion.div>
               </div>
             </div>
@@ -121,7 +131,7 @@ export default function Home() {
             />
             <h3 className="text-2xl font-bold text-primary">Missão</h3>
             <p className="text-base font-sans text-black text-center">
-              Servir aos nossos clientes doces, tortas e salgados da melhor 
+              Servir aos nossos clientes doces, tortas e salgados da melhor
               qualidade possível pelo melhor preço.
             </p>
           </motion.div>
@@ -158,7 +168,7 @@ export default function Home() {
             />
             <h3 className="text-2xl font-bold text-primary">Valores</h3>
             <p className="text-base font-sans text-black text-center">
-              Nossos valores são: Honestidade, diligência, criatividade e 
+              Nossos valores são: Honestidade, diligência, criatividade e
               proatividade.
             </p>
           </motion.div>

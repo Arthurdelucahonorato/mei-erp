@@ -1,5 +1,5 @@
 export enum RequestStatusEnum {
-  ACEITO = "ACEITO",
-  PENDENTE = "PENDENTE",
-  CANCELADO = "CANCELADO",
+  ACEITO = "Aceito",
+  FINALIZADO = "Finalizado",
+  CANCELADO = "Cancelado",
 }
