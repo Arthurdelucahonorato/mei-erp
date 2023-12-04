@@ -142,7 +142,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
 
   const [searchProducts, setSearchProduct] = useState({
     cliente: "",
-    categoria: ""
+    //categoria: ""
   });
 
   const search = () => {
@@ -151,6 +151,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
         ...pageQueries,
         ...searchProducts,
         cliente: searchProducts.cliente,
+        // categoria: searchProducts.categoria
       },
     });
   };
@@ -204,7 +205,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                 placeholder="Buscar pedido por cliente"
               />
             </div>
-            <div className="w-full">
+            {/*            <div className="w-full">
               <ComboBox
                 className="col-span-1 md:col-span-6"
                 value={searchProducts.categoria}
@@ -213,7 +214,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                   setSearchProduct({ ...searchProducts, categoria: value })
                 }
               />
-            </div>
+            </div> */}
             <div>
               <Button onClick={search}>Buscar</Button>
             </div>
@@ -251,6 +252,7 @@ export default function Pedidos({ pedidos, clientes, produtos }: PedidosProps) {
                     isOpen={showItensModal}
                     title={`Itens do pedido ${pedido.id}`}
                     toggle={() => setShowItensModal(false)}
+                    classname="bg-opacity-[0.08]"
                   >
                     <div className="flex gap-4">
                       {itensModal?.map((item) => {

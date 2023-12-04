@@ -84,11 +84,11 @@ export default function Dashboard({
               />
             </Box>
             <Box>
-              <p className="text-sm dark:text-white">
+              <p className="text-sm text-black dark:text-white">
                 Total de Pedidos Finalizados
               </p>
               <div className="flex items-center h-full">
-                <h3 className="text-4xl text-white">{pedidosFinalizados}</h3>
+                <h3 className="text-4xl text-black dark:text-white">{pedidosFinalizados}</h3>
               </div>
             </Box>
           </div>

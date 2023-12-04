@@ -10,7 +10,8 @@ export function PublicHeader() {
     const { pathname } = useRouter();
 
     return (
-        <div className={`flex flex-col align-middle justify-content-center w-full ${pathname === "/" ? "absolute bg-transparent" : "w-screen bg-black"} z-50 `}>
+        <div className={`flex flex-col align-middle justify-content-center w-full absolute bg-transparent z-50`}>
+            {/* <div className={`flex flex-col align-middle justify-content-center w-full ${pathname === "/" ? "absolute bg-transparent" : "w-screen bg-black"} z-50 `}> */}
             <nav className="flex flex-col md:flex-row justify-between flex-wrap p-6 w-full">
                 <div className='flex flex-1 flex-row items-center'>
                     <div className='flex flex-1 flex-col md:flex-row-reverse gap-5 '>
