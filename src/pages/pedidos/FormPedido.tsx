@@ -96,7 +96,7 @@ export default function FormPedido({
   useEffect(() => {
     if (pedidoEdicao) {
       reset();
-      setValue("clienteId", String(pedidoEdicao.cliente.id));
+      setValue("clienteId", pedidoEdicao.cliente.id);
       setValue("nomeCliente", pedidoEdicao.cliente.nome);
       setValue(
         "dataPedido",
@@ -133,7 +133,7 @@ export default function FormPedido({
   };
 
   const validateRegister = z.object({
-    clienteId: z.string().nonempty("Campo obrigatório"),
+    clienteId: z.number({ required_error: "Campo obrigatório", invalid_type_error: "Campo obrigatório", }),
     nomeCliente: z.string().optional(),
     dataPedido: z.string().nonempty("Campo obrigatório"),
     dataEntrega: z.string().nonempty("Campo obrigatório"),
@@ -162,7 +162,7 @@ export default function FormPedido({
         categoria: z.string(),
         unidade: z.string(),
       })
-    ),
+    )
   });
 
   type ValidateData = z.infer<typeof validateRegister>;
@@ -201,8 +201,11 @@ export default function FormPedido({
         valorUnitario: Number(value.valorUnitario),
       };
     });
+    if (reqBodyItensPedido.length == 0) {
+      return toast.error("É Necessário informar pelo menos um item do pedido");
+    }
     const reqBody = {
-      clienteId: Number(data.clienteId),
+      clienteId: data.clienteId,
       dataPedido:
         moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
         "Z",
@@ -242,6 +245,9 @@ export default function FormPedido({
         valorUnitario: Number(value.valorUnitario),
       };
     });
+    if (reqBodyItensPedido.length == 0) {
+      return toast.error("É Necessário informar pelo menos um item do pedido");
+    }
     const reqBody = {
       clienteId: data.clienteId,
       dataPedido:
@@ -288,6 +294,7 @@ export default function FormPedido({
         toggle={() => setOpenModalProducts(false)}
         title={"Buscar produto"}
       >
+
         <Table.Root>
           <Table.Header
             headers={["ID", "Nome", "Categoria", "Unidade", "Ações"]}

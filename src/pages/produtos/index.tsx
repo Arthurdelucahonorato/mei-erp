@@ -1,43 +1,25 @@
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
-import { paginate } from "@/utils/paginate";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/Button";
-import moment from "moment";
 import "moment/locale/pt-br";
 import { BsCartPlus, BsPencil, BsTrash } from "react-icons/bs";
 import { MountTransition } from "@/components/AnimatedRoutes/MountTransition";
 import { Input } from "@/components/Input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Table } from "@/components/Table/index";
-import { getAllRequests } from "@/services/api/requests/get-all-requests";
 import { ButtonTable } from "@/components/Table/ButtonTable";
-import Lov from "@/components/Lov";
-import ComboBox from "@/components/ComboBox";
 import {
   ProductSearchQueries,
   getAllProducts,
 } from "@/services/api/products/get-all-products";
-import { getAllCategories } from "@/services/api/categories/get-all-categories";
-import { getAllVariations } from "@/services/api/variations/get-all-variations";
-import { createProduct } from "@/services/api/products/create-product";
-import { Unit } from "@/types/enum/unit.enum";
 import { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
-import { api } from "@/services/api/api";
 import toast from "react-hot-toast";
 import { deleteProduct } from "@/services/api/products/delete-product";
 import { Product } from "@/types/product";
 import { CategoryEnum } from "@/types/enum/category.enum";
-import { enumToList } from "@/utils/enumToList";
 import { enumDecode } from "@/utils/enumDecode";
-
-const valoresCombo = [
-  { value: "QUILOGRAMAS", name: "kg" },
-  { value: "UNIDADE", name: "un" },
-];
+import FormProduto from "./FormProduto";
 
 interface ProdutoProps {
   items: number;
@@ -69,162 +51,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function produtos({ produtos, categorias }: ProdutoProps) {
   const [isOpenProdutoRegister, setIsOpenProdutoRegister] = useState(false);
   const [isOpenProdutoEdit, setIsOpenProdutoEdit] = useState(false);
-  const [lovIsOpen, setLovIsOpen] = useState(false);
-
-  const { reload } = useRouter();
-
-  const toogleProdutoRegister = () => {
-    setIsOpenProdutoRegister(!isOpenProdutoRegister);
-  };
-  const toogleProdutoEdit = () => {
-    setIsOpenProdutoEdit(!isOpenProdutoEdit);
-  };
-
-  const validateRegister = z.object({
-    imagensProduto: z.any().optional(),
-    descricao: z.string().nonempty("Campo obrigatório"),
-    categoria: z.nativeEnum(CategoryEnum),
-    unidade: z.nativeEnum(Unit),
-  });
-
-  type ValidateData = z.infer<typeof validateRegister>;
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<ValidateData>({
-    mode: "onSubmit",
-    resolver: zodResolver(validateRegister),
-  });
-
-  const submitFormRegister = async (data: ValidateData) => {
-    try {
-      const formData = new FormData();
-
-      if (data.imagensProduto && data.imagensProduto.length > 0) {
-        for (let i = 0; i < data.imagensProduto.length; i++) {
-          formData.append("imagensProduto", data.imagensProduto[i]);
-        }
-      }
-
-      formData.append("descricao", data.descricao);
-      formData.append("categoria", data.categoria.toString());
-      formData.append("unidade", data.unidade);
-
-      await toast.promise(createProduct(formData), {
-        error: (data) => data.response.data.message,
-        loading: "Cadastrando produto...",
-        success: (data) => {
-          setIsOpenProdutoRegister(false);
-          reload();
-          return data.message;
-        },
-      });
-    } catch (error: any) {
-      toast(error.response.data.message);
-      return;
-    }
-  };
-  // const submitFormEdit = async ({
-  //   codigoProduto,
-  //   nomeProduto,
-  //   categoria,
-  //   unidade,
-  // }: ValidateData) => {
-  //   try {
-  //     console.log("Editou");
-  //   } catch (error: any) {
-  //     return;
-  //   }
-  // };
-
-  interface FormProdutoType {
-    formProdutoIsOpen: boolean;
-    titleModal: String;
-    toogleFormProduto: () => void;
-    submitFormProduto: () => void;
-  }
-
-  const FormProduto = ({
-    formProdutoIsOpen,
-    titleModal,
-    toogleFormProduto,
-    submitFormProduto,
-    ...props
-  }: FormProdutoType) => {
-    return (
-      <Modal
-        isOpen={formProdutoIsOpen}
-        toggle={toogleFormProduto}
-        title={titleModal}
-      >
-        <form
-          className="max-w-2xl grid gap-4 grid-cols-3 px-3 md:grid-cols-12"
-          onSubmit={handleSubmit(submitFormRegister)}
-        >
-          <Input
-            containerClassName="col-span-3 md:col-span-12"
-            {...register("descricao")}
-            label="Nome"
-            htmlFor="nomeProduto"
-            errorMessage={errors.descricao?.message}
-            type="text"
-            placeholder="Nome do Produto"
-            required
-          />
-
-          <ComboBox
-            className="col-span-1 md:col-span-6"
-            value={watch("categoria")?.toString()}
-            values={enumToList(CategoryEnum)}
-            errorMessage={errors.categoria?.message}
-            label="Categoria do produto"
-            onChangeValue={(value) =>
-              setValue("categoria", value as CategoryEnum)
-            }
-          />
-
-          <ComboBox
-            className="col-span-1 md:col-span-6"
-            value={watch("unidade")?.toString()}
-            values={enumToList(Unit)}
-            errorMessage={errors.unidade?.message}
-            label="Tipo de unidade"
-            onChangeValue={(value) => setValue("unidade", value as Unit)}
-          />
-          <Input
-            {...register("imagensProduto")}
-            type="file"
-            multiple
-            // accept="image/*"
-            label="Imagem"
-            containerClassName="col-span-12"
-          />
-
-          <div className="ml-auto col-span-3 md:col-span-12">
-            <Button type="submit">{titleModal}</Button>
-          </div>
-        </form>
-      </Modal>
-    );
-  };
-
   const [isOpenImagesModal, setIsOpenImagesModal] = useState(false);
-
+  const [productToEdit, setProductToEdit] = useState<Product>();
   const [productImages, setProductImages] = useState<Product>();
-
   const [searchClient, setSearchClient] = useState({
     descricao: "",
   });
 
   const openModalProductImages = (produtoId: number) => {
     const product = produtos.content.find((produto) => produto.id == produtoId);
-
     setProductImages(product);
-
     setIsOpenImagesModal(true);
   };
 
@@ -265,6 +101,13 @@ export default function produtos({ produtos, categorias }: ProdutoProps) {
     }
   };
 
+  const setarProdutoEdicao = (id: number) => {
+    const produto = produtos.content.find((produto) => produto.id == id);
+    setProductToEdit(produto);
+    setIsOpenProdutoEdit(!isOpenProdutoEdit);
+  };
+
+
   return (
     <MountTransition className="flex flex-1 w-full flex-col h-full justify-between">
       <div className="flex flex-1 flex-col w-full h-full justify-between">
@@ -278,15 +121,14 @@ export default function produtos({ produtos, categorias }: ProdutoProps) {
 
         <FormProduto
           formProdutoIsOpen={isOpenProdutoRegister}
-          toogleFormProduto={toogleProdutoRegister}
+          toogleFormProduto={() => setIsOpenProdutoRegister(!isOpenProdutoRegister)}
           titleModal={"Cadastrar Produto"}
-          submitFormProduto={handleSubmit(submitFormRegister)}
         />
         <FormProduto
           formProdutoIsOpen={isOpenProdutoEdit}
-          toogleFormProduto={toogleProdutoEdit}
-          titleModal={"EditarProduto"}
-          submitFormProduto={() => console.log("editar")}
+          toogleFormProduto={() => setIsOpenProdutoEdit(!isOpenProdutoEdit)}
+          titleModal={"Editar Produto"}
+          produtoEdicao={productToEdit}
         />
 
         <div className="flex w-full justify-between">
@@ -321,7 +163,7 @@ export default function produtos({ produtos, categorias }: ProdutoProps) {
             </div>
           </div>
           <div className="flex p-2">
-            <Button onClick={() => toogleProdutoRegister()}>
+            <Button onClick={() => setIsOpenProdutoRegister(!isOpenProdutoRegister)}>
               <div className="flex gap-3">
                 <BsCartPlus className="text-xl" /> Cadastrar Produto
               </div>
@@ -377,7 +219,7 @@ export default function produtos({ produtos, categorias }: ProdutoProps) {
 
                     <Table.Td isButton={true}>
                       <div className="flex gap-2 mx-2">
-                        <ButtonTable onClick={toogleProdutoEdit}>
+                        <ButtonTable onClick={() => setarProdutoEdicao(produto.id)}>
                           <BsPencil className={"text-lg"} />
                         </ButtonTable>
                         <ButtonTable

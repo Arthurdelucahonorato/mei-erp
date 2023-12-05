@@ -1,6 +1,6 @@
 export enum PaymentMethodsEnum {
     PIX = "PIX",
     DINHEIRO = "Dinheiro",
-    CREDITO = "Cartão Crédito",
-    DEBITO = "Cartão Débito",
+    CARTAO_DE_CREDITO = "Cartão Crédito",
+    CARTAO_DE_DEBITO = "Cartão Débito",
 }
