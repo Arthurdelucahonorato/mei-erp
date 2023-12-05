@@ -3,6 +3,7 @@ import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/Input";
 import Modal from "@/components/Modal";
 import { createProduct } from "@/services/api/products/create-product";
+import { editProduct } from "@/services/api/products/edit-product";
 import { CategoryEnum } from "@/types/enum/category.enum";
 import { Unit } from "@/types/enum/unit.enum";
 import { Product } from "@/types/product";
@@ -80,8 +81,26 @@ export default function FormProduto({ formProdutoIsOpen, titleModal, produtoEdic
     };
     const submitFormEdit = async (id: number, data: ValidateData) => {
         try {
-            console.log("Editou");
+            const formData = new FormData();
+            if (data.imagensProduto && data.imagensProduto.length > 0) {
+                for (let i = 0; i < data.imagensProduto.length; i++) {
+                    formData.append("imagensProduto", data.imagensProduto[i]);
+                }
+            }
+            formData.append("descricao", data.descricao);
+            formData.append("categoria", data.categoria.toString());
+            formData.append("unidade", data.unidade);
+
+            await toast.promise(editProduct(id, formData), {
+                error: (data) => data.response.data.message,
+                loading: "Editando produto...",
+                success: (data) => {
+                    reload();
+                    return data.message;
+                },
+            });
         } catch (error: any) {
+            toast(error.response.data.message);
             return;
         }
     };
