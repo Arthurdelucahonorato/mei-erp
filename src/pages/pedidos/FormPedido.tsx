@@ -43,6 +43,7 @@ import { enumToList } from "@/utils/enumToList";
 import { PaymentMethodsEnum } from "@/types/enum/paymentMethods.enum";
 import { RequestStatusEnum } from "@/types/enum/request.status.enum";
 import { DeliveryModalityEnum } from "@/types/enum/deliveryModality.enum";
+import { error } from "console";
 
 interface FormPedidosType {
   formPedidoIsOpen: boolean;
@@ -143,21 +144,11 @@ export default function FormPedido({
     observacao: z.string().optional(),
     itensPedido: z.array(
       z.object({
-        id: z.number(),
-        produtoId: z.number({
-          required_error: "Campo obrigatório",
-          invalid_type_error: "Campo obrigatório",
-        }),
-        quantidade: z.number({
-          required_error: "Campo obrigatório",
-          invalid_type_error: "Campo obrigatório",
-        }),
+        id: z.number().optional(),
+        produtoId: z.any(),
+        quantidade: z.any(),
         observacao: z.string().optional(),
-        valorUnitario: z.number({
-          required_error: "Campo obrigatório",
-          invalid_type_error: "Campo obrigatório",
-        }),
-
+        valorUnitario: z.any(),
         produtoDescricao: z.string(),
         categoria: z.string(),
         unidade: z.string(),
@@ -193,87 +184,115 @@ export default function FormPedido({
   };
 
   const submitFormRegister = async (data: ValidateData) => {
-    const reqBodyItensPedido = data.itensPedido.map((value) => {
-      return {
-        produtoId: Number(value.produtoId),
-        quantidade: Number(value.quantidade),
-        observacao: value.observacao,
-        valorUnitario: Number(value.valorUnitario),
-      };
-    });
-    if (reqBodyItensPedido.length == 0) {
-      return toast.error("É Necessário informar pelo menos um item do pedido");
-    }
-    const reqBody = {
-      clienteId: data.clienteId,
-      dataPedido:
-        moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
-        "Z",
-      dataEntrega:
-        moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
-        "Z",
-      status: data.status,
-      formaPagamento: data.formaPagamento,
-      modalidadeEntrega: data.modalidadeEntrega,
-      observacao: data.observacao,
-      itensPedido: reqBodyItensPedido,
-    };
     try {
-      toast.promise(registerRequest(reqBody), {
-        loading: "Salvando novo pedido",
-        success: (d) => {
-          reload();
-          return d.message;
-        },
-        error: (error) => {
-          return error.response.data.message;
-        },
+      const reqBodyItensPedido = data.itensPedido.map((value) => {
+        return {
+          produtoId: Number(value.produtoId),
+          quantidade: Number(value.quantidade),
+          observacao: value.observacao,
+          valorUnitario: Number(value.valorUnitario),
+        };
       });
+
+      if (reqBodyItensPedido.length == 0) {
+        throw new Error("É Necessário informar pelo menos um item do pedido");
+      }
+      reqBodyItensPedido.map((value) => {
+        if (value.quantidade == 0 || value.quantidade == null || value.quantidade == undefined) {
+          throw new Error("É Necessário informar uma quantidade maior que 0");
+        }
+        if (value.valorUnitario == 0 || value.valorUnitario == null || value.valorUnitario == undefined) {
+          throw new Error("É Necessário informar um valor unitário maior que 0");
+        }
+      })
+      const reqBody = {
+        clienteId: data.clienteId,
+        dataPedido:
+          moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+          "Z",
+        dataEntrega:
+          moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+          "Z",
+        status: data.status,
+        formaPagamento: data.formaPagamento,
+        modalidadeEntrega: data.modalidadeEntrega,
+        observacao: data.observacao,
+        itensPedido: reqBodyItensPedido,
+      };
+      try {
+        toast.promise(registerRequest(reqBody), {
+          loading: "Salvando novo pedido",
+          success: (d) => {
+            reload();
+            return d.message;
+          },
+          error: (error) => {
+            return error.response.data.message;
+          },
+        });
+      } catch (error: any) {
+        toast.error(error.response.data.message);
+        return;
+      }
     } catch (error: any) {
-      toast.error(error.response.data.message);
-      return;
+      toast.error(error.message);
     }
   };
 
   const submitFormEdit = async (id: number, data: ValidateData) => {
-    const reqBodyItensPedido = data.itensPedido.map((value) => {
-      return {
-        id: Number(value.id),
-        produtoId: Number(value.produtoId),
-        quantidade: Number(value.quantidade),
-        observacao: value.observacao,
-        valorUnitario: Number(value.valorUnitario),
-      };
-    });
-    if (reqBodyItensPedido.length == 0) {
-      return toast.error("É Necessário informar pelo menos um item do pedido");
-    }
-    const reqBody = {
-      clienteId: data.clienteId,
-      dataPedido:
-        moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
-        "Z",
-      dataEntrega:
-        moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
-        "Z",
-      status: data.status,
-      formaPagamento: data.formaPagamento,
-      modalidadeEntrega: data.modalidadeEntrega,
-      observacao: data.observacao,
-      itensPedido: reqBodyItensPedido,
-    };
     try {
-      toast.promise(editRequest(id, reqBody), {
-        loading: "Salvando alterações do pedido",
-        success: (d) => {
-          reload();
-          return d.message;
-        },
-        error: (error) => error.response.data.message,
+      const reqBodyItensPedido = data.itensPedido.map((value) => {
+        return {
+          id: Number(value.id),
+          produtoId: Number(value.produtoId),
+          quantidade: Number(value.quantidade),
+          observacao: value.observacao,
+          valorUnitario: Number(value.valorUnitario),
+        };
       });
+
+      if (reqBodyItensPedido.length == 0) {
+        throw new Error("É Necessário informar pelo menos um item do pedido");
+      }
+      reqBodyItensPedido.map((value) => {
+        if (value.quantidade == 0 || value.quantidade == null || value.quantidade == undefined) {
+          throw new Error("É Necessário informar uma quantidade maior que 0");
+        }
+        if (value.valorUnitario == 0 || value.valorUnitario == null || value.valorUnitario == undefined) {
+          throw new Error("É Necessário informar um valor unitário maior que 0");
+        }
+      })
+
+
+      const reqBody = {
+        clienteId: data.clienteId,
+        dataPedido:
+          moment(data.dataPedido).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+          "Z",
+        dataEntrega:
+          moment(data.dataEntrega).locale("pt-br").format("yyyy-MM-DDThh:mm:ss") +
+          "Z",
+        status: data.status,
+        formaPagamento: data.formaPagamento,
+        modalidadeEntrega: data.modalidadeEntrega,
+        observacao: data.observacao,
+        itensPedido: reqBodyItensPedido,
+      };
+      try {
+        toast.promise(editRequest(id, reqBody), {
+          loading: "Salvando alterações do pedido",
+          success: (d) => {
+            reload();
+            return d.message;
+          },
+          error: (error) => error.response.data.message,
+        });
+      } catch (error: any) {
+        toast.error(error.response.data.message);
+        return;
+      }
     } catch (error: any) {
-      toast.error(error.response.data.message);
-      return;
+      toast.error(error.message);
     }
   };
 
@@ -480,24 +499,32 @@ export default function FormPedido({
                     className="w-20"
                     htmlFor={`idItemPedido-${itemPedido.id}`}
                     {...register(`itensPedido.${index}.id`)}
+                    errorMessage={errors.itensPedido?.message}
+
                   />
-                  <Input
+
+                  <InputTable
                     disabled
                     className="w-60 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     {...register(`itensPedido.${index}.produtoDescricao`)}
                     htmlFor={`produtoDescricaoItemPedido-${itemPedido.id}`}
+                    errorMessage={errors.itensPedido?.message}
+
                   />
                   <InputTable
                     disabled
                     className="w-44"
                     {...register(`itensPedido.${index}.categoria`)}
                     htmlFor={`categoriaItemPedido-${itemPedido.id}`}
+                    errorMessage={errors.itensPedido?.message}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
                     className="w-16"
                     {...register(`itensPedido.${index}.quantidade`)}
                     htmlFor={`quantidadeItemPedido-${itemPedido.id}`}
+
                   />
                   <InputTable
                     textDirection={"text-end"}
@@ -510,6 +537,8 @@ export default function FormPedido({
                     className="w-20"
                     {...register(`itensPedido.${index}.unidade`)}
                     htmlFor={`unidadeItemPedido-${itemPedido.id}`}
+                    errorMessage={errors.itensPedido?.message}
+
                   />
                   <div className="flex flex-1 flex-row justify-center items-center max-w-md gap-3 mr-2">
                     <ButtonTable
