@@ -47,17 +47,16 @@ export const Menus = [
   // },
   {
     title: "Relatorios",
-    spacing: true,
     icon: <BsFiletypePdf />,
     href: "/relatorios",
   },
-  {
-    title: "Configurações",
-    icon: <BsGear />,
-    spacing: true,
-    href: "/configuracoes",
-  },
-  { title: "Sair", icon: <BsXCircle />, href: "/login" },
+  // {
+  //   title: "Configurações",
+  //   icon: <BsGear />,
+  //   spacing: true,
+  //   href: "/configuracoes",
+  // },
+  { title: "Sair", spacing: true, icon: <BsXCircle />, href: "/login" },
 ];
 
 export function PrivateHeader() {
@@ -68,12 +67,14 @@ export function PrivateHeader() {
 
   return (
     <div
-      className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-theme-dark.150 ${open ? "w-72" : "w-20"
-        } duration-300 relative`}
+      className={`flex flex-col align-middle justify-content-center h-auto bg-white dark:bg-theme-dark.150 ${
+        open ? "w-72" : "w-20"
+      } duration-300 relative`}
     >
       <BsArrowLeftShort
-        className={`text-black text-4xl dark:text-white z-10 rounded-full absolute -right-4 top-2 cursor-pointer ${!open && "rotate-180"
-          } p-1.5`}
+        className={`text-black text-4xl dark:text-white z-10 rounded-full absolute -right-4 top-2 cursor-pointer ${
+          !open && "rotate-180"
+        } p-1.5`}
         onClick={() => setOpen(!open)}
       />
       <div className={`flex items-center px-3 mt-8 mb-4 justify-center`}>
@@ -94,11 +95,14 @@ export function PrivateHeader() {
 
                 // : setsubMenuClientActive(false)
               }
-              className={`flex flex-row ${!open ? "justify-center" : "justify-start"
-                } items-center gap-x-3 cursor-pointer ${pathname === menu.href &&
+              className={`flex flex-row ${
+                !open ? "justify-center" : "justify-start"
+              } items-center gap-x-3 cursor-pointer ${
+                pathname === menu.href &&
                 "bg-primary text-white hover:text-white dark:bg-secondary hover:dark:text-white"
-                } hover:text-primary hover:dark:text-secondary rounded-md ${menu.spacing ? "mt-9" : "mt-2"
-                }`}
+              } hover:text-primary hover:dark:text-secondary rounded-md ${
+                menu.spacing ? "mt-9" : "mt-2"
+              }`}
             >
               <button
                 onClick={() => {
@@ -107,16 +111,19 @@ export function PrivateHeader() {
                   }
                   push(menu.href);
                 }}
-                className={`group flex flex-1 flex-row ${!open ? "justify-center" : "justify-start"
-                  } gap-x-3 items-center px-2.5 py-1  ${!subMenuClientActive ? "" : ""
-                  } `}
+                className={`group flex flex-1 flex-row ${
+                  !open ? "justify-center" : "justify-start"
+                } gap-x-3 items-center px-2.5 py-1  ${
+                  !subMenuClientActive ? "" : ""
+                } `}
               >
                 <span className="flex align-middle text-xl py-1 float-left duration-300 font-medium">
                   {!open && (
                     <span
-                      className={`-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-100 dark:bg-theme-dark.150 p-2 text-xs group-hover:scale-100 ${pathname === menu.href &&
+                      className={`-my-1.5 ml-14 absolute scale-0 rounded whitespace-nowrap bg-gray-100 dark:bg-theme-dark.150 p-2 text-xs group-hover:scale-100 ${
+                        pathname === menu.href &&
                         "bg-primary text-white hover:text-white dark:bg-secondary hover:dark:text-white"
-                        } hover:text-primary hover:dark:text-secondary`}
+                      } hover:text-primary hover:dark:text-secondary`}
                     >
                       {menu.title}
                     </span>
@@ -124,8 +131,9 @@ export function PrivateHeader() {
                   {menu.icon ? menu.icon : <BsExclamationCircle />}
                 </span>
                 <span
-                  className={`z-auto text-base text-md font-medium whitespace-nowrap ${!open ? "scale-0 hidden" : "scale-100"
-                    } duration-300`}
+                  className={`z-auto text-base text-md font-medium whitespace-nowrap ${
+                    !open ? "scale-0 hidden" : "scale-100"
+                  } duration-300`}
                 >
                   {menu.title}
                 </span>
